@@ -237,7 +237,7 @@ def sellerorder(request):
             active_orders += 1
         if item.order.order_status=="shipped":
             shipments_out += 1
-        revenue += item.order.total_amount
+        revenue += item.price_at_purchase
     return render(request,"seller/sellerordermanagement.html",{"order":order,"active_orders":active_orders,"shipments_out":shipments_out,"revenue":revenue})
 
 @seller_required
