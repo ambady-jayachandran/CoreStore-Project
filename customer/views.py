@@ -6,7 +6,7 @@ from seller.models import *
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import F
+from django.db.models import F, Q, Count
 from decimal import Decimal
 
 from django.shortcuts import render
@@ -31,24 +31,63 @@ def home(request):
 
 def products(request):
     """View to display products page with New Arrivals section and All Products section"""
+    from django.db.models import Count
     
-    # Get all approved and active products
-    all_products = ProductVariant.objects.filter(
+    # Get filter/sort params
+    category_id = request.GET.get('category_id')
+    sort = request.GET.get('sort', 'newest')
+    
+    # Base queryset for all approved/active products
+    base_qs = ProductVariant.objects.filter(
         product__approval_status='APPROVED',
         product__is_active=True
-    ).select_related('product', 'product__subcategory').prefetch_related('images')
+    ).select_related('product', 'product__subcategory__category').prefetch_related('images')
     
-    # Get new arrivals - products created in the last 7 days
+    # Apply category filter
+    if category_id:
+        base_qs = base_qs.filter(product__subcategory__category_id=category_id)
+    
+    # Apply sorting
+    if sort == 'price_asc':
+        base_qs = base_qs.order_by('selling_price')
+    elif sort == 'price_desc':
+        base_qs = base_qs.order_by('-selling_price')
+    elif sort == 'name_asc':
+        base_qs = base_qs.order_by('product__name')
+    elif sort == 'name_desc':
+        base_qs = base_qs.order_by('-product__name')
+    elif sort == 'newest':
+        base_qs = base_qs.order_by('-created_at')
+    elif sort == 'oldest':
+        base_qs = base_qs.order_by('created_at')
+    
+    all_products = base_qs
+    
+    # New arrivals (filtered/sorted same way, last 7 days)
     seven_days_ago = timezone.now() - timedelta(days=7)
     new_arrivals = all_products.filter(created_at__gte=seven_days_ago)
     
-    # Get categories for the nav
-    categories = Category.objects.all()
+# Categories with product counts for sidebar - ALL active categories
+    categories_qs = Category.objects.filter(is_active=True).annotate(
+        product_count=Count(
+            'subcategories__products',
+            filter=Q(subcategories__products__approval_status='APPROVED', subcategories__products__is_active=True),
+            distinct=True
+        )
+    )
+    
+    if category_id:
+        categories_qs = categories_qs.filter(id=category_id)
+    
+    categories = categories_qs
     
     context = {
         'all_products': all_products,
         'new_arrivals': new_arrivals,
-        'categories': categories
+        'categories': categories,
+        'category_filter': category_id,
+        'sort_filter': sort,
+        'total_products': all_products.count(),
     }
     
     if request.user.is_authenticated:
