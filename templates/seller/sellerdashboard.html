@@ -7,187 +7,263 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FAF9F6; color: #3E2723; scroll-behavior: smooth; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        .glass { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(62, 39, 35, 0.04); 
+        :root {
+            --brand-brown: #3E2723;
+            --brand-emerald: #10b981;
         }
-        
-        .stat-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
-        .stat-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.9); border-color: rgba(62, 39, 35, 0.1); }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #FAF9F6; 
+            color: var(--brand-brown);
+            overflow-x: hidden;
+        }
+
+        .sidebar-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--brand-emerald);
+        }
+
+        .dashboard-card {
+            background: white;
+            border: 1px solid rgba(62, 39, 35, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
         .orb {
-            position: fixed; width: 600px; height: 600px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 121, 107, 0.05) 0%, transparent 70%);
-            z-index: -1; filter: blur(100px); animation: drift 25s infinite alternate;
+            position: fixed; width: 40vw; height: 40vw; border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
+            z-index: -1; top: -10%; right: -10%; filter: blur(80px);
+            animation: pulse-orb 10s infinite alternate;
         }
 
-        @keyframes drift {
-            0% { transform: translate(-10%, -10%); }
-            100% { transform: translate(20%, 20%); }
+        @keyframes pulse-orb {
+            from { transform: scale(1); opacity: 0.5; }
+            to { transform: scale(1.2); opacity: 0.8; }
         }
 
-        .metric-glow { position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; filter: blur(40px); opacity: 0.2; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(62, 39, 35, 0.1); border-radius: 10px; }
     </style>
 </head>
 <body class="flex flex-col md:flex-row min-h-screen">
     <div class="orb"></div>
 
-    <aside class="w-full md:w-20 lg:w-64 bg-[#3E2723] flex md:flex-col sticky top-0 z-50 h-auto md:h-screen text-white border-b md:border-b-0 border-white/5">
-        <div class="p-6 flex items-center gap-3">
-            <div class="bg-emerald-500 p-2 rounded-xl text-white shadow-lg">
-                <i class="fa-solid fa-chart-pie text-sm"></i>
+    <aside class="w-full md:w-24 lg:w-72 bg-[#3E2723] flex md:flex-col sticky top-0 z-50 h-auto md:h-screen text-white border-r border-white/5 shadow-2xl">
+        <div class="p-8 flex items-center justify-center lg:justify-start gap-3">
+            <div class="bg-emerald-500 w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-emerald-900/20">
+                <i class="fa-solid fa-bolt text-lg"></i>
             </div>
-            <span class="font-black tracking-tighter text-xl hidden lg:block uppercase italic">Studio<span class="text-emerald-400">Pro</span></span>
+            <span class="font-bold tracking-tight text-xl hidden lg:block italic">Studio<span class="text-emerald-400">Pro</span></span>
         </div>
         
-        <nav class="flex-1 flex md:flex-col p-3 md:p-4 gap-2 overflow-x-auto no-scrollbar whitespace-nowrap md:mt-4">
-            <a href="#" class="flex items-center gap-3 px-5 py-4 bg-white/10 text-white rounded-2xl font-black text-[10px] uppercase shadow-xl">
-                <i class="fa-solid fa-gauge-high"></i> <span class="hidden lg:block">Dashboard</span>
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scroll py-4">
+            <a href="#" class="sidebar-item active flex items-center gap-4 px-4 py-3 rounded-xl transition-all group">
+                <i class="fa-solid fa-house-chimney text-emerald-400"></i>
+                <span class="text-sm font-semibold hidden lg:block">Dashboard</span>
             </a>
-            <a href="/sellerhome/" class="flex items-center gap-3 px-5 py-4 text-white/30 hover:text-white hover:bg-white/5 rounded-2xl font-black text-[10px] uppercase transition-all">
-                <i class="fa-solid fa-boxes-stacked"></i> <span class="hidden lg:block">Inventory</span>
+            <a href="/sellerhome/" class="sidebar-item flex items-center gap-4 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i class="fa-solid fa-cubes text-lg"></i>
+                <span class="text-sm font-semibold hidden lg:block">Inventory</span>
             </a>
-            <a href="/sellerorder/" class="flex items-center gap-3 px-5 py-4 text-white/30 hover:text-white hover:bg-white/5 rounded-2xl font-black text-[10px] uppercase transition-all">
-                <i class="fa-solid fa-receipt"></i> <span class="hidden lg:block">Orders</span>
+            <a href="/sellerorder/" class="sidebar-item flex items-center gap-4 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i class="fa-solid fa-receipt text-lg"></i>
+                <span class="text-sm font-semibold hidden lg:block">Order Management</span>
             </a>
-            <a href="/sellerinactive/" class="flex items-center gap-3 px-5 py-4 text-white/30 hover:text-white hover:bg-white/5 rounded-2xl font-black text-[10px] uppercase transition-all">
-                <i class="fa-solid fa-eye-slash"></i> <span class="hidden lg:block">Inactive products</span>
+            <a href="/sellerinactive/" class="sidebar-item flex items-center gap-4 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i class="fa-solid fa-eye-slash text-lg"></i>
+                <span class="text-sm font-semibold hidden lg:block">Inactive Stock</span>
             </a>
-            <a href="/sellerreturn/" class="flex items-center gap-3 px-5 py-4 text-white/30 hover:text-white hover:bg-white/5 rounded-2xl font-black text-[10px] uppercase transition-all">
-                <i class="fa-solid fa-truck-ramp-box"></i> <span class="hidden lg:block">Return details</span>
+            <a href="/sellerreturn/" class="sidebar-item flex items-center gap-4 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded-xl transition-all group">
+                <i class="fa-solid fa-rotate-left text-lg"></i>
+                <span class="text-sm font-semibold hidden lg:block">Returns</span>
             </a>
         </nav>
 
-        <div class="mt-auto p-4 border-t border-white/5 hidden md:block">
-            <a href="/sellerprofile/" class="group flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-all">
-                <div class="relative shrink-0">
-                    <img src="{{ seller.user.profile_image.url }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-white/10 group-hover:ring-[#00796B] transition-all">
-                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-[#00796B] border-2 border-[#3E2723] rounded-full"></div>
-                </div>
-                <div class="hidden lg:block overflow-hidden">
-                    <p class="text-[10px] font-black uppercase tracking-tight text-white/90 truncate">{{seller.user.username}}</p>
-                    <p class="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em]">Profile</p>
+        <div class="p-6 mt-auto border-t border-white/5">
+            <a href="/sellerprofile/" class="flex items-center gap-4 p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-all border border-white/5">
+                <img src="{{ seller.user.profile_image.url }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-emerald-500/50">
+                <div class="hidden lg:block">
+                    <p class="text-[11px] font-bold text-white uppercase">{{seller.user.username}}</p>
+                    <p class="text-[9px] text-emerald-400 font-medium">Enterprise Tier</p>
                 </div>
             </a>
         </div>
     </aside>
 
-    <main class="flex-1 p-6 md:p-10 lg:p-14 overflow-y-auto">
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
+    <main class="flex-1 p-6 md:p-12 lg:px-16 overflow-y-auto custom-scroll">
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
             <div>
-                <h1 class="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-[#3E2723]">
-                    Business <span class="text-emerald-500">Intelligence</span>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-[#3E2723] tracking-tight">
+                    Overview <span class="text-emerald-500 underline underline-offset-8 decoration-2 decoration-emerald-200">Insights</span>
                 </h1>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="w-8 h-[2px] bg-emerald-500"></span>
-                    <p class="text-[#3E2723]/40 text-[9px] font-black uppercase tracking-[0.3em]">Real-time Performance Analytics</p>
-                </div>
+                <p class="text-[#3E2723]/50 text-xs font-medium mt-3 tracking-wide">Last data sync: Just now</p>
             </div>
-            <div class="glass px-6 py-3 rounded-2xl flex items-center gap-4 border-emerald-100">
-                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#3E2723]/60">Sync: <span class="text-[#3E2723]">Active</span></p>
+            
+            <div class="flex items-center gap-3">
+                <div class="flex -space-x-2">
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center text-[10px] font-bold">JD</div>
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-brown-100 flex items-center justify-center text-[10px] font-bold">MK</div>
+                </div>
+                <button class="bg-[#3E2723] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-brown-900/20 hover:scale-105 transition-transform">
+                    Generate Report <i class="fa-solid fa-download ml-2 opacity-50"></i>
+                </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            
-            <div class="stat-card glass p-10 rounded-[3rem]">
-                <div class="metric-glow bg-emerald-500"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <div class="bg-emerald-500/10 p-4 rounded-[1.5rem] text-emerald-600">
-                        <i class="fa-solid fa-indian-rupee-sign text-2xl"></i>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="dashboard-card p-7 rounded-3xl relative overflow-hidden group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-600 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
+                        <i class="fa-solid fa-indian-rupee-sign text-lg"></i>
                     </div>
-                    <span class="text-[10px] font-black text-[#3E2723]/20 uppercase tracking-[0.2em]">Net Value</span>
+                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">Live</span>
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#3E2723]/40 mb-2">Total Gross Revenue</p>
-                <h3 class="text-5xl font-black text-[#3E2723] tracking-tighter">₹{{total_revenue}}</h3>
-                <div class="mt-8 pt-6 border-t border-[#3E2723]/5">
-                    <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Revenue Node: <span class="text-[#3E2723]">Synced</span></p>
+                <h4 class="text-[11px] font-bold text-[#3E2723]/40 uppercase tracking-widest">Total Gross Revenue</h4>
+                <div class="flex items-baseline gap-1 mt-2">
+                    <span class="text-3xl font-bold tracking-tight counter" data-target="{{total_revenue}}">₹0</span>
                 </div>
             </div>
 
-            <div class="stat-card glass p-10 rounded-[3rem]">
-                <div class="metric-glow bg-amber-500"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <div class="bg-amber-500/10 p-4 rounded-[1.5rem] text-amber-600">
-                        <i class="fa-solid fa-bag-shopping text-2xl"></i>
+            <div class="dashboard-card p-7 rounded-3xl relative overflow-hidden group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-amber-50 rounded-2xl text-amber-600 transition-colors group-hover:bg-amber-600 group-hover:text-white">
+                        <i class="fa-solid fa-truck-fast text-lg"></i>
                     </div>
-                    <span class="text-[10px] font-black text-[#3E2723]/20 uppercase tracking-[0.2em]">Shipments</span>
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#3E2723]/40 mb-2">Units Distributed</p>
-                <h3 class="text-5xl font-black text-[#3E2723] tracking-tighter">{{total_products}}</h3>
-                <div class="mt-8 pt-6 border-t border-[#3E2723]/5">
-                    <p class="text-[9px] font-black text-amber-500 uppercase tracking-widest">Inventory Exit: <span class="text-[#3E2723]">Verified</span></p>
+                <h4 class="text-[11px] font-bold text-[#3E2723]/40 uppercase tracking-widest">Units Distributed</h4>
+                <div class="flex items-baseline gap-1 mt-2">
+                    <span class="text-3xl font-bold tracking-tight counter" data-target="{{total_products}}">0</span>
                 </div>
             </div>
 
-            <div class="stat-card glass p-10 rounded-[3rem]">
-                <div class="metric-glow bg-indigo-500"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <div class="bg-indigo-500/10 p-4 rounded-[1.5rem] text-indigo-600">
-                        <i class="fa-solid fa-arrow-rotate-left text-2xl"></i>
+            <div class="dashboard-card p-7 rounded-3xl relative overflow-hidden group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-red-50 rounded-2xl text-red-600 transition-colors group-hover:bg-red-600 group-hover:text-white">
+                        <i class="fa-solid fa-box-open text-lg"></i>
                     </div>
-                    <span class="text-[10px] font-black text-[#3E2723]/20 uppercase tracking-[0.2em]">Claims</span>
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#3E2723]/40 mb-2">Total Return Claims</p>
-                <h3 class="text-5xl font-black text-[#3E2723] tracking-tighter">{{total_returns}}</h3>
-                <div class="mt-8 pt-6 border-t border-[#3E2723]/5">
-                    <p class="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Resolution: <span class="text-[#3E2723]">Pending</span></p>
+                <h4 class="text-[11px] font-bold text-[#3E2723]/40 uppercase tracking-widest">Active Claims</h4>
+                <div class="flex items-baseline gap-1 mt-2">
+                    <span class="text-3xl font-bold tracking-tight counter" data-target="{{total_returns}}">0</span>
                 </div>
             </div>
-
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="glass rounded-[3rem] p-10">
-                <div class="flex justify-between items-center mb-8">
-                    <h4 class="text-sm font-black uppercase tracking-widest text-[#3E2723]">Quick Stats</h4>
-                    <i class="fa-solid fa-ellipsis text-[#3E2723]/20"></i>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 dashboard-card rounded-[2.5rem] p-8 flex flex-col">
+                <div class="flex justify-between items-center mb-10">
+                    <div>
+                        <h3 class="font-bold text-lg">Growth Performance</h3>
+                        <p class="text-xs text-[#3E2723]/50">Projected vs Actual Revenue</p>
+                    </div>
+                    <select class="bg-gray-50 border-none text-[11px] font-bold rounded-lg px-3 py-2 outline-none cursor-pointer">
+                        <option>Current Quarter</option>
+                        <option>Last 6 Months</option>
+                    </select>
                 </div>
-                <div class="space-y-6">
-                    <div class="flex justify-between items-center p-5 bg-white/40 rounded-2xl border border-white/50">
-                        <span class="text-[10px] font-black uppercase text-[#3E2723]/40">Active Listings</span>
-                        <span class="text-base font-black text-[#3E2723]">{{ activelisting }}</span>
-                    </div>
-                    <div class="flex justify-between items-center p-5 bg-white/40 rounded-2xl border border-white/50">
-                        <span class="text-[10px] font-black uppercase text-[#3E2723]/40">Pending Orders</span>
-                        <span class="text-base font-black text-amber-600">{{ active_orders }}</span>
-                    </div>
-                    <div class="flex justify-between items-center p-5 bg-white/40 rounded-2xl border border-white/50">
-                        <span class="text-[10px] font-black uppercase text-[#3E2723]/40">Store Grade</span>
-                        <span class="text-base font-black text-emerald-600">A+</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass rounded-[3rem] p-10 bg-[#3E2723] text-white overflow-hidden relative group">
-                <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <h4 class="text-sm font-black uppercase tracking-widest mb-2">Growth Vector</h4>
-                <p class="text-[9px] text-white/40 uppercase mb-8">Quarterly Revenue Stream</p>
                 
-                <div class="flex items-end gap-2 h-32">
-                    <div class="w-full bg-white/5 rounded-t-lg h-1/2 hover:bg-emerald-500 transition-all cursor-pointer"></div>
-                    <div class="w-full bg-white/5 rounded-t-lg h-3/4 hover:bg-emerald-500 transition-all cursor-pointer"></div>
-                    <div class="w-full bg-white/10 rounded-t-lg h-2/3 hover:bg-emerald-500 transition-all cursor-pointer"></div>
-                    <div class="w-full bg-white/5 rounded-t-lg h-full hover:bg-emerald-500 transition-all cursor-pointer"></div>
-                    <div class="w-full bg-white/20 rounded-t-lg h-4/5 hover:bg-emerald-500 transition-all cursor-pointer"></div>
-                    <div class="w-full bg-emerald-500 rounded-t-lg h-5/6 shadow-lg shadow-emerald-500/20"></div>
+                <div class="flex items-end justify-between gap-4 h-48 px-2">
+                    <div class="w-full bg-emerald-50 rounded-t-xl h-1/3 hover:bg-emerald-200 transition-all cursor-pointer relative group">
+                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#3E2723] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">12%</div>
+                    </div>
+                    <div class="w-full bg-emerald-100 rounded-t-xl h-2/3 hover:bg-emerald-300 transition-all cursor-pointer"></div>
+                    <div class="w-full bg-emerald-50 rounded-t-xl h-1/2 hover:bg-emerald-200 transition-all cursor-pointer"></div>
+                    <div class="w-full bg-emerald-500 rounded-t-xl h-5/6 hover:bg-emerald-600 transition-all cursor-pointer shadow-lg shadow-emerald-500/20"></div>
+                    <div class="w-full bg-emerald-100 rounded-t-xl h-3/4 hover:bg-emerald-300 transition-all cursor-pointer"></div>
+                    <div class="w-full bg-emerald-50 rounded-t-xl h-2/3 hover:bg-emerald-200 transition-all cursor-pointer"></div>
+                    <div class="w-full bg-emerald-50 rounded-t-xl h-1/2 hover:bg-emerald-200 transition-all cursor-pointer"></div>
                 </div>
-                <div class="mt-6 flex justify-between text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">
-                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                <div class="mt-6 flex justify-between text-[10px] font-bold text-[#3E2723]/30 uppercase tracking-widest px-2">
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="dashboard-card rounded-[2.5rem] p-8">
+                    <h3 class="font-bold text-base mb-6">Internal Audit</h3>
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                <span class="text-xs font-bold text-[#3E2723]/60">Active Listings</span>
+                            </div>
+                            <span class="text-sm font-black">{{activelisting}}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                                <span class="text-xs font-bold text-[#3E2723]/60">Pending Orders</span>
+                            </div>
+                            <span class="text-sm font-black text-amber-600">{{active_orders}}</span>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                <span class="text-xs font-bold text-[#3E2723]/60">Store Health</span>
+                            </div>
+                            <span class="text-xs font-black px-2 py-1 bg-indigo-50 text-indigo-600 rounded">A+ Grade</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#3E2723] rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1">Tip of the day</p>
+                        <p class="text-sm font-medium leading-relaxed">Optimization: Adding clear images to your inactive products can increase sales by 40%.</p>
+                        <button class="mt-6 text-[11px] font-bold border-b border-emerald-400 pb-1 hover:text-emerald-400 transition-colors">Learn more</button>
+                    </div>
+                    <i class="fa-solid fa-lightbulb absolute -bottom-4 -right-4 text-white/5 text-8xl"></i>
                 </div>
             </div>
         </div>
 
-        <footer class="mt-20 py-10 opacity-20 text-center">
-            <p class="text-[9px] font-black uppercase tracking-[0.5em]">StudioPro Dashboard • Enterprise Edition • 2026</p>
+        <footer class="mt-16 py-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#3E2723]/40">StudioPro Dashboard v2.0</p>
+            <div class="flex gap-6">
+                <a href="#" class="text-[10px] font-bold text-[#3E2723]/40 hover:text-emerald-500">Support</a>
+                <a href="#" class="text-[10px] font-bold text-[#3E2723]/40 hover:text-emerald-500">Terms</a>
+            </div>
         </footer>
     </main>
+
+    <script>
+        // Smooth Counter Animation Logic
+        const counters = document.querySelectorAll('.counter');
+        const speed = 100;
+
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target').replace(/[₹,]/g, '');
+                const count = +counter.innerText.replace(/[₹,]/g, '');
+                const inc = target / speed;
+
+                if (count < target) {
+                    const nextVal = Math.ceil(count + inc);
+                    counter.innerText = counter.getAttribute('data-target').startsWith('₹') ? '₹' + nextVal.toLocaleString() : nextVal.toLocaleString();
+                    setTimeout(updateCount, 15);
+                } else {
+                    counter.innerText = counter.getAttribute('data-target');
+                }
+            };
+            updateCount();
+        });
+
+        // Toggle Sidebar Active State (Visual Only)
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active', 'text-white'));
+                this.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>
