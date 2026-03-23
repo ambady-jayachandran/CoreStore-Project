@@ -292,7 +292,6 @@ def user_login(request):
             username = user_obj.username
         except User.DoesNotExist:
             username = username_or_email
-            print(username)
             
         data = authenticate(request, username=username, password=password)
         
@@ -943,9 +942,121 @@ def user_orders(request):
 def user_track(request, order_id):
     return render(request, 'customer-templates/usertrack.html', {'order_id': order_id})
 
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(
+        Order.objects.prefetch_related(
+            'items__variant__product',
+            'items__variant__images'
+        ).select_related('shipping_address'),
+        id=order_id,
+        user=request.user
+    )
+    context = {
+        'order': order,
+        'order_items': order.items.all(),
+        'order_status_display': order.order_status.replace('_', ' ').title()
+    }
+    
+
+    # Add review eligibility for delivered orders with review status
+    eligible_items = []
+    review_status = {}
+    if order.order_status == 'delivered':
+        eligible_items = order.items.all()
+        # Get user's existing reviews for products in this order
+        product_ids = [item.variant.product.id for item in eligible_items]
+        user_reviews = Review.objects.filter(
+            user=request.user,
+            product_id__in=product_ids
+        )
+    review_status_list = [(review.product_id, review) for review in user_reviews]
+    context['eligible_items'] = eligible_items
+    context['review_status_list'] = review_status_list
+
+    
+    return render(request, 'customer-templates/order-detail.html', context)
+
+@login_required
+def my_reviews(request):
+    reviews = Review.objects.filter(
+        user=request.user
+).select_related('product').prefetch_related('product__variants__images').order_by('-created_at')
+    
+    paginator = Paginator(reviews, 10)
+    page = request.GET.get('page')
+    reviews_page = paginator.get_page(page)
+    
+    context = {
+        'reviews_page': reviews_page,
+        'total_reviews': reviews.count()
+    }
+    return render(request, 'customer-templates/my-reviews.html', context)
+
+@login_required
+def submit_review(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        order_id = request.POST.get('order_id')
+        rating = int(request.POST.get('rating', 0))
+        comment = request.POST.get('comment', '').strip()
+        
+        if not product_id or not order_id or rating < 1 or rating > 5:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'message': 'Invalid input'})
+            messages.error(request, 'Invalid input')
+            return redirect('order_detail', order_id=order_id)
+        
+        product = get_object_or_404(Product, id=product_id)
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        
+        review, created = Review.objects.get_or_create(
+            user=request.user,
+            product=product,
+            defaults={'rating': rating, 'comment': comment}
+        )
+        
+        if not created:
+            review.rating = rating
+            review.comment = comment
+            review.is_edited = True
+            review.save()
+        
+        messages.success(request, f"{'Review created' if created else 'Review updated'} successfully!")
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Review submitted/updated!',
+                'created': created
+            })
+    
+    return redirect('order_detail', order_id=order_id)
 
 
-
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    product = review.product
+    
+    if request.method == 'POST':
+        rating = int(request.POST.get('rating', 0))
+        comment = request.POST.get('comment', '').strip()
+        
+        if 1 <= rating <= 5:
+            review.rating = rating
+            review.comment = comment
+            review.is_edited = True
+            review.save()
+            messages.success(request, 'Review updated successfully!')
+            return redirect('my_reviews')
+        else:
+            messages.error(request, 'Rating must be between 1 and 5 stars.')
+    
+    context = {
+        'review': review,
+        'product': product,
+    }
+    return render(request, 'customer-templates/edit-review.html', context)
 
 # Create your views here.
-

@@ -80,6 +80,13 @@ def product_single(request, slug):
                 variant=product
             ).exists()
     
+    # Reviews section
+    from customer.models import Review
+    from django.db.models import Avg
+    reviews = product.product.reviews.select_related('user').order_by('-created_at')[:12]
+    avg_result = reviews.aggregate(avg_rating=Avg('rating'))
+    avg_rating = avg_result['avg_rating'] or 0
+    
     return render(request, 'core-templates/productsingle.html', {
         "data": product, 
         'cart_count': cart_count,
@@ -87,8 +94,12 @@ def product_single(request, slug):
         'active_wishlist_id': active_wishlist_id,
         'active_wishlist_name': active_wishlist.wishlist_name if active_wishlist else request.user.username,
         'is_in_wishlist': is_in_wishlist,
-        'is_in_cart': is_in_cart
+        'is_in_cart': is_in_cart,
+        'reviews': reviews,
+        'avg_rating': round(float(avg_rating), 1),
+        'review_count': reviews.count()
     })
+
 
 # Deprecated - Buy Now now handled in customer.views.buy_now_checkout
 # @login_required

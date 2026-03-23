@@ -170,6 +170,23 @@
                 </div>
 
                 <div class="space-y-6 pt-6">
+                    <!-- Rating Section -->
+                    {% if avg_rating > 0 %}
+                    <div class="flex items-center gap-4 p-4 bg-emerald-50 border border-emerald-200 rounded-sm">
+                        <div class="flex text-xl">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= avg_rating %}
+                                    <i class="fas fa-star text-amber-400"></i>
+                                {% else %}
+                                    <i class="far fa-star text-amber-400"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div>
+                            <p class="font-bold text-emerald-800 text-sm">{{ avg_rating }}/5 ({{ review_count }} reviews)</p>
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="flex items-center bg-slate-50 p-3 border border-slate-100 rounded-sm">
                         <span class="text-[10px] font-black uppercase text-slate-400 mr-4">Quantity</span>
                         <div class="flex items-center bg-white border border-slate-200 p-1">

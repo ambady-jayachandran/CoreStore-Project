@@ -1,16 +1,10 @@
-# Fix NoReverseMatch for 'single_checkout'
+# Fix TemplateSyntaxError: Invalid filter 'get_item'
 
 ## Steps:
-# Fix completed successfully!
+- [x] 1. Delete `customer/templatetags/review_extras.py`
+- [x] 2. Update `customer/views.py` order_detail view to pass `review_status_list = [(r.product_id, r) for r in user_reviews]`
+- [x] 3. Update `templates/customer-templates/order-detail.html` to replace `get_item` usage with `for pid,review in review_status_list` loop matching `pid == item.variant.product.id`
+- [ ] 4. Restart server and test `/order/...`
+- [ ] 5. Mark complete
 
-**Changes made:**
-- Updated productsingle.html Buy Now form to use `{% url 'buy_now_checkout' data.slug %}` instead of missing 'single_checkout'
-- Removed deprecated/commented single_checkout URL from core/urls.py
-
-**Next steps for you:**
-1. Restart your Django development server: `cd "main project 1/Croestore" && python manage.py runserver`
-2. Visit http://127.0.0.1:8000/product/iphone-3455/
-3. Click "Buy Now" - it should now redirect to /customer/buy-now/iphone-3455/ without NoReverseMatch error.
-
-The NoReverseMatch error is fixed! 🎉
-
+**Current progress: Starting step 1**

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Review | CORE STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .star { cursor: pointer; transition: color 0.2s; color: #d1d5db; }
+        .star.filled { color: #fbbf24; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+
+    {% include 'core-templates/navbar.html' %}
+
+    <div class="h-24 lg:h-28"></div>
+
+    <main class="max-w-2xl mx-auto px-4 py-12">
+        
+        <!-- Header -->
+        <div class="glass p-8 mb-12 rounded-lg shadow-sm">
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900 mb-4">Edit Review</h1>
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <p class="text-lg font-bold text-slate-700">{{ product.name }}</p>
+                        <p class="text-sm text-slate-500">{{ review.created_at|date:"M d, Y" }}{% if review.is_edited %} (Previously edited){% endif %}</p>
+                    </div>
+                </div>
+                <div class="flex text-2xl mb-4 justify-center">
+                    {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= review.rating %}
+                            <i class="star filled fas fa-star"></i>
+                        {% else %}
+                            <i class="star far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="glass p-8 rounded-lg shadow-sm max-w-2xl mx-auto">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-8">
+                    <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Update Rating</label>
+                    <div class="flex justify-center gap-1 mb-4" id="rating-stars">
+                        {% for star in "12345" %}
+                            <i class="star fas fa-star text-3xl edit-star" data-rating="{{ forloop.counter }}"></i>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" id="review-rating" value="{{ review.rating }}">
+                </div>
+                
+                <div class="mb-8">
+                    <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">Feedback</label>
+                    <textarea name="comment" rows="6" class="w-full p-4 border border-slate-200 rounded-lg text-lg font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 resize-vertical transition-all" placeholder="Update your experience with this product...">{{ review.comment|default_if_none:"" }}</textarea>
+                </div>
+                
+                <div class="flex gap-4">
+                    <a href="{% url 'my_reviews' %}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 px-8 rounded-lg font-black uppercase text-sm tracking-wider text-center transition-all">
+                        <i class="fa-solid fa-arrow-left mr-2"></i>Back to Reviews
+                    </a>
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-lg font-black uppercase text-sm tracking-wider shadow-lg hover:shadow-xl transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-save mr-2"></i>Update Review
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Product Preview -->
+        <div class="glass mt-12 p-6 rounded-lg">
+            <div class="flex items-center gap-4">
+                {% with first_variant=product.variants.first %}
+                    {% if first_variant.images.first %}
+                        <img src="{{ first_variant.images.first.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg border">
+                    {% else %}
+                        <div class="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center border">
+                            <i class="fas fa-box text-2xl text-slate-400"></i>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900">{{ product.name }}</h3>
+                    <a href="{% url 'product_single' product.variants.first.slug %}" class="text-blue-600 hover:text-blue-700 text-sm font-bold uppercase tracking-wider flex items-center gap-1 mt-1">
+                        View Product <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentRating = {{ review.rating|default:0 }};
+            const stars = document.querySelectorAll('.edit-star');
+            
+            // Pre-fill stars
+            for (let i = 0; i < stars.length; i++) {
+                if (i < currentRating) {
+                    stars[i].classList.add('filled');
+                }
+            }
+            document.getElementById('review-rating').value = currentRating;
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-star')) {
+                const rating = parseInt(e.target.dataset.rating);
+                document.getElementById('review-rating').value = rating;
+                
+                // Update visual stars
+                const stars = document.querySelectorAll('.edit-star');
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('filled');
+                    } else {
+                        star.classList.remove('filled');
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

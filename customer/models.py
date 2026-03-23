@@ -41,6 +41,10 @@ class Review(models.Model):
     rating = models.IntegerField()
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    is_edited = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ('user', 'product')
     
     def __str__(self):
         return f"Review by {self.user.username}"
@@ -51,7 +55,18 @@ class Order(models.Model):
     order_number = models.CharField(max_length=100, unique=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_status = models.CharField(max_length=20, default='PENDING')
-    order_status = models.CharField(max_length=50,default="placed")
+    order_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('placed', 'Placed'),
+            ('processing', 'Processing'),
+            ('shipped', 'Shipped'),
+            ('delivered', 'Delivered'),
+            ('cancelled', 'Cancelled'),
+        ],
+        default="placed"
+    )
     ordered_at = models.DateTimeField(auto_now_add=True)
     shipping_address = models.ForeignKey("core.Address", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
     
