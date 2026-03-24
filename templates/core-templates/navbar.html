@@ -11,10 +11,12 @@
         <i class="fa-solid fa-bars-staggered text-xl"></i>
       </button>
 
-      <div class="flex-1 max-w-md mx-4 lg:mx-0 relative group">
-        <input type="text" placeholder="Search premium gear..." class="w-full pl-11 pr-4 py-2.5 bg-white/10 border border-blue-400/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium backdrop-blur-sm" />
-        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 group-focus-within:text-blue-300 transition-colors"></i>
-      </div>
+      <form method="GET" action="{% url 'search' %}" class="flex-1 max-w-md mx-4 lg:mx-0 relative group">
+        <input type="text" name="q" placeholder="Search premium gear..." class="w-full pl-11 pr-4 py-2.5 bg-white/10 border border-blue-400/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium backdrop-blur-sm" />
+        <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 group-focus-within:text-blue-300 transition-colors">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
 
       <div class="hidden lg:flex items-center gap-8">
         <a href="/products/" class="flex items-center gap-2 text-blue-100/80 hover:text-white transition-all duration-300 font-bold text-xs uppercase tracking-widest relative group">

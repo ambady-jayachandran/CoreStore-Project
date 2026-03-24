@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CORE STORE | Products</title>
+    <title>CORE STORE | {% if is_search %}Search{% else %}Products{% endif %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
@@ -71,9 +71,19 @@
     <div class="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 py-16 shadow-lg">
       <div class="container mx-auto px-4 md:px-8">
         <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-white uppercase italic">
-          Product <span class="text-blue-400">Inventory</span>
+          {% if is_search %}
+            Search Results for "<span class="text-blue-400">{{ search_query }}</span>" ({{ total_products }} found)
+          {% else %}
+            Product <span class="text-blue-400">Inventory</span>
+          {% endif %}
         </h1>
-        <p class="text-blue-200/60 mt-2 text-xs font-bold uppercase tracking-[0.3em]">Advanced Gear for Professionals</p>
+        <p class="text-blue-200/60 mt-2 text-xs font-bold uppercase tracking-[0.3em]">
+          {% if is_search %}
+            Matching Premium Gear
+          {% else %}
+            Advanced Gear for Professionals
+          {% endif %}
+        </p>
       </div>
     </div>
 
@@ -111,7 +121,14 @@
       
       <div class="bg-white border border-slate-200 rounded-sm p-3 mb-8 sticky top-24 z-20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex items-center gap-3 pl-2">
-            {% if category_filter or sort_filter != 'newest' %}
+            {% if is_search %}
+              <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-2">
+                <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                Searching "{{ search_query }}"
+                <span class="text-slate-300 mx-1">|</span>
+                <a href="{% url 'products' %}" class="text-slate-900 hover:text-red-500 transition-colors">Clear Search</a>
+              </div>
+            {% elif category_filter or sort_filter != 'newest' %}
               <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-2">
                 <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
                 Filters Active
@@ -119,13 +136,16 @@
                 <a href="{% url 'products' %}" class="text-slate-900 hover:text-red-500 transition-colors">Reset All</a>
               </div>
             {% else %}
-               <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Units: {{ total_products }}</span>
+              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Units: {{ total_products }}</span>
             {% endif %}
           </div>
           
           <form method="GET" class="flex items-center gap-4">
             {% if category_filter %}
             <input type="hidden" name="category_id" value="{{ category_filter }}">
+            {% endif %}
+            {% if is_search %}
+            <input type="hidden" name="q" value="{{ search_query }}">
             {% endif %}
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Sort by</span>
@@ -134,7 +154,7 @@
                     <option value="oldest" {% if sort_filter == 'oldest' %}selected{% endif %}>Date: Oldest</option>
                     <option value="price_asc" {% if sort_filter == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
                     <option value="price_desc" {% if sort_filter == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
-                    <option value="name_asc" {% if sort_filter == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                    <option value="name Asc" {% if sort_filter == 'name Asc' %}selected{% endif %}>Name: A to Z</option>
                 </select>
             </div>
           </form>
@@ -150,6 +170,9 @@
             
             <form method="GET" class="space-y-1">
               <input type="hidden" name="sort" value="{{ sort_filter }}">
+              {% if is_search %}
+              <input type="hidden" name="q" value="{{ search_query }}">
+              {% endif %}
               
               {% for category in categories %}
               <label class="flex items-center justify-between p-3 rounded-sm hover:bg-blue-50 cursor-pointer group transition-all">
@@ -209,21 +232,41 @@
                   {% include 'core-templates/partials/product-rating.html' with product=product %}
               </a>
             </div>
-          {% endfor %}
+            {% empty %}
+            <div class="col-span-full text-center py-24">
+              <i class="fa-solid fa-search text-6xl text-slate-300 mb-6"></i>
+              <h3 class="text-2xl font-black text-slate-700 mb-2 uppercase tracking-wider">No Products Found</h3>
+              <p class="text-slate-500 mb-8">Try different search terms or remove filters.</p>
+              <a href="{% url 'products' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-sm font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all">
+                Browse All Products
+              </a>
+            </div>
+            {% endfor %}
           </div>
 
+          {% if all_products_page.has_other_pages %}
           <div class="mt-16 flex justify-center items-center gap-4">
             {% if all_products_page.has_previous %}
-              <a href="?page={{ all_products_page.previous_page_number }}{% if category_filter %}&category_id={{ category_filter }}{% endif %}{% if sort_filter != 'newest' %}&sort={{ sort_filter }}{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 hover:border-blue-600 hover:text-blue-600 transition-all"><i class="fa-solid fa-chevron-left text-xs"></i></a>
+              <a href="?page={{ all_products_page.previous_page_number }}{% if category_filter %}&category_id={{ category_filter }}{% endif %}{% if sort_filter != 'newest' %}&sort={{ sort_filter }}{% endif %}{% if is_search %}&q={{ search_query }}{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 hover:border-blue-600 hover:text-blue-600 transition-all"><i class="fa-solid fa-chevron-left text-xs"></i></a>
             {% endif %}
 
             <div class="px-6 py-2 border border-slate-200 bg-white rounded-sm text-[10px] font-black uppercase tracking-widest text-slate-900">
-              Index {{ all_products_page.number }} / {{ all_products_page.paginator.num_pages }}
+              Page {{ all_products_page.number }} of {{ all_products_page.paginator.num_pages }}
             </div>
 
             {% if all_products_page.has_next %}
-              <a href="?page={{ all_products_page.next_page_number }}{% if category_filter %}&category_id={{ category_filter }}{% endif %}{% if sort_filter != 'newest' %}&sort={{ sort_filter }}{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 hover:border-blue-600 hover:text-blue-600 transition-all"><i class="fa-solid fa-chevron-right text-xs"></i></a>
+              <a href="?page={{ all_products_page.next_page_number }}{% if category_filter %}&category_id={{ category_filter }}{% endif %}{% if sort_filter != 'newest' %}&sort={{ sort_filter }}{% endif %}{% if is_search %}&q={{ search_query }}{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 hover:border-blue-600 hover:text-blue-600 transition-all"><i class="fa-solid fa-chevron-right text-xs"></i></a>
             {% endif %}
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="col-span-full text-center py-24">
+            <i class="fa-solid fa-search text-6xl text-slate-300 mb-6"></i>
+            <h3 class="text-2xl font-black text-slate-700 mb-2 uppercase tracking-wider">No Products Found</h3>
+            <p class="text-slate-500 mb-8">{% if is_search %}No results for "{{ search_query }}". Try different terms.{% else %}No products match your filters.{% endif %}</p>
+            <a href="{% url 'products' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-sm font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all">
+              Browse All Products
+            </a>
           </div>
           {% endif %}
         </div>
@@ -246,3 +289,4 @@
     </script>
   </body>
 </html>
+

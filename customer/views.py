@@ -157,7 +157,85 @@ def products(request):
     
     return render(request, 'core-templates/products.html', context)
 
+
+def search_products(request):
+    category_id = request.GET.get('category_id')
+    sort = request.GET.get('sort', 'newest')
+    query = request.GET.get('q', '').strip()
+
+    base_qs = ProductVariant.objects.filter(
+        product__approval_status='APPROVED',
+        product__is_active=True,
+        slug__isnull=False,
+        slug__regex=r'^[-a-zA-Z0-9_]+$'
+    ).select_related('product', 'product__subcategory__category').prefetch_related('images').annotate(
+        avg_rating=Avg('product__reviews__rating'),
+        review_count=Count('product__reviews', distinct=True),
+        star_5=Count('product__reviews', filter=Q(product__reviews__rating=5), distinct=True),
+        star_4=Count('product__reviews', filter=Q(product__reviews__rating=4), distinct=True),
+        star_3=Count('product__reviews', filter=Q(product__reviews__rating=3), distinct=True),
+        star_2=Count('product__reviews', filter=Q(product__reviews__rating=2), distinct=True),
+        star_1=Count('product__reviews', filter=Q(product__reviews__rating=1), distinct=True)
+    )
+
+    if query:
+        search_q = Q(product__name__icontains=query) | Q(product__description__icontains=query)
+        base_qs = base_qs.filter(search_q)
+
+    if category_id:
+        base_qs = base_qs.filter(product__subcategory__category_id=category_id)
+    
+    if sort == 'price Asc':
+        base_qs = base_qs.order_by('selling_price')
+    elif sort == 'price_desc':
+        base_qs = base_qs.order_by('-selling_price')
+    elif sort == 'name_asc':
+        base_qs = base_qs.order_by('product__name')
+    elif sort == 'name_desc':
+        base_qs = base_qs.order_by('-product__name')
+    elif sort == 'newest':
+        base_qs = base_qs.order_by('-created_at')
+    elif sort == 'oldest':
+        base_qs = base_qs.order_by('created_at')
+    
+    all_products_qs = base_qs
+    
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    new_arrivals = all_products_qs.filter(created_at__gte=seven_days_ago)[:12]
+    
+    paginator = Paginator(all_products_qs, 20)
+    page = request.GET.get('page')
+    all_products_page = paginator.get_page(page)
+    
+    categories_qs = Category.objects.filter(is_active=True).annotate(
+        product_count=Count(
+            'subcategories__products',
+            filter=Q(subcategories__products__approval_status='APPROVED', subcategories__products__is_active=True),
+            distinct=True
+        )
+    )
+    
+    if category_id:
+        categories_qs = categories_qs.filter(id=category_id)
+    
+    categories = categories_qs
+
+    context = {
+        'all_products_page': all_products_page,
+        'new_arrivals': new_arrivals,
+        'categories': categories,
+        'category_filter': category_id,
+        'sort_filter': sort,
+        'total_products': all_products_page.paginator.count,
+        'search_query': query,
+        'is_search': True,
+    }
+    
+    return render(request, 'core-templates/products.html', context)
+
+
 def category_view(request, category_slug):
+
     category = get_object_or_404(Category, slug=category_slug, is_active=True)
     
     subcategories = SubCategory.objects.filter(category=category, is_active=True)

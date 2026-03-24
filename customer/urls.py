@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('products/', views.products, name='products'),
+    path('search/', views.search_products, name='search'),
     path('category/<slug:category_slug>', views.category_view, name='category_view'),
     path('category/<slug:category_slug>/subcategory/<slug:subcategory_slug>', views.subcategory_products, name='subcategory_products'),
     path('register/', views.user_register, name='register'),
@@ -43,7 +44,7 @@ urlpatterns = [
     path('track-order/<uuid:order_id>/', views.user_track, name='track_order'),
     path('checkout/', views.user_checkout, name='checkout'),
 
-path('buy-now/<slug:slug>/', views.buy_now_checkout, name='buy_now_checkout'),
+    path('buy-now/<slug:slug>/', views.buy_now_checkout, name='buy_now_checkout'),
 
     path('checkout/process/', views.user_checkout_process, name='checkout_process'),
     path('order/success/<uuid:order_id>/', views.order_success, name='order_success'),
@@ -52,4 +53,3 @@ path('buy-now/<slug:slug>/', views.buy_now_checkout, name='buy_now_checkout'),
     path('my-reviews/', views.my_reviews, name='my_reviews'),
     path('review/edit/<uuid:review_id>/', views.edit_review, name='edit_review'),
 ]
-
