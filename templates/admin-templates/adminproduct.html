@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approved Sellers | CORE STORE</title>
+    <title>Product Approval Queue | CORE STORE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -22,7 +22,6 @@
             margin: 0;
         }
 
-        /* Sidebar Component */
         .sidebar {
             width: var(--sidebar-width);
             background: white;
@@ -56,6 +55,20 @@
             border-left-color: var(--brand-teal);
         }
 
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
         .section-label {
             font-size: 10px;
             font-weight: 800;
@@ -65,60 +78,48 @@
             letter-spacing: 0.1em;
         }
 
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 40px;
-            min-height: 100vh;
-        }
-
-        /* UI Elements */
-        .glass-card {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-            overflow: hidden;
-        }
-
-        .status-pill {
-            padding: 4px 12px;
+        /* Status & Buttons */
+        .badge-awaiting {
+            background: #EFF6FF;
+            color: #2563EB;
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
         }
 
-        .status-active { background: #ECFDF5; color: #059669; }
-        
-        .seller-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #F1F5F9;
-            display: flex;
-            items-center: center;
-            justify-content: center;
-            font-weight: 800;
-            color: var(--brand-teal);
-            border: 1px solid #E2E8F0;
-        }
-
-        .action-btn {
-            width: 32px;
-            height: 32px;
+        .btn-approve {
+            background-color: var(--brand-teal);
+            color: white;
+            padding: 6px 16px;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
             transition: all 0.2s;
-            border: 1px solid #E2E8F0;
-            color: #718096;
         }
 
-        .action-btn:hover {
-            border-color: var(--brand-teal);
-            color: var(--brand-teal);
-            background: #F0F5F6;
+        .btn-approve:hover { background-color: #3D626B; transform: translateY(-1px); }
+
+        .btn-reject {
+            border: 1.5px solid #FED7D7;
+            color: #E53E3E;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn-reject:hover { background-color: #FFF5F5; border-color: #E53E3E; }
+
+        .product-img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #F7FAFC;
+            border: 1px solid #EDF2F7;
         }
     </style>
 </head>
@@ -143,23 +144,23 @@
             <a href="/adminsellerapproval/" class="nav-link">
                 <i class="fa-solid fa-user-check w-5"></i> Seller Approval
             </a>
-            <a href="/adminproduct/" class="nav-link">
+            <a href="/adminproduct/" class="nav-link active">
                 <i class="fa-solid fa-box-open w-5"></i> Product Approval
             </a>
 
             <div class="section-label">Verified Records</div>
-            <a href="/approvedsellers/" class="nav-link active">
+            <a href="/approvedsellers/" class="nav-link">
                 <i class="fa-solid fa-id-card w-5"></i> Approved Sellers
             </a>
-            <a href="/approvedproduct/" class="nav-link">
+            <a href="/approvedproducts/" class="nav-link">
                 <i class="fa-solid fa-boxes-stacked w-5"></i> Approved Products
             </a>
 
             <div class="section-label">Audit Logs</div>
-            <a href="/rejectedsellers/" class="nav-link text-red-400/70">
+            <a href="/admin/rejected-sellers/" class="nav-link">
                 <i class="fa-solid fa-user-xmark w-5"></i> Rejected Sellers
             </a>
-            <a href="/rejectedproducts/" class="nav-link text-red-400/70">
+            <a href="/admin/rejected-products/" class="nav-link">
                 <i class="fa-solid fa-ban w-5"></i> Rejected Products
             </a>
 
@@ -174,161 +175,151 @@
     </aside>
 
     <main class="main-content">
-        <header class="mb-8 flex justify-between items-center">
+        <header class="mb-10 flex justify-between items-end">
             <div>
-                <h2 class="text-2xl font-extrabold text-[#1A202C]">Verified Merchants</h2>
-                <p class="text-sm text-gray-500 font-medium">Manage and monitor the performance of approved store owners.</p>
+                <h2 class="text-2xl font-extrabold text-[#1A202C]">Product Approval</h2>
+                <p class="text-sm text-gray-500 font-medium">Audit product listings before they go live on the storefront.</p>
             </div>
-            
-            <div class="flex gap-3">
-                <form method="GET" class="flex gap-3">
-    <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-        <input 
-            type="text" 
-            name="search"
-            value="{{ search_query }}"
-            placeholder="Search Store or Owner..." 
-            class="bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold outline-none focus:border-[#4F7D88] min-w-[280px]"
-        >
-    </div>
-
-    <button class="bg-[#4F7D88] text-white px-4 py-2.5 rounded-xl text-xs font-bold">
-        Search
-    </button>
-</form>
-                <button class="bg-white border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-50 transition-all">
-                    <i class="fa-solid fa-download mr-2"></i> Export CSV
-                </button>
+            <div class="flex gap-4">
+                <select class="bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold text-gray-500 outline-none">
+                    <option>All Categories</option>
+                    <option>Electronics</option>
+                    <option>Fashion</option>
+                </select>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" placeholder="Search SKU..." class="bg-white border border-gray-200 rounded-xl py-2 pl-10 pr-4 text-xs font-bold outline-none focus:border-[#4F7D88] transition-all">
+                </div>
             </div>
         </header>
-
-        <div class="grid grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Active Sellers</p>
-                <h3 class="text-xl font-black text-gray-800">{{ total_sellers }}</h3>
-            </div>
-            <!-- <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg. Seller Rating</p>
-                <h3 class="text-xl font-black text-gray-800">
-    {{ avg_rating }} 
-    <span class="text-yellow-400 text-sm">
-        <i class="fa-solid fa-star"></i>
-    </span>
-</h3>
-            </div> -->
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Banned/Suspended</p>
-                <h3 class="text-xl font-black text-red-500">{{ banned_count }}</h3>
-            </div>
-        </div>
 
         <div class="glass-card">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-gray-100">
-                            <th class="px-8 py-5">Merchant Details</th>
-                            <th class="px-6 py-5">Business Email</th>
-                            <th class="px-6 py-5">Inventory</th>
-                            <th class="px-6 py-5">Joined Date</th>
+                            <th class="px-8 py-5">Product Details</th>
+                            <th class="px-6 py-5">Seller</th>
+                            <th class="px-6 py-5">Category</th>
+                            <th class="px-6 py-5">Price/Stock</th>
                             <th class="px-6 py-5">Status</th>
-                            <th class="px-8 py-5 text-right">Actions</th>
+                            <th class="px-8 py-5 text-right">Audit Action</th>
                         </tr>
                     </thead>
-                   <tbody class="divide-y divide-gray-50">
-    {% for seller in sellers %}
+                    <tbody class="divide-y divide-gray-50">
+    {% for product in products %}
+    {% with variant=product.variants.first %}
     <tr class="hover:bg-gray-50/30 transition-colors">
 
-        <!-- Merchant -->
+        <!-- Product Details -->
         <td class="px-8 py-6">
             <div class="flex items-center gap-4">
-                <div class="seller-avatar">
-                    {{ seller.store_name|slice:":2"|upper }}
-                </div>
+
+                <!-- Product Image -->
+                {% if variant and variant.images.first %}
+                    <img src="{{ variant.images.first.images.url }}" alt="Product" class="product-img">
+                {% else %}
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                {% endif %}
 
                 <div>
                     <p class="text-sm font-bold text-gray-800">
-                        {{ seller.store_name }}
+                        {{ product.name }}
                     </p>
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                        Owner: {{ seller.user.username }}
+                        SKU: {{ variant.sku_code }}
                     </p>
                 </div>
             </div>
         </td>
 
-        <!-- Email -->
-        <td class="px-6 py-6 text-xs font-bold text-gray-600">
-            {{ seller.user.email }}
+        <!-- Seller -->
+        <td class="px-6 py-6">
+            <p class="text-xs font-bold text-[#4F7D88]">
+                {{ product.seller.store_name }}
+            </p>
+            <p class="text-[10px] text-gray-400 font-medium">
+                {% if product.seller.is_verified %}
+                    Verified Merchant
+                {% else %}
+                    Unverified
+                {% endif %}
+            </p>
         </td>
 
-        <!-- Inventory -->
+        <!-- Category -->
         <td class="px-6 py-6">
-            <p class="text-xs font-bold text-gray-800">
-                {{ seller.total_products }} Products
+            <span class="text-xs font-bold text-gray-600">
+                {{ product.sub_category.name }}
+            </span>
+            <p class="text-[9px] text-gray-400 font-bold uppercase">
+                {{ product.sub_category.category.name }}
             </p>
+        </td>
 
-            {% if seller.total_products > 100 %}
-                <p class="text-[9px] text-[#4F7D88] font-bold uppercase">
-                    Top Seller
+        <!-- Price / Stock -->
+        <td class="px-6 py-6">
+            {% if variant %}
+                <p class="text-xs font-bold text-gray-800">
+                    ₹{{ variant.selling_price }}
                 </p>
-            {% else %}
-                <p class="text-[9px] text-gray-400 font-bold uppercase">
-                    Emerging Store
+                <p class="text-[10px] text-gray-400">
+                    Qty: {{ variant.stock_quantity }} units
                 </p>
             {% endif %}
         </td>
 
-        <!-- Joined -->
-        <td class="px-6 py-6 text-xs font-bold text-gray-500">
-            {{ seller.created_at|date:"M d, Y" }}
-        </td>
-
         <!-- Status -->
         <td class="px-6 py-6">
-            <span class="status-pill status-active">Active</span>
+            {% if product.approval_status == "PENDING" %}
+                <span class="badge-awaiting">Awaiting Audit</span>
+            {% elif product.approval_status == "APPROVED" %}
+                <span class="badge-approved">Approved</span>
+            {% elif product.approval_status == "REJECTED" %}
+                <span class="badge-rejected">Rejected</span>
+            {% endif %}
         </td>
 
         <!-- Actions -->
         <td class="px-8 py-6 text-right">
             <div class="flex justify-end gap-2">
 
-                <a href="#" class="action-btn" title="View">
-                    <i class="fa-solid fa-eye text-xs"></i>
-                </a>
+                <!-- Reject -->
+                <form method="POST" action="{% url 'reject_product' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-reject" title="Reject Listing">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </form>
 
-                <a href="#" class="action-btn" title="Edit">
-                    <i class="fa-solid fa-pen text-xs"></i>
-                </a>
-
-                <form method="POST" action="{% url 'rejectseller' seller.id %}" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit"
-        class="action-btn hover:!text-red-500 hover:!border-red-500"
-        title="Suspend">
-        <i class="fa-solid fa-ban text-xs"></i>
-    </button>
-</form>
+                <!-- Approve -->
+                <form method="POST" action="{% url 'approve_product' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-approve" title="Approve Listing">
+                        <i class="fa-solid fa-check mr-1"></i> Approve
+                    </button>
+                </form>
 
             </div>
         </td>
 
     </tr>
-
+    {% endwith %}
     {% empty %}
     <tr>
-        <td colspan="6" class="text-center py-10 text-gray-400 font-bold">
-            No approved sellers found
+        <td colspan="6" class="text-center py-10 text-gray-400">
+            No products awaiting approval
         </td>
     </tr>
     {% endfor %}
 </tbody>
                 </table>
             </div>
-
+            
             <div class="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Page 1 ({{ total_sellers }} total sellers)</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Awaiting verification: 1 product(s)</p>
                 <div class="flex gap-2">
                     <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
                     <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>

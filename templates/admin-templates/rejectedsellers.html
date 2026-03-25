@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approved Sellers | CORE STORE</title>
+    <title>Rejected Sellers Audit | CORE STORE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -13,6 +13,8 @@
             --brand-teal: #4F7D88;
             --brand-bg: #F8FAFB;
             --sidebar-width: 280px;
+            --danger-red: #E53E3E;
+            --success-green: #10B981;
         }
 
         body { 
@@ -29,8 +31,7 @@
             border-right: 1px solid #E2E8F0;
             height: 100vh;
             position: fixed;
-            left: 0;
-            top: 0;
+            left: 0; top: 0;
             display: flex;
             flex-direction: column;
             z-index: 100;
@@ -57,12 +58,8 @@
         }
 
         .section-label {
-            font-size: 10px;
-            font-weight: 800;
-            color: #A0AEC0;
-            padding: 20px 24px 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 10px; font-weight: 800; color: #A0AEC0;
+            padding: 20px 24px 10px; text-transform: uppercase; letter-spacing: 0.1em;
         }
 
         .main-content {
@@ -71,7 +68,7 @@
             min-height: 100vh;
         }
 
-        /* UI Elements */
+        /* Table & Action Elements */
         .glass-card {
             background: white;
             border: 1px solid #E2E8F0;
@@ -80,45 +77,50 @@
             overflow: hidden;
         }
 
-        .status-pill {
-            padding: 4px 12px;
+        .badge-rejected {
+            background: #FFF5F5;
+            color: var(--danger-red);
+            padding: 4px 10px;
             border-radius: 20px;
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
         }
 
-        .status-active { background: #ECFDF5; color: #059669; }
-        
-        .seller-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: #F1F5F9;
-            display: flex;
-            items-center: center;
-            justify-content: center;
-            font-weight: 800;
-            color: var(--brand-teal);
-            border: 1px solid #E2E8F0;
-        }
-
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+        .btn-reapprove {
+            background-color: var(--success-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            border: 1px solid #E2E8F0;
-            color: #718096;
+            gap: 6px;
         }
 
-        .action-btn:hover {
+        .btn-reapprove:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .search-input {
+            background: white;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 10px 16px 10px 40px;
+            font-size: 13px;
+            font-weight: 600;
+            width: 320px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
             border-color: var(--brand-teal);
-            color: var(--brand-teal);
-            background: #F0F5F6;
+            box-shadow: 0 0 0 4px rgba(79, 125, 136, 0.05);
         }
     </style>
 </head>
@@ -148,187 +150,121 @@
             </a>
 
             <div class="section-label">Verified Records</div>
-            <a href="/approvedsellers/" class="nav-link active">
+            <a href="/approvedsellers/" class="nav-link">
                 <i class="fa-solid fa-id-card w-5"></i> Approved Sellers
             </a>
-            <a href="/approvedproduct/" class="nav-link">
+            <a href="/approvedproducts/" class="nav-link">
                 <i class="fa-solid fa-boxes-stacked w-5"></i> Approved Products
             </a>
 
             <div class="section-label">Audit Logs</div>
-            <a href="/rejectedsellers/" class="nav-link text-red-400/70">
+            <a href="/rejectedsellers/" class="nav-link active">
                 <i class="fa-solid fa-user-xmark w-5"></i> Rejected Sellers
             </a>
-            <a href="/rejectedproducts/" class="nav-link text-red-400/70">
+            <a href="/rejectedproducts/" class="nav-link">
                 <i class="fa-solid fa-ban w-5"></i> Rejected Products
             </a>
 
             <div class="section-label">Catalog Taxonomy</div>
-            <a href="/admin/category/" class="nav-link">
+            <a href="/category/" class="nav-link">
                 <i class="fa-solid fa-list w-5"></i> Categories
             </a>
-            <a href="/admin/subcategory/" class="nav-link">
+            <a href="/subcategories/" class="nav-link">
                 <i class="fa-solid fa-indent w-5"></i> Subcategories
             </a>
         </nav>
     </aside>
 
     <main class="main-content">
-        <header class="mb-8 flex justify-between items-center">
+        <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-                <h2 class="text-2xl font-extrabold text-[#1A202C]">Verified Merchants</h2>
-                <p class="text-sm text-gray-500 font-medium">Manage and monitor the performance of approved store owners.</p>
+                <h2 class="text-2xl font-extrabold text-[#1A202C]">Rejected Sellers</h2>
+                <p class="text-sm text-gray-500 font-medium">History of declined applications and restricted merchants.</p>
             </div>
             
-            <div class="flex gap-3">
-                <form method="GET" class="flex gap-3">
+            <form method="GET">
     <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-        <input 
-            type="text" 
-            name="search"
-            value="{{ search_query }}"
-            placeholder="Search Store or Owner..." 
-            class="bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold outline-none focus:border-[#4F7D88] min-w-[280px]"
-        >
+        <input type="text" name="q" value="{{ request.GET.q }}"
+            placeholder="Search by name, ID or email..."
+            class="search-input">
     </div>
-
-    <button class="bg-[#4F7D88] text-white px-4 py-2.5 rounded-xl text-xs font-bold">
-        Search
-    </button>
 </form>
-                <button class="bg-white border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-50 transition-all">
-                    <i class="fa-solid fa-download mr-2"></i> Export CSV
-                </button>
-            </div>
         </header>
-
-        <div class="grid grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Active Sellers</p>
-                <h3 class="text-xl font-black text-gray-800">{{ total_sellers }}</h3>
-            </div>
-            <!-- <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Avg. Seller Rating</p>
-                <h3 class="text-xl font-black text-gray-800">
-    {{ avg_rating }} 
-    <span class="text-yellow-400 text-sm">
-        <i class="fa-solid fa-star"></i>
-    </span>
-</h3>
-            </div> -->
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Banned/Suspended</p>
-                <h3 class="text-xl font-black text-red-500">{{ banned_count }}</h3>
-            </div>
-        </div>
 
         <div class="glass-card">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
                         <tr class="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-gray-100">
-                            <th class="px-8 py-5">Merchant Details</th>
-                            <th class="px-6 py-5">Business Email</th>
-                            <th class="px-6 py-5">Inventory</th>
-                            <th class="px-6 py-5">Joined Date</th>
-                            <th class="px-6 py-5">Status</th>
-                            <th class="px-8 py-5 text-right">Actions</th>
+                            <th class="px-8 py-5">Seller Info</th>
+                            <th class="px-6 py-5">Rejection Reason</th>
+                            <th class="px-6 py-5">Audit Date</th>
+                            <th class="px-6 py-5">Compliance Status</th>
+                            <th class="px-8 py-5 text-right">Administrative Action</th>
                         </tr>
                     </thead>
-                   <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y divide-gray-50">
     {% for seller in sellers %}
     <tr class="hover:bg-gray-50/30 transition-colors">
-
-        <!-- Merchant -->
         <td class="px-8 py-6">
             <div class="flex items-center gap-4">
-                <div class="seller-avatar">
-                    {{ seller.store_name|slice:":2"|upper }}
+                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-300 border border-red-100">
+                    <i class="fa-solid fa-store-slash text-sm"></i>
                 </div>
-
                 <div>
                     <p class="text-sm font-bold text-gray-800">
                         {{ seller.store_name }}
                     </p>
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                        Owner: {{ seller.user.username }}
+                        ID: #{{ seller.id }}
                     </p>
                 </div>
             </div>
         </td>
 
-        <!-- Email -->
-        <td class="px-6 py-6 text-xs font-bold text-gray-600">
-            {{ seller.user.email }}
-        </td>
-
-        <!-- Inventory -->
         <td class="px-6 py-6">
-            <p class="text-xs font-bold text-gray-800">
-                {{ seller.total_products }} Products
+            <p class="text-xs font-bold text-gray-600">
+                {{ seller.rejection_reason|default:"Not specified" }}
             </p>
-
-            {% if seller.total_products > 100 %}
-                <p class="text-[9px] text-[#4F7D88] font-bold uppercase">
-                    Top Seller
-                </p>
-            {% else %}
-                <p class="text-[9px] text-gray-400 font-bold uppercase">
-                    Emerging Store
-                </p>
-            {% endif %}
+            <p class="text-[10px] text-red-400 font-medium italic">
+                Account rejected
+            </p>
         </td>
 
-        <!-- Joined -->
         <td class="px-6 py-6 text-xs font-bold text-gray-500">
             {{ seller.created_at|date:"M d, Y" }}
         </td>
 
-        <!-- Status -->
         <td class="px-6 py-6">
-            <span class="status-pill status-active">Active</span>
+            <span class="badge-rejected">
+                {{ seller.status }}
+            </span>
         </td>
 
-        <!-- Actions -->
         <td class="px-8 py-6 text-right">
-            <div class="flex justify-end gap-2">
-
-                <a href="#" class="action-btn" title="View">
-                    <i class="fa-solid fa-eye text-xs"></i>
-                </a>
-
-                <a href="#" class="action-btn" title="Edit">
-                    <i class="fa-solid fa-pen text-xs"></i>
-                </a>
-
-                <form method="POST" action="{% url 'rejectseller' seller.id %}" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit"
-        class="action-btn hover:!text-red-500 hover:!border-red-500"
-        title="Suspend">
-        <i class="fa-solid fa-ban text-xs"></i>
-    </button>
-</form>
-
-            </div>
+            <form method="POST" action="{% url 'reapprove_seller' seller.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-reapprove">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Re-Approve
+                </button>
+            </form>
         </td>
-
     </tr>
-
     {% empty %}
     <tr>
-        <td colspan="6" class="text-center py-10 text-gray-400 font-bold">
-            No approved sellers found
+        <td colspan="5" class="text-center py-10 text-gray-400 font-bold">
+            No rejected sellers found
         </td>
     </tr>
     {% endfor %}
 </tbody>
                 </table>
             </div>
-
+            
             <div class="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Page 1 ({{ total_sellers }} total sellers)</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Showing 2 rejected records</p>
                 <div class="flex gap-2">
                     <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
                     <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>

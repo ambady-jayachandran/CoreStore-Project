@@ -13,7 +13,17 @@ class SellerProfile(models.Model):
     ifsc_code = models.CharField(max_length=20)
     business_address = models.TextField()
     rating = models.FloatField(default=0)
-    is_verified = models.BooleanField(default=False)
+    STATUS_CHOICES = [
+    ('PENDING', 'Pending'),
+    ('APPROVED', 'Approved'),
+    ('REJECTED', 'Rejected'),
+     ]
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Product(models.Model):

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Approval Queue | CORE STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand-teal: #4F7D88;
+            --brand-bg: #F8FAFB;
+            --sidebar-width: 280px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--brand-bg); 
+            color: #2D3748; 
+            margin: 0;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #E2E8F0;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #718096;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #F0F5F6;
+            color: var(--brand-teal);
+            border-left-color: var(--brand-teal);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #A0AEC0;
+            padding: 20px 24px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .badge-pending {
+            background: #FFFBEB;
+            color: #D97706;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .btn-approve {
+            background-color: var(--brand-teal);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn-approve:hover { background-color: #3D626B; transform: translateY(-1px); }
+
+        .btn-reject {
+            border: 1.5px solid #FED7D7;
+            color: #E53E3E;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn-reject:hover { background-color: #FFF5F5; border-color: #E53E3E; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="p-8">
+            <div class="flex items-center gap-2">
+                <div class="bg-[#4F7D88] p-2 rounded-lg text-white shadow-lg">
+                    <i class="fa-solid fa-layer-group text-xs"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter uppercase">Core<span class="text-[#4F7D88]">Store</span></span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto pb-8">
+            <a href="/adminhome/" class="nav-link">
+                <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+            </a>
+
+            <div class="section-label">Approvals Queue</div>
+            <a href="/adminsellerapproval/" class="nav-link active">
+                <i class="fa-solid fa-user-check w-5"></i> Seller Approval
+            </a>
+            <a href="/adminproduct/" class="nav-link">
+                <i class="fa-solid fa-box-open w-5"></i> Product Approval
+            </a>
+
+            <div class="section-label">Verified Records</div>
+            <a href="/approvedsellers/" class="nav-link">
+                <i class="fa-solid fa-id-card w-5"></i> Approved Sellers
+            </a>
+            <a href="/approvedproducts/" class="nav-link">
+                <i class="fa-solid fa-boxes-stacked w-5"></i> Approved Products
+            </a>
+
+            <div class="section-label">Audit Logs</div>
+            <a href="/rejectedsellers/" class="nav-link">
+                <i class="fa-solid fa-user-xmark w-5"></i> Rejected Sellers
+            </a>
+            <a href="/rejectedproducts/" class="nav-link">
+                <i class="fa-solid fa-ban w-5"></i> Rejected Products
+            </a>
+
+            <div class="section-label">Catalog Taxonomy</div>
+            <a href="/category/" class="nav-link">
+                <i class="fa-solid fa-list w-5"></i> Categories
+            </a>
+            <a href="/subcategories/" class="nav-link">
+                <i class="fa-solid fa-indent w-5"></i> Subcategories
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="mb-10 flex justify-between items-end">
+            <div>
+                <h2 class="text-2xl font-extrabold text-[#1A202C]">Seller Approval Queue</h2>
+                <p class="text-sm text-gray-500 font-medium">Review and verify new merchant applications.</p>
+            </div>
+            <div class="flex gap-3">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" placeholder="Search Application..." class="bg-white border border-gray-200 rounded-xl py-2 pl-10 pr-4 text-xs font-bold outline-none focus:border-[#4F7D88] transition-all">
+                </div>
+            </div>
+        </header>
+
+        <div class="glass-card">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-gray-100">
+                            <th class="px-8 py-5">Store Identity</th>
+                            <th class="px-6 py-5">Owner / Contact</th>
+                            <th class="px-6 py-5">Compliance (GST/PAN)</th>
+                            <th class="px-6 py-5">Status</th>
+                            <th class="px-8 py-5 text-right">Verification</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+    {% for seller in sellers %}
+    <tr class="hover:bg-gray-50/30 transition-colors">
+
+        <!-- Store Identity -->
+        <td class="px-8 py-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400">
+                    <i class="fa-solid fa-store text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-800">
+                        {{ seller.store_name }}
+                    </p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                        {{ seller.store_slug }}
+                    </p>
+                </div>
+            </div>
+        </td>
+
+        <!-- Owner / Contact -->
+        <td class="px-6 py-6">
+            <p class="text-xs font-bold text-gray-700">
+                {{ seller.user.username }}
+            </p>
+            <p class="text-[11px] text-gray-400 font-medium">
+                {{ seller.user.email }}
+            </p>
+            <p class="text-[11px] text-gray-400 font-medium">
+                {{ seller.business_address }}
+            </p>
+        </td>
+
+        <!-- GST / PAN -->
+        <td class="px-6 py-6 font-mono text-[11px] text-gray-500">
+            <div class="flex flex-col gap-1">
+                <span>GST: {{ seller.gst_number }}</span>
+                <span>PAN: {{ seller.pan_number }}</span>
+            </div>
+        </td>
+
+        <!-- Status -->
+        <td class="px-6 py-6">
+            {% if seller.status == "PENDING" %}
+                <span class="badge-pending">Pending Review</span>
+            {% elif seller.status == "APPROVED" %}
+                <span class="badge-approved">Approved</span>
+            {% elif seller.status == "REJECTED" %}
+                <span class="badge-rejected">Rejected</span>
+            {% endif %}
+        </td>
+
+        <!-- Actions -->
+        <td class="px-8 py-6 text-right">
+            <div class="flex justify-end gap-2">
+
+                <!-- Reject -->
+                <form method="POST" action="{% url 'reject_seller' seller.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn-reject"
+                        onclick="return confirm('Reject this application?')">
+                        Reject
+                    </button>
+                </form>
+
+                <!-- Approve -->
+                <form method="POST" action="{% url 'approve_seller' seller.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-approve">
+                        Approve
+                    </button>
+                </form>
+
+            </div>
+        </td>
+
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" class="text-center py-10 text-gray-400">
+            No pending applications
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+                </table>
+            </div>
+            
+            <div class="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Showing 1 pending application(s)</p>
+                <div class="flex gap-2">
+                    <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                    <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

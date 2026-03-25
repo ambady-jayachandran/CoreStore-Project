@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubCategory Management | CORE STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand-teal: #4F7D88;
+            --brand-bg: #F8FAFB;
+            --sidebar-width: 280px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--brand-bg); 
+            color: #2D3748; 
+            margin: 0;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #E2E8F0;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 24px; color: #718096; font-size: 13px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            transition: all 0.2s ease; border-left: 4px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #F0F5F6; color: var(--brand-teal); border-left-color: var(--brand-teal);
+        }
+
+        .section-label {
+            font-size: 10px; font-weight: 800; color: #A0AEC0;
+            padding: 20px 24px 10px; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; min-height: 100vh; }
+
+        .glass-card {
+            background: white; border: 1px solid #E2E8F0;
+            border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .input-field, .select-field {
+            width: 100%; background: #F8FAFB; border: 1.5px solid #E2E8F0;
+            border-radius: 12px; padding: 12px 16px; font-size: 13px;
+            font-weight: 600; transition: all 0.2s; outline: none;
+        }
+
+        .input-field:focus, .select-field:focus {
+            border-color: var(--brand-teal); background: white;
+        }
+
+        /* Toggle Button Styling */
+        .status-toggle {
+            width: 40px; height: 20px; border-radius: 20px;
+            position: relative; cursor: pointer; transition: all 0.3s;
+        }
+        .toggle-active { background: #10B981; }
+        .toggle-inactive { background: #CBD5E0; }
+        .toggle-circle {
+            width: 14px; height: 14px; background: white;
+            border-radius: 50%; position: absolute; top: 3px;
+            transition: all 0.3s;
+        }
+        .circle-on { left: 23px; }
+        .circle-off { left: 3px; }
+
+        .btn-primary {
+            background-color: var(--brand-teal); color: white;
+            width: 100%; padding: 12px; border-radius: 12px;
+            font-size: 13px; font-weight: 800; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="p-8">
+            <div class="flex items-center gap-2">
+                <div class="bg-[#4F7D88] p-2 rounded-lg text-white shadow-lg">
+                    <i class="fa-solid fa-layer-group text-xs"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter uppercase">Core<span class="text-[#4F7D88]">Store</span></span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto pb-8">
+            <a href="/adminhome/" class="nav-link"><i class="fa-solid fa-chart-pie w-5"></i> Dashboard</a>
+            <div class="section-label">Approvals Queue</div>
+            <a href="/adminsellerapproval/" class="nav-link"><i class="fa-solid fa-user-check w-5"></i> Seller Approval</a>
+            <a href="/adminproduct/" class="nav-link"><i class="fa-solid fa-box-open w-5"></i> Product Approval</a>
+            <div class="section-label">Verified Records</div>
+            <a href="/approvedsellers/" class="nav-link"><i class="fa-solid fa-id-card w-5"></i> Approved Sellers</a>
+            <a href="/approvedproducts/" class="nav-link"><i class="fa-solid fa-boxes-stacked w-5"></i> Approved Products</a>
+            <div class="section-label">Audit Logs</div>
+            <a href="/rejectedsellers/" class="nav-link"><i class="fa-solid fa-user-xmark w-5"></i> Rejected Sellers</a>
+            <a href="/rejectedproducts/" class="nav-link"><i class="fa-solid fa-ban w-5"></i> Rejected Products</a>
+            <div class="section-label">Catalog Taxonomy</div>
+            <a href="/category/" class="nav-link"><i class="fa-solid fa-list w-5"></i> Categories</a>
+            <a href="/subcategory/" class="nav-link active"><i class="fa-solid fa-indent w-5"></i> Subcategories</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="mb-10">
+            <h2 class="text-2xl font-extrabold text-[#1A202C]">SubCategory Management</h2>
+            <p class="text-sm text-gray-500 font-medium">Link specialized sub-groups to your primary parent categories.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1">
+                <div class="glass-card p-8 sticky top-10">
+                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Create Sub-Branch</h4>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                        {% csrf_token %}
+                        <div>
+                            <label class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block mb-2">Parent Category</label>
+                            <select name="category" class="select-field" required>
+    <option value="" disabled selected>Select Parent...</option>
+    {% for cat in categories %}
+        <option value="{{ cat.id }}">{{ cat.name }}</option>
+    {% endfor %}
+</select>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block mb-2">SubCategory Name</label>
+                            <input type="text" name="name" required placeholder="e.g. Smartphones" class="input-field">
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block mb-2">Thumbnail (category-image/)</label>
+                            <div class="relative group">
+                                <input type="file" name="image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center group-hover:border-[#4F7D88] transition-all bg-gray-50">
+                                    <i class="fa-solid fa-cloud-arrow-up text-[#4F7D88] text-xl mb-1"></i>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase">Upload Preview</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary shadow-lg shadow-teal-900/10 mt-4">
+                            Save SubCategory
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="glass-card overflow-hidden">
+                    <div class="px-8 py-5 border-b border-gray-100 flex justify-between items-center">
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Inventory Hierarchy</h4>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                            <input type="text" placeholder="Search SubCategories..." class="bg-gray-50 border border-gray-200 rounded-lg py-1.5 pl-8 pr-3 text-[11px] font-bold outline-none">
+                        </div>
+                    </div>
+
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50/30 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                                <th class="px-8 py-5">SubCategory</th>
+                                <th class="px-6 py-5">Parent</th>
+                                <th class="px-6 py-5 text-center">Status</th>
+                                <th class="px-8 py-5 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+    {% for sub in subcategories %}
+    <tr class="hover:bg-gray-50/30 transition-colors">
+        
+        <!-- Subcategory -->
+        <td class="px-8 py-5">
+            <div class="flex items-center gap-3">
+                
+                <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200 overflow-hidden">
+                    {% if sub.image %}
+                        <img src="{{ sub.image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <i class="fa-solid fa-box text-xs"></i>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <p class="text-sm font-bold text-gray-800">{{ sub.name }}</p>
+                    <p class="text-[9px] text-gray-400 font-mono">
+                        UUID: {{ sub.id|slice:":8" }}...
+                    </p>
+                </div>
+            </div>
+        </td>
+
+        <!-- Parent -->
+        <td class="px-6 py-5">
+            <span class="text-xs font-bold text-[#4F7D88] bg-[#F0F5F6] px-3 py-1 rounded-full">
+                {{ sub.category.name }}
+            </span>
+        </td>
+
+        <!-- Status
+        <td class="px-6 py-5">
+            <div class="flex flex-col items-center gap-1">
+                
+                <div onclick="toggleStatus('{{ sub.id }}', this)"
+                     class="status-toggle {% if sub.is_active %}toggle-active{% else %}toggle-inactive{% endif %}">
+                    
+                    <div class="toggle-circle 
+                        {% if sub.is_active %}circle-on{% else %}circle-off{% endif %}">
+                    </div>
+                </div>
+
+                <span class="text-[8px] font-black uppercase
+                    {% if sub.is_active %}text-green-500{% else %}text-gray-400{% endif %}">
+                    
+                    {% if sub.is_active %}Live{% else %}Hidden{% endif %}
+                </span>
+            </div>
+        </td> -->
+
+        <!-- Actions -->
+        <td class="px-8 py-5 text-right">
+            <div class="flex justify-end gap-3 text-gray-400">
+
+                <a href="{% url 'delete_subcategory' sub.id %}" class="hover:text-red-500">
+                    <i class="fa-solid fa-trash-can"></i>
+                </a>
+
+            </div>
+        </td>
+
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4" class="text-center py-10 text-gray-400 font-semibold">
+            No SubCategories Found
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

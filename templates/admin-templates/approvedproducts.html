@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approved Inventory | CORE STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand-teal: #4F7D88;
+            --brand-bg: #F8FAFB;
+            --sidebar-width: 280px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--brand-bg); 
+            color: #2D3748; 
+            margin: 0;
+        }
+
+        /* Sidebar Component */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #E2E8F0;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #718096;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #F0F5F6;
+            color: var(--brand-teal);
+            border-left-color: var(--brand-teal);
+        }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #A0AEC0;
+            padding: 20px 24px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        /* Table & Cards */
+        .glass-card {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .filter-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .badge-live {
+            background: #ECFDF5;
+            color: #059669;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .product-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid #EDF2F7;
+        }
+
+        .btn-view {
+            color: var(--brand-teal);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="p-8">
+            <div class="flex items-center gap-2">
+                <div class="bg-[#4F7D88] p-2 rounded-lg text-white shadow-lg">
+                    <i class="fa-solid fa-layer-group text-xs"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter uppercase">Core<span class="text-[#4F7D88]">Store</span></span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto pb-8">
+            <a href="/adminhome/" class="nav-link">
+                <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+            </a>
+
+            <div class="section-label">Approvals Queue</div>
+            <a href="/adminsellerapproval/" class="nav-link">
+                <i class="fa-solid fa-user-check w-5"></i> Seller Approval
+            </a>
+            <a href="/adminproduct/" class="nav-link">
+                <i class="fa-solid fa-box-open w-5"></i> Product Approval
+            </a>
+
+            <div class="section-label">Verified Records</div>
+            <a href="/approvedsellers/" class="nav-link">
+                <i class="fa-solid fa-id-card w-5"></i> Approved Sellers
+            </a>
+            <a href="/approvedproducts/" class="nav-link active">
+                <i class="fa-solid fa-boxes-stacked w-5"></i> Approved Products
+            </a>
+
+            <div class="section-label">Audit Logs</div>
+            <a href="/rejectedsellers/" class="nav-link text-red-400/70">
+                <i class="fa-solid fa-user-xmark w-5"></i> Rejected Sellers
+            </a>
+            <a href="/rejectedproducts/" class="nav-link text-red-400/70">
+                <i class="fa-solid fa-ban w-5"></i> Rejected Products
+            </a>
+
+            <div class="section-label">Catalog Taxonomy</div>
+            <a href="/category/" class="nav-link">
+                <i class="fa-solid fa-list w-5"></i> Categories
+            </a>
+            <a href="/subcategories/" class="nav-link">
+                <i class="fa-solid fa-indent w-5"></i> Subcategories
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="mb-8">
+            <h2 class="text-2xl font-extrabold text-[#1A202C]">Approved Products</h2>
+            <p class="text-sm text-gray-500 font-medium">Manage all active listings currently live on the platform.</p>
+        </header>
+
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+    <!-- 🔍 Search -->
+    <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+        <input 
+            type="text" 
+            name="search"
+            value="{{ search_query }}"
+            placeholder="Search by Product name/SKU..." 
+            class="w-full bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-xs font-bold outline-none focus:border-[#4F7D88]"
+        >
+    </div>
+
+    <!-- Category -->
+    <div class="relative">
+        <select name="category" class="filter-select w-full bg-white border border-gray-200 rounded-xl py-2.5 px-4 text-xs font-bold text-gray-600">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}"
+                    {% if cat.id|stringformat:"s" == request.GET.category %}selected{% endif %}
+                >
+                    {{ cat.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Subcategory -->
+    <div class="relative">
+        <select name="subcategory" class="filter-select w-full bg-white border border-gray-200 rounded-xl py-2.5 px-4 text-xs font-bold text-gray-600">
+            <option value="">All Subcategories</option>
+            {% for sub in subcategories %}
+                <option value="{{ sub.id }}"
+                    {% if sub.id|stringformat:"s" == selected_subcategory %}selected{% endif %}
+                >
+                    {{ sub.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex gap-2">
+        <button type="submit" class="flex-1 bg-[#4F7D88] text-white text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl">
+            Apply
+        </button>
+
+        <a href="{% url 'approved_products' %}" class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-500 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-xl">
+            Reset
+        </a>
+    </div>
+
+</form>
+        <div class="glass-card">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] border-b border-gray-100">
+                            <th class="px-8 py-5">Product Info</th>
+                            <th class="px-6 py-5">Merchant</th>
+                            <th class="px-6 py-5">Classification</th>
+                            <th class="px-6 py-5 text-center">Price</th>
+                            <th class="px-6 py-5 text-center">Stock</th>
+                            <th class="px-6 py-5">Status</th>
+                            <th class="px-8 py-5 text-right">Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+    {% for product in products %}
+    <tr class="hover:bg-gray-50/30 transition-colors">
+
+        <!-- Product -->
+        <td class="px-8 py-6">
+            <div class="flex items-center gap-4">
+                {% with product.variants.first.images.first as img %}
+                    {% if img %}
+                        <img src="{{ img.images.url }}" class="product-img">
+                    {% else %}
+                        <img src="https://via.placeholder.com/44" class="product-img">
+                    {% endif %}
+                {% endwith %}
+
+                <div>
+                    <p class="text-sm font-bold text-gray-800">{{ product.name }}</p>
+
+                    {% with product.variants.first as v %}
+                        {% if v %}
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                            SKU: {{ v.sku_code }}
+                        </p>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </td>
+
+        <!-- Seller -->
+        <td class="px-6 py-6">
+            <p class="text-xs font-bold text-[#4F7D88]">
+                {{ product.seller.business_name }}
+            </p>
+            <p class="text-[10px] text-gray-400 font-medium">
+                {{ product.seller.get_plan_display }}
+            </p>
+        </td>
+
+        <!-- Classification -->
+        <td class="px-6 py-6">
+            <span class="text-xs font-bold text-gray-600">
+                {{ product.subcategory.category.name }}
+            </span>
+            <p class="text-[9px] text-gray-400 font-bold uppercase">
+                {{ product.subcategory.name }}
+            </p>
+        </td>
+
+        <!-- Price -->
+        <td class="px-6 py-6 text-center">
+            <p class="text-xs font-bold text-gray-800">
+                ${{ product.min_price|default:"0.00" }}
+            </p>
+        </td>
+
+        <!-- Stock -->
+        <td class="px-6 py-6 text-center">
+    <p class="text-xs font-bold text-gray-800">
+        {{ product.total_stock|default:0 }}
+    </p>
+
+    {% if product.total_stock > 0 %}
+        <p class="text-[9px] text-green-500 font-bold uppercase">In Stock</p>
+    {% else %}
+        <p class="text-[9px] text-red-500 font-bold uppercase">Out of Stock</p>
+    {% endif %}
+</td>
+
+        <!-- Status -->
+        <td class="px-6 py-6">
+            <span class="badge-live">● Live</span>
+        </td>
+
+        <!-- Actions -->
+        <td class="px-8 py-6 text-right">
+            <div class="flex justify-end gap-3">
+                <a href="" class="btn-view hover:underline">
+                    Edit
+                </a>
+            </div>
+        </td>
+
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7" class="text-center py-10 text-gray-400 font-bold">
+            No approved products found
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+                </table>
+            </div>
+
+            <div class="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Inventory: 4,209 Items</p>
+                <div class="flex items-center gap-4">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Page 1 of 42</span>
+                    <div class="flex gap-2">
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:text-gray-600 transition-all"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

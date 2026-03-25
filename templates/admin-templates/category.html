@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management | CORE STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand-teal: #4F7D88;
+            --brand-bg: #F8FAFB;
+            --sidebar-width: 280px;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--brand-bg); 
+            color: #2D3748; 
+            margin: 0;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #E2E8F0;
+            height: 100vh;
+            position: fixed;
+            left: 0; top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 24px; color: #718096; font-size: 13px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+            transition: all 0.2s ease; border-left: 4px solid transparent;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #F0F5F6; color: var(--brand-teal); border-left-color: var(--brand-teal);
+        }
+
+        .section-label {
+            font-size: 10px; font-weight: 800; color: #A0AEC0;
+            padding: 20px 24px 10px; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; min-height: 100vh; }
+
+        .glass-card {
+            background: white; border: 1px solid #E2E8F0;
+            border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .input-field {
+            width: 100%; background: #F8FAFB; border: 1.5px solid #E2E8F0;
+            border-radius: 12px; padding: 12px 16px; font-size: 13px;
+            font-weight: 600; transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none; border-color: var(--brand-teal); background: white;
+        }
+
+        /* Toggle Button Styling */
+        .status-toggle {
+            width: 44px;
+            height: 22px;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-active { background: #10B981; }
+        .toggle-inactive { background: #CBD5E0; }
+        .toggle-circle {
+            width: 16px; height: 16px; background: white;
+            border-radius: 50%; position: absolute; top: 3px;
+            transition: all 0.3s;
+        }
+        .circle-on { left: 25px; }
+        .circle-off { left: 3px; }
+
+        .btn-primary {
+            background-color: var(--brand-teal); color: white;
+            width: 100%; padding: 12px; border-radius: 12px;
+            font-size: 13px; font-weight: 800; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="p-8">
+            <div class="flex items-center gap-2">
+                <div class="bg-[#4F7D88] p-2 rounded-lg text-white shadow-lg">
+                    <i class="fa-solid fa-layer-group text-xs"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter uppercase">Core<span class="text-[#4F7D88]">Store</span></span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto pb-8 custom-scroll">
+            <a href="/adminhome/" class="nav-link"><i class="fa-solid fa-chart-pie w-5"></i> Dashboard</a>
+
+            <div class="section-label">Approvals Queue</div>
+            <a href="/adminsellerapproval/" class="nav-link">
+                <i class="fa-solid fa-user-check w-5"></i> Seller Approval
+            </a>
+            <a href="/adminproduct/" class="nav-link">
+                <i class="fa-solid fa-box-open w-5"></i> Product Approval
+            </a>
+
+            <div class="section-label">Verified Records</div>
+            <a href="/approvedsellers/" class="nav-link">
+                <i class="fa-solid fa-id-card w-5"></i> Approved Sellers
+            </a>
+            <a href="/approvedproducts/" class="nav-link">
+                <i class="fa-solid fa-boxes-stacked w-5"></i> Approved Products
+            </a>
+
+            <div class="section-label">Audit Logs</div>
+            <a href="/rejectedsellers/" class="nav-link text-red-400/70 hover:text-red-500">
+                <i class="fa-solid fa-user-xmark w-5"></i> Rejected Sellers
+            </a>
+            <a href="/rejectedproducts/" class="nav-link text-red-400/70 hover:text-red-500">
+                <i class="fa-solid fa-ban w-5"></i> Rejected Products
+            </a>
+
+            <div class="section-label">Catalog Taxonomy</div>
+            <a href="/category/" class="nav-link active"><i class="fa-solid fa-list w-5"></i> Categories</a>
+            <a href="/subcategories/" class="nav-link">
+                <i class="fa-solid fa-indent w-5"></i> Subcategories
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="mb-10">
+            <h2 class="text-2xl font-extrabold text-[#1A202C]">Core Category Terminal</h2>
+            <p class="text-sm text-gray-500 font-medium">Manage primary entry points for the CoreStore marketplace.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1">
+                <div class="glass-card p-8 sticky top-10">
+                    <h4 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Register New Category</h4>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                        {%csrf_token%}
+                        <div>
+                            <label class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block mb-2">Category Name (Max 100)</label>
+                            <input type="text" name="name" required placeholder="e.g. Footwear" class="input-field">
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block mb-2">Category Thumbnail</label>
+                            <div class="relative group">
+                                <input type="file" name="image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center group-hover:border-[#4F7D88] transition-all bg-gray-50">
+                                    <i class="fa-solid fa-image text-[#4F7D88] text-xl mb-2"></i>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase">Select File</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider block mb-2">Description (Optional)</label>
+                            <textarea name="description" rows="4" placeholder="Brief overview of this category..." class="input-field py-3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary shadow-lg shadow-teal-900/10">
+                            Save Category
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="glass-card overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50/50 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                                <th class="px-8 py-5">Overview</th>
+                                <th class="px-6 py-5">Description</th>
+                                <th class="px-6 py-5 text-center">Status</th>
+                                <th class="px-8 py-5 text-right">Control</th>
+                            </tr>
+                        </thead>
+                       <tbody class="divide-y divide-gray-50">
+
+    {% for category in categories %}
+    <tr class="hover:bg-gray-50/30 transition-colors {% if not category.is_active %}opacity-75{% endif %}">
+
+        <!-- Overview -->
+        <td class="px-8 py-6">
+            <div class="flex items-center gap-4">
+
+                <!-- Image -->
+                <div class="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-gray-400">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <i class="fa-solid fa-folder-open"></i>
+                    {% endif %}
+                </div>
+
+                <!-- Name -->
+                <div>
+                    <p class="text-sm font-bold text-gray-800">
+                        {{ category.name }}
+                    </p>
+                    <p class="text-[9px] text-gray-400 font-mono">
+                        UUID: {{ category.id|slice:":8" }}...
+                    </p>
+                </div>
+
+            </div>
+        </td>
+
+        <!-- Description -->
+        <td class="px-6 py-6">
+            <p class="text-[11px] text-gray-500 line-clamp-2 max-w-[200px]">
+                {{ category.description|default:"No description" }}
+            </p>
+        </td>
+
+        <!-- Status -->
+        <td class="px-6 py-6">
+            <div class="flex flex-col items-center gap-2">
+
+                <!-- TOGGLE FORM -->
+                <form method="POST" action="{% url 'toggle_category' category.id %}">
+                    {% csrf_token %}
+
+                    <button type="submit"
+                        class="status-toggle {% if category.is_active %}toggle-active{% else %}toggle-inactive{% endif %}">
+
+                        <div class="toggle-circle 
+                            {% if category.is_active %}circle-on{% else %}circle-off{% endif %} shadow-sm">
+                        </div>
+
+                    </button>
+                </form>
+
+                <!-- Label -->
+                {% if category.is_active %}
+                    <span class="text-[9px] font-black text-green-500 uppercase">Active</span>
+                {% else %}
+                    <span class="text-[9px] font-black text-gray-400 uppercase">Disabled</span>
+                {% endif %}
+
+            </div>
+        </td>
+
+        <!-- Actions -->
+        <td class="px-8 py-6 text-right">
+            <div class="flex justify-end gap-3">
+
+                <!-- Edit (optional) -->
+                <a href="#" class="text-gray-400 hover:text-blue-500">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+
+                <!-- Delete -->
+                <form method="POST" action="{% url 'delete_category' category.id %}">
+                    {% csrf_token %}
+                    <button class="text-gray-400 hover:text-red-500">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </form>
+
+            </div>
+        </td>
+
+    </tr>
+
+    {% empty %}
+    <tr>
+        <td colspan="4" class="text-center py-10 text-gray-400 font-bold">
+            No categories found
+        </td>
+    </tr>
+    {% endfor %}
+
+</tbody>             </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-6">
+                                    <p class="text-[11px] text-gray-500 line-clamp-2 max-w-[200px]">Premium gadgets and hardware including mobiles and laptops...</p>
+                             
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

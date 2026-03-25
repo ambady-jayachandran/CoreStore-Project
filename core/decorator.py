@@ -1,5 +1,7 @@
 from django.http import HttpResponse
 from functools import wraps
+from core.models import User
+from seller.models import SellerProfile
 
 def seller_required(view_func):
     @wraps(view_func)
@@ -8,5 +10,8 @@ def seller_required(view_func):
             return HttpResponse("Unauthorized", status=401)
         if request.user.role != 'SELLER':
             return HttpResponse("Forbidden", status=403)
+        if request.user.seller_profile.status != 'APPROVED':
+            return HttpResponse("Seller not approved", status=403)
+
         return view_func(request, *args, **kwargs)
     return _wrapped_view

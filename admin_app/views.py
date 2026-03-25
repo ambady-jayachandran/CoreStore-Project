@@ -1,24 +1,345 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login ,logout
 from django.contrib import messages
+from core.models import User
+from django.db.models import Sum , Count ,Avg
+from seller.models import SellerProfile, Product, ProductVariant ,SubCategory
+from customer.models import OrderItem 
+from django.db.models import Prefetch
+from django.db.models import Q, Min, Sum 
+from core.models import Category , SubCategory
+
+
 
 # Create your views here.
 def adminlogin(request):
     if request.method=="POST":
         username=request.POST.get("username")
         password=request.POST.get("password")
+        print(username)
+        print(password)
         data=authenticate(request,username=username,password=password)
+        print(data)
         if data:
-            if data.role =="ADMIN":
+            if data.role=="ADMIN":
                 login(request,data)
                 return redirect("/adminhome/")
                 
             else:
                 messages.error(request,"invalid username or password")
-        else:
-            return redirect("selleregis")    
+        # else:
+        #     return redirect("selleregis")    
     return render(request,"admin-templates/adminlogin.html")
 
 
+
+
 def adminhome(request):
-    return render(request,"admin-templates/adminhome.html")
+    total_sellers = SellerProfile.objects.filter(status="APPROVED").count()
+
+    seller_requests = SellerProfile.objects.filter(
+        status="PENDING"
+    ).count()
+
+    live_products = Product.objects.filter(
+        is_active=True,
+        approval_status='APPROVED'
+    ).count()
+
+    revenue = OrderItem.objects.filter(
+    order__order_status='delivered'  
+).aggregate(total=Sum('price_at_purchase'))['total'] or 0
+
+    context = {
+        "total_sellers": total_sellers,
+        "seller_requests": seller_requests,
+        "live_products": live_products,
+        "revenue": revenue,
+    }
+
+    return render(request, "admin-templates/adminhome.html", context)
+
+
+
+
+
+def adminsellerapproval(request):
+    sellers = SellerProfile.objects.filter(status='PENDING').select_related('user')
+    return render(request,"admin-templates/adminsellerapproaval.html",{
+        "sellers": sellers
+    })
+
+
+
+
+def approve_seller(request, id):
+    if request.method == "POST":
+        seller = SellerProfile.objects.filter(id=id).first()
+
+        if seller:
+            seller.status = 'APPROVED'
+            seller.save()
+
+    return redirect("/adminsellerapproval/")
+
+
+
+
+
+def reject_seller(request, id):
+    if request.method == "POST":
+        seller = SellerProfile.objects.filter(id=id).first()
+
+        if seller:
+            seller.status = 'REJECTED'
+            seller.save()
+
+    return redirect('/adminsellerapproval/')
+
+
+
+
+def product(request):
+    products = Product.objects.filter(
+        approval_status='PENDING'
+    ).select_related(
+        'seller', 'subcategory__category'
+    ).prefetch_related(
+        'variants__images'
+    )
+    return render(request,"admin-templates/adminproduct.html",{"products": products})
+
+
+
+
+def approve_product(request, id):
+    if request.method == "POST":
+        product = Product.objects.get(id=id)
+        if product:
+            product.approval_status = 'APPROVED'
+            product.save()
+    return redirect('/adminproduct/')
+
+
+
+
+
+def reject_product(request, id):
+    if request.method == "POST":
+        product = Product.objects.get(id=id)
+        if product:
+            product.approval_status = 'REJECTED'
+            product.save()
+    return redirect('/adminproduct/')
+
+
+
+
+def approved_products(request):
+    search = request.GET.get("search")
+    subcategory = request.GET.get("subcategory")
+
+    products = Product.objects.filter(
+        approval_status="APPROVED",
+        is_active=True
+).annotate(
+    total_stock=Sum("variants__stock_quantity")
+).select_related("subcategory", "seller").prefetch_related("variants")
+
+   
+    if search:
+        products = products.filter(
+            Q(name__icontains=search) |
+            Q(brand__icontains=search) |
+            Q(variants__sku_code__icontains=search)
+        ).distinct()
+
+    if subcategory:
+        products = products.filter(subcategory_id=subcategory)
+
+    subcategories = SubCategory.objects.all()
+
+    context = {
+        "products": products,
+        "subcategories": subcategories,
+        "selected_subcategory": subcategory,
+        "search_query": search,
+    }
+
+    return render(request, "admin-templates/approvedproducts.html", context)
+
+
+
+
+def approved_sellers(request):
+    search = request.GET.get("search")
+    sellers = SellerProfile.objects.filter(status="APPROVED").select_related("user")
+    if search:
+        sellers = sellers.filter(
+            Q(store_name__icontains=search) |
+            Q(user__username__icontains=search) |
+            Q(user__email__icontains=search)
+        )
+    sellers = sellers.annotate(
+        total_products=Count("products")
+    )
+    total_sellers = sellers.count()
+    avg_rating = sellers.aggregate(avg=Avg("rating"))["avg"] or 0
+    banned_count = SellerProfile.objects.filter(status="REJECTED").count()
+    context = {
+        "sellers": sellers,
+        "total_sellers": total_sellers,
+        "avg_rating": round(avg_rating, 1),
+        "banned_count": banned_count,
+        "search_query": search,
+    }
+    return render(request, "admin-templates/adminseller.html", context)
+
+   
+
+  
+
+def rejected_sellers(request):
+    search = request.GET.get("search")
+
+    sellers = SellerProfile.objects.filter(status="REJECTED").select_related("user")
+    if search:
+        sellers = sellers.filter(
+            Q(store_name__icontains=search) |
+            Q(user__username__icontains=search) |
+            Q(user__email__icontains=search)
+        )
+
+    context = {
+        "sellers": sellers,
+        "search": search,
+    }
+
+    return render(request, "admin-templates/rejectedsellers.html", context)
+
+def reapprove_seller(request,id):
+    seller = SellerProfile.objects.get(id=id)
+
+    if seller:
+        seller.status = 'APPROVED'
+        seller.save()
+        messages.success(request, "Seller re-approved successfully")
+    else:
+        messages.error(request, "Seller not found")
+
+    return redirect('/rejectedsellers/')
+
+
+
+def rejected_products(request):
+    search = request.GET.get("search")
+    subcategory = request.GET.get("subcategory")
+
+    products = Product.objects.filter(
+        approval_status="REJECTED"
+    ).select_related("subcategory", "seller").prefetch_related("variants")
+
+   
+    if search:
+        products = products.filter(
+            Q(name__icontains=search) |
+            Q(brand__icontains=search) |
+            Q(variants__sku_code__icontains=search)
+        ).distinct()
+
+    
+    if subcategory:
+        products = products.filter(subcategory_id=subcategory)
+
+    context = {
+        "products": products,
+        "subcategories": SubCategory.objects.all(),
+        "search_query": search,
+        "selected_subcategory": subcategory,
+    }
+
+    return render(request, "admin-templates/rejectedproducts.html", context)
+
+
+def reapprove_product(request, id):
+    updated = Product.objects.get(id=id)
+
+    if updated:
+        updated.approval_status = 'APPROVED'
+        updated.save()
+        messages.success(request, "Product re-approved successfully")
+    else:
+        messages.error(request, "Product not found")
+
+    return redirect("/rejectedproducts/")
+
+
+def rejectseller(request, id):
+    if request.method == "POST":
+        seller = SellerProfile.objects.filter(id=id).first()
+
+        if seller:
+            seller.status = 'REJECTED'
+            seller.save()
+
+    return redirect('/approvedsellers/')
+
+def category_view(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        image = request.FILES.get("image")
+        description = request.POST.get("description")
+        if name:
+            Category.objects.create(
+                name=name,
+                image=image,
+                description=description
+            )
+        return redirect('/category/')
+    categories = Category.objects.all().order_by('-created_at')
+    return render(request, 'admin-templates/category.html', {'categories': categories})
+
+def toggle_category_status(request, id):
+    category = Category.objects.get(id=id)
+
+    if category:
+        category.is_active = not category.is_active
+        category.save()
+    return redirect('/category/')
+
+def delete_category(request, id):
+    category = Category.objects.get(id=id)
+    if category:
+        category.delete()
+    return redirect('/category/')
+
+def subcategory_management(request):
+    categories = Category.objects.all()
+    subcategories = SubCategory.objects.select_related('category').all().order_by('-created_at')
+
+    if request.method == "POST":
+        category_id = request.POST.get("category")
+        name = request.POST.get("name")
+        image = request.FILES.get("image")
+
+        if category_id and name:
+            category = Category.objects.get(id=category_id)
+
+            SubCategory.objects.create(
+                category=category,
+                name=name,
+                image=image
+            )
+
+        return redirect('subcategory_management')  # use your URL name
+
+    context = {
+        "categories": categories,
+        "subcategories": subcategories
+    }
+    return render(request, "admin-templates/subcategory.html", context)
+
+def delete_subcategory(request, id):
+    sub = SubCategory.objects.get(id=id)
+    sub.delete()
+    return redirect('subcategory_management')
