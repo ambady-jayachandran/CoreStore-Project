@@ -23,21 +23,33 @@
             overflow-x: hidden; 
         }
         
-        .glass { 
-            background: white; 
+        .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; }
+
+        /* Gallery Optimization */
+        .main-img-container { 
+            overflow: hidden; 
+            border-radius: 4px; 
             border: 1px solid #e2e8f0; 
-            border-radius: 4px;
+            background: #f8fafc;
+        }
+        
+        @media (hover: hover) {
+            .main-img-container { cursor: zoom-in; }
+            .main-img-container:hover .main-img { transform: scale(1.5); }
         }
 
-        .main-img-container { cursor: zoom-in; overflow: hidden; border-radius: 4px; border: 1px solid #e2e8f0; }
-        .main-img-container:hover .main-img { transform: scale(1.8); }
         .main-img { 
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             transform-origin: center center; 
         }
 
-        .thumbnail-btn { border-radius: 4px; transition: all 0.2s ease; border: 1px solid #e2e8f0; }
-        .thumbnail-active { border-color: var(--accent) !important; ring: 2px var(--accent); }
+        .thumbnail-btn { 
+            border-radius: 4px; 
+            transition: all 0.2s ease; 
+            border: 2px solid transparent; 
+            background: #f8fafc;
+        }
+        .thumbnail-active { border-color: var(--accent) !important; }
         
         .tab-btn { transition: all 0.2s ease; border-bottom: 2px solid transparent; }
         .tab-active { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
@@ -49,95 +61,66 @@
             border-radius: 4px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
             transition: all 0.3s ease;
         }
 
-        /* Hide number arrows */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <div id="wishlist-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 hidden">
-        <div class="p-4 glass border-l-4 border-blue-600 shadow-2xl animate__animated animate__fadeInDown text-center">
-            <p id="toast-text" class="text-[10px] font-black uppercase tracking-widest text-slate-900"></p>
+    <div id="wishlist-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-[110] w-[90%] max-w-xs hidden">
+        <div class="p-4 bg-slate-900 text-white border-l-4 border-blue-500 shadow-2xl animate__animated animate__fadeInDown text-center rounded-sm">
+            <p id="toast-text" class="text-[10px] font-black uppercase tracking-widest"></p>
         </div>
     </div>
 
-    {% include 'includes/message-toast.html' %}
+    {% include 'core-templates/navbar.html' %}
 
-    <nav class="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 shadow-xl py-3">
-        <div class="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <button onclick="window.history.back()" class="w-9 h-9 border border-blue-400/30 text-blue-100 flex items-center justify-center hover:bg-blue-600 transition-all rounded-sm">
-                    <i class="fa-solid fa-arrow-left text-xs"></i>
-                </button>
-                <a href="{% url 'home' %}" class="text-xl font-black tracking-tighter flex items-center gap-2 group text-white">
-                    <div class="bg-blue-600 p-1 rounded-sm group-hover:bg-blue-50 transition-transform">
-                        <i class="fa-solid fa-bolt-lightning text-xs"></i>
-                    </div>
-                    <span>CORE<span class="text-blue-400">STORE</span></span>
-                </a>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="/wishlist/" class="w-9 h-9 border border-blue-400/30 flex items-center justify-center text-blue-100 hover:text-white transition-all rounded-sm">
-                    <i class="fa-solid fa-heart text-xs"></i>
-                </a>
-                <a href="/cart" class="relative w-9 h-9 border border-blue-400/30 flex items-center justify-center text-blue-100 hover:text-white transition-all rounded-sm">
-                    <i class="fa-solid fa-shopping-bag text-xs"></i>
-                    {% if cart_count > 0 %}
-                    <span class="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[9px] font-black rounded-full flex items-center justify-center">{{ cart_count }}</span>
-                    {% endif %}
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="h-20 lg:h-24"></div>
-
-    <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
             
-            <div class="lg:col-span-7 flex flex-col md:flex-row gap-4 animate__animated animate__fadeInLeft animate__faster">
-                <div class="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto hide-scrollbar max-h-[500px]">
+            <div class="lg:col-span-7 flex flex-col md:flex-row gap-4 animate__animated animate__fadeIn">
+                <div class="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto hide-scrollbar py-2 md:py-0">
                     {% for img in data.images.all %}
-                    <button onclick="changeHero('{{ img.image.url }}', this)" class="thumbnail-btn shrink-0 w-16 h-16 md:w-20 md:h-20 glass overflow-hidden {% if img.is_primary %}thumbnail-active{% endif %}">
-                        <img src="{{ img.image.url }}" class="w-full h-full object-cover">
+                    <button onclick="changeHero('{{ img.image.url }}', this)" 
+                            class="thumbnail-btn shrink-0 w-20 h-20 md:w-24 md:h-24 overflow-hidden shadow-sm {% if img.is_primary %}thumbnail-active{% endif %}">
+                        <img src="{{ img.image.url }}" class="w-full h-full object-cover" alt="Thumbnail">
                     </button>
                     {% endfor %}
                 </div>
 
                 <div class="flex-1 order-1 md:order-2">
-                    <div class="main-img-container relative aspect-[1/1] sm:aspect-[4/5] shadow-sm" onmousemove="zoom(event)">
+                    <div class="main-img-container relative aspect-square md:aspect-[4/5] shadow-sm" onmousemove="zoom(event)">
                         {% with primary=data.images.all|dictsortreversed:"is_primary"|first %}
-                        <img id="mainHero" src="{{ primary.image.url }}" class="main-img w-full h-full object-cover">
+                        <img id="mainHero" src="{{ primary.image.url }}" class="main-img w-full h-full object-cover" alt="{{ data.product.name }}">
                         {% endwith %}
                         
                         <button onclick="toggleWishlist(this, '{{ data.slug }}')" 
-                            data-is-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
-                            class="absolute top-4 right-4 w-10 h-10 bg-white shadow-lg flex items-center justify-center text-slate-900 hover:scale-110 transition-all rounded-sm group">
-                            <i class="fa-solid fa-heart transition-colors duration-300 {% if is_in_wishlist %}heart-filled{% endif %}"></i>
+                                data-is-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
+                                class="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur shadow-xl flex items-center justify-center text-slate-900 hover:scale-110 transition-all rounded-full z-10">
+                            <i class="fa-solid fa-heart transition-colors duration-300 text-lg {% if is_in_wishlist %}heart-filled{% endif %}"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-5 space-y-8 animate__animated animate__fadeInRight animate__faster">
+            <div class="lg:col-span-5 space-y-8 animate__animated animate__fadeIn">
                 <div class="space-y-4">
                     <div class="flex flex-wrap items-center gap-3">
-                        <span class="text-[9px] font-bold text-blue-600 uppercase tracking-widest border border-blue-100 px-2 py-1 bg-blue-50 rounded-sm">
+                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest border border-blue-100 px-3 py-1 bg-blue-50 rounded-sm">
                             SKU: {{ data.sku_code }}
                         </span>
                         {% if data.stock_quantity == 0 %}
-                            <span class="text-[9px] font-bold text-red-600 uppercase flex items-center gap-1">Out of Stock</span>
+                            <span class="text-[9px] font-black text-red-600 uppercase flex items-center gap-1"><i class="fa-solid fa-circle text-[6px]"></i> Out of Stock</span>
                         {% else %}
-                            <span class="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1">In Stock</span>
+                            <span class="text-[9px] font-black text-emerald-600 uppercase flex items-center gap-1"><i class="fa-solid fa-circle text-[6px] animate-pulse"></i> Registry Active</span>
                         {% endif %}
                     </div>
                     
-                    <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
+                    <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
                         {{ data.product.name }}
                     </h1>
                     
@@ -145,240 +128,204 @@
                         <span class="text-4xl font-black text-slate-900">${{ data.selling_price }}</span>
                         {% if data.mrp > data.selling_price %}
                             <span class="text-xl text-slate-300 line-through font-medium">${{ data.mrp }}</span>
-                            <span class="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase">SALE</span>
+                            <span class="bg-red-600 text-white text-[10px] font-black px-2 py-1 rounded-sm">PROMO</span>
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="border-b border-slate-100 flex gap-8">
-                    <button onclick="switchTab('desc', this)" class="tab-btn pb-3 text-[11px] font-bold uppercase tracking-widest tab-active">Overview</button>
-                    <button onclick="switchTab('spec', this)" class="tab-btn pb-3 text-[11px] font-bold uppercase tracking-widest text-slate-400">Specifications</button>
-                </div>
-                
-                <div class="min-h-[100px]">
-                    <div id="desc-content" class="tab-pane block">
-                        <p class="text-sm font-medium leading-relaxed text-slate-500 italic">
-                            {{ data.product.description|default:"Precision engineered for peak performance." }}
-                        </p>
+                <div class="space-y-4">
+                    <div class="border-b border-slate-100 flex gap-8 overflow-x-auto no-scrollbar">
+                        <button onclick="switchTab('desc', this)" class="tab-btn pb-3 text-[11px] font-black uppercase tracking-widest tab-active whitespace-nowrap">Overview</button>
+                        <button onclick="switchTab('spec', this)" class="tab-btn pb-3 text-[11px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Technical Specs</button>
                     </div>
-                    <div id="spec-content" class="tab-pane hidden space-y-3">
-                        <div class="grid grid-cols-2 py-2 border-b border-slate-50 text-[10px] font-bold uppercase">
-                            <span class="text-slate-400">Dimensions</span>
-                            <span class="text-right">{{ data.length }}x{{ data.width }}x{{ data.height }} cm</span>
+                    
+                    <div class="min-h-[80px]">
+                        <div id="desc-content" class="tab-pane block">
+                            <p class="text-sm font-medium leading-relaxed text-slate-500 italic">
+                                {{ data.product.description|default:"Precision engineered for peak performance. Built for the elite tier." }}
+                            </p>
+                        </div>
+                        <div id="spec-content" class="tab-pane hidden">
+                            <div class="grid grid-cols-2 py-3 border-b border-slate-50 text-[10px] font-black uppercase">
+                                <span class="text-slate-400">Chassis Dimensions</span>
+                                <span class="text-right text-slate-900">{{ data.length }}x{{ data.width }}x{{ data.height }} MM</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="space-y-6 pt-6">
-                    <!-- Rating Section -->
-                    {% if avg_rating > 0 %}
-                    <div class="flex items-center gap-4 p-4 bg-emerald-50 border border-emerald-200 rounded-sm">
-                        <div class="flex text-xl">
-                            {% for i in "12345"|make_list %}
-                                {% if forloop.counter <= avg_rating %}
-                                    <i class="fas fa-star text-amber-400"></i>
-                                {% else %}
-                                    <i class="far fa-star text-amber-400"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <div>
-                            <p class="font-bold text-emerald-800 text-sm">{{ avg_rating }}/5 ({{ review_count }} reviews)</p>
-                        </div>
-                    </div>
-                    {% endif %}
-                    <div class="flex items-center bg-slate-50 p-3 border border-slate-100 rounded-sm">
-                        <span class="text-[10px] font-black uppercase text-slate-400 mr-4">Quantity</span>
-                        <div class="flex items-center bg-white border border-slate-200 p-1">
-                            <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-slate-50 transition-colors" id="qty-decrease">
+                <div class="space-y-6 pt-4">
+                    <div class="flex items-center bg-slate-50 p-4 border border-slate-100 rounded-sm">
+                        <span class="text-[10px] font-black uppercase text-slate-400 mr-6">Quantity</span>
+                        <div class="flex items-center bg-white border border-slate-200 p-1 rounded-sm">
+                            <button type="button" class="w-10 h-10 flex items-center justify-center hover:bg-slate-50 transition-colors" id="qty-decrease">
                                 <i class="fa-solid fa-minus text-[10px]"></i>
                             </button>
                             <input type="number" id="shared-qty-input" min="1" max="{{ data.stock_quantity }}" value="1" 
                                    class="w-12 text-center text-sm font-black text-slate-900 border-0 outline-none bg-transparent" readonly>
-                            <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-slate-50 transition-colors" id="qty-increase">
+                            <button type="button" class="w-10 h-10 flex items-center justify-center hover:bg-slate-50 transition-colors" id="qty-increase">
                                 <i class="fa-solid fa-plus text-[10px]"></i>
                             </button>
                         </div>
-                        <span class="ml-auto text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ data.stock_quantity }} Available</span>
+                        <span class="ml-auto text-[9px] font-black text-slate-400 uppercase tracking-tighter">{{ data.stock_quantity }} units in node</span>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col sm:flex-row gap-3">
                         {% if is_in_cart %}
-                            <a href="{% url 'cart' %}" class="col-span-2">
-                                <button class="btn-action w-full h-14 bg-blue-600 text-white hover:bg-slate-900 shadow-lg shadow-blue-100">
-                                    <i class="fa-solid fa-arrow-right mr-2"></i> Review Cart
+                            <a href="{% url 'cart' %}" class="w-full">
+                                <button class="btn-action w-full h-16 bg-blue-600 text-white hover:bg-slate-900 shadow-xl shadow-blue-100 flex items-center justify-center gap-3">
+                                    <i class="fa-solid fa-cart-arrow-down"></i> Proceed to Checkout
                                 </button>
                             </a>
                         {% else %}
-                            <form action="{% url 'user_addto_cart' data.slug %}" method="POST" class="col-span-2 sm:col-span-1" id="add-to-cart-form">
+                            <form action="{% url 'user_addto_cart' data.slug %}" method="POST" class="flex-1" id="add-to-cart-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="quantity" id="cart-form-qty" value="1">
                                 <button type="submit" {% if data.stock_quantity == 0 %}disabled{% endif %} 
-                                        class="btn-action w-full h-14 bg-slate-900 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    Add to Bag
+                                        class="btn-action w-full h-16 bg-slate-900 text-white hover:bg-blue-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                                    Add to Registry
+                                </button>
+                            </form>
+                            <form action="{% url 'buy_now_checkout' data.slug %}" method="POST" class="flex-1" id="buy-now-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" id="buy-form-qty" value="1">
+                                <button type="submit" {% if data.stock_quantity == 0 %}disabled{% endif %} 
+                                        class="btn-action w-full h-16 border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed">
+                                    Direct Buy
                                 </button>
                             </form>
                         {% endif %}
-
-                        <form action="{% url 'buy_now_checkout' data.slug %}" method="POST" class="col-span-2 sm:col-span-1" id="buy-now-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="quantity" id="buy-form-qty" value="1">
-                            <button type="submit" {% if data.stock_quantity == 0 %}disabled{% endif %} 
-                                    class="btn-action w-full h-14 border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed">
-                                Buy Now
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Related Products Section -->
         <section class="mt-24">
-            <h2 class="text-3xl font-black text-slate-900 mb-12 text-center uppercase tracking-tighter">Related Items</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="flex items-center gap-4 mb-12">
+                <h2 class="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter">Compatible Upgrades</h2>
+                <div class="h-px bg-slate-100 flex-1"></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 {% for related in related_products %}
-                <a href="{{ related.get_absolute_url }}" class="group glass p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="aspect-[4/5] overflow-hidden rounded-sm mb-3 group-hover:scale-105 transition-transform">
+                <a href="{{ related.get_absolute_url }}" class="group glass p-3 md:p-5 transition-all duration-300 hover:shadow-2xl">
+                    <div class="aspect-square overflow-hidden rounded-sm mb-4 bg-slate-50">
                         {% with primary=related.images.all|dictsortreversed:"is_primary"|first %}
-                        <img src="{{ primary.image.url }}" alt="{{ related.product.name }}" class="w-full h-full object-cover">
+                        <img src="{{ primary.image.url }}" alt="{{ related.product.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         {% endwith %}
                     </div>
-                    <h3 class="font-bold text-sm text-slate-900 line-clamp-2 mb-2 group-hover:text-blue-600">{{ related.product.name }}</h3>
-                    <p class="text-lg font-black text-slate-900">${{ related.selling_price }}</p>
+                    <h3 class="font-bold text-[10px] md:text-xs text-slate-900 line-clamp-1 uppercase tracking-tight mb-2 group-hover:text-blue-600 transition-colors">{{ related.product.name }}</h3>
+                    <p class="text-base font-black text-slate-900 tracking-tighter">${{ related.selling_price }}</p>
                 </a>
-                {% empty %}
-                <p class="col-span-full text-center text-slate-500 py-12">No related products found.</p>
                 {% endfor %}
             </div>
         </section>
 
-        <section class="mt-24 border-t border-slate-100 pt-16">
-    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-12">
-        <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Customer Reviews</h2>
-        {% if review_count > 0 %}
-        <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-sm">
-            <span class="font-bold text-lg text-emerald-800">{{ avg_rating }}/5</span>
-            <span class="text-sm font-bold text-slate-400">({{ review_count }} Total)</span>
-        </div>
-        {% endif %}
-    </div>
-    
-    {% if review_count > 0 %}
-    <div class="max-w-xl mx-auto mb-16 space-y-3 px-4">
-        {% for dist in rating_distribution %}
-            {% if review_count > 0 %}
-                {% widthratio dist.count review_count 100 as percent %}
-            {% else %}
-                {% widthratio 0 1 100 as percent %}
-            {% endif %}
-            
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end gap-2 w-16">
-                    <span class="text-xs font-black text-slate-700">{{ dist.rating }}</span>
-                    <i class="fas fa-star text-amber-400 text-[10px]"></i>
-                </div>
-
-                <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                    <div class="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-700 ease-out" 
-                         style="width: {{ percent }}%">
-                    </div>
-                </div>
-
-                <div class="w-20 text-right">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">{{ percent }}%</span>
-                    <span class="text-[10px] text-slate-300 ml-1">({{ dist.count }})</span>
-                </div>
+        <section class="mt-24 pt-16 border-t border-slate-100">
+            <div class="flex flex-col md:flex-row items-baseline gap-4 mb-16">
+                <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Field Reports</h2>
+                <span class="text-slate-400 font-bold text-sm uppercase tracking-widest">[{{ review_count }} Verified Reviews]</span>
             </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div class="lg:col-span-4 space-y-4 bg-slate-50 p-8 rounded-sm h-fit">
+                    {% if review_count > 0 %}
+                    <div class="text-center mb-8">
+                        <p class="text-5xl font-black text-slate-900 mb-2">{{ avg_rating }}</p>
+                        <div class="flex justify-center text-amber-400 gap-1 mb-2">
+                            {% for i in "12345"|make_list %}
+                                <i class="{% if forloop.counter <= avg_rating %}fas{% else %}far{% endif %} fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Global Average</p>
+                    </div>
+                    {% for dist in rating_distribution %}
+                        {% widthratio dist.count review_count 100 as percent %}
+                        <div class="flex items-center gap-4">
+                            <span class="text-[10px] font-black w-4">{{ dist.rating }}</span>
+                            <div class="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-600" style="width: {{ percent }}%"></div>
+                            </div>
+                            <span class="text-[9px] font-bold text-slate-400 w-8">{{ percent }}%</span>
+                        </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
 
-    <div class="space-y-6 max-w-4xl mx-auto px-4">
-        {% for review in reviews %}
-        <div class="glass p-6 hover:shadow-lg transition-all border border-slate-100">
-            <div class="flex justify-between items-start mb-4">
-                <div class="flex text-amber-400 gap-1">
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= review.rating %}
-                            <i class="fas fa-star text-sm"></i>
-                        {% else %}
-                            <i class="far fa-star text-sm text-slate-200"></i>
-                        {% endif %}
+                <div class="lg:col-span-8 space-y-4">
+                    {% for review in reviews %}
+                    <div class="glass p-6 md:p-8 hover:border-blue-200 transition-all">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex text-amber-400 text-xs gap-1">
+                                {% for i in "12345"|make_list %}
+                                    <i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">{{ review.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <p class="text-sm leading-relaxed text-slate-600 font-medium italic mb-8">"{{ review.comment }}"</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-xs uppercase">
+                                {{ review.user.username|slice:":1" }}
+                            </div>
+                            <div>
+                                <p class="text-xs font-black text-slate-900 uppercase tracking-tight">{{ review.user.username }}</p>
+                                <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest">Verified User</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-16 bg-slate-50 border border-dashed border-slate-200 rounded-sm">
+                        <p class="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">No field reports submitted for this node yet.</p>
+                    </div>
                     {% endfor %}
                 </div>
-                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                    {{ review.created_at|date:"M d, Y" }}
-                </span>
             </div>
-            <p class="text-sm leading-relaxed text-slate-600 font-medium">{{ review.comment }}</p>
-            <div class="mt-4 pt-4 border-t border-slate-50 flex items-center gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-[11px] font-black text-slate-700 shadow-sm border border-slate-200">
-                    {{ review.user.get_full_name|slice:":1"|default:review.user.username|slice:":1"|upper }}
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-sm font-bold text-slate-800 tracking-tight">{{ review.user.get_full_name|default:review.user.username }}</span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verified Purchase</span>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="text-center py-20 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
-            <i class="far fa-comment-dots text-4xl text-slate-200 mb-4"></i>
-            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">No reviews yet for this variant</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
+        </section>
     </main>
 
+    {% include 'core-templates/footer.html' %}
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Quantity Logic
+        document.addEventListener('DOMContentLoaded', () => {
             const masterQty = document.getElementById('shared-qty-input');
             const cartQty = document.getElementById('cart-form-qty');
             const buyQty = document.getElementById('buy-form-qty');
-            const decreaseBtn = document.getElementById('qty-decrease');
-            const increaseBtn = document.getElementById('qty-increase');
             const maxStock = parseInt(masterQty.max);
 
-            // Function to sync all hidden inputs
-            function syncQuantity(val) {
-                if(cartQty) cartQty.value = val;
-                if(buyQty) buyQty.value = val;
-            }
+            const sync = (v) => {
+                if(cartQty) cartQty.value = v;
+                if(buyQty) buyQty.value = v;
+            };
 
-            decreaseBtn.addEventListener('click', () => {
-                let current = parseInt(masterQty.value);
-                if (current > 1) {
-                    masterQty.value = current - 1;
-                    syncQuantity(masterQty.value);
+            document.getElementById('qty-increase').addEventListener('click', () => {
+                if(parseInt(masterQty.value) < maxStock) {
+                    masterQty.value = parseInt(masterQty.value) + 1;
+                    sync(masterQty.value);
                 }
             });
 
-            increaseBtn.addEventListener('click', () => {
-                let current = parseInt(masterQty.value);
-                if (current < maxStock) {
-                    masterQty.value = current + 1;
-                    syncQuantity(masterQty.value);
+            document.getElementById('qty-decrease').addEventListener('click', () => {
+                if(parseInt(masterQty.value) > 1) {
+                    masterQty.value = parseInt(masterQty.value) - 1;
+                    sync(masterQty.value);
                 }
             });
         });
 
-        // Gallery & Tabs logic preserved
+        // UI Helpers
         function zoom(e) {
+            if (window.innerWidth < 768) return;
             const container = e.currentTarget;
             const img = container.querySelector('.main-img');
             const rect = container.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            img.style.transformOrigin = `${(x / container.offsetWidth) * 100}% ${(y / container.offsetHeight) * 100}%`;
+            img.style.transformOrigin = `${((e.clientX - rect.left) / container.offsetWidth) * 100}% ${((e.clientY - rect.top) / container.offsetHeight) * 100}%`;
         }
 
         function changeHero(url, btn) {
             const hero = document.getElementById('mainHero');
-            hero.style.opacity = '0.4';
-            setTimeout(() => { hero.src = url; hero.style.opacity = '1'; }, 200);
+            hero.style.opacity = '0.3';
+            setTimeout(() => { hero.src = url; hero.style.opacity = '1'; }, 150);
             document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('thumbnail-active'));
             btn.classList.add('thumbnail-active');
         }
@@ -391,9 +338,8 @@
         }
 
         async function toggleWishlist(btn, variantId) {
-            const isAuthenticated = btn.getAttribute('data-is-authenticated') === 'true';
-            if (!isAuthenticated) {
-                window.location.href = '/login/?next=' + encodeURIComponent(window.location.pathname);
+            if (btn.getAttribute('data-is-authenticated') === 'false') {
+                window.location.href = '/login/?next=' + window.location.pathname;
                 return;
             }
             const icon = btn.querySelector('i');
@@ -402,17 +348,16 @@
 
             try {
                 const response = await fetch(`/wishlist/toggle/${variantId}/`, {
-                    method: 'GET',
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
-                const data = await response.json();
-                if (data.status === 'success') {
-                    icon.classList.toggle('heart-filled', data.is_in_wishlist);
-                    toastText.innerText = data.is_in_wishlist ? "Saved to Collection" : "Removed from Collection";
+                const res = await response.json();
+                if (res.status === 'success') {
+                    icon.classList.toggle('heart-filled', res.is_in_wishlist);
+                    toastText.innerText = res.is_in_wishlist ? "Securely Saved" : "Registry Removed";
                     toast.classList.remove('hidden');
-                    setTimeout(() => toast.classList.add('hidden'), 3000);
+                    setTimeout(() => toast.classList.add('hidden'), 2500);
                 }
-            } catch (error) { console.error("Wishlist error:", error); }
+            } catch (e) { console.error(e); }
         }
     </script>
 </body>

@@ -9,228 +9,217 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; }
-        .star { cursor: pointer; transition: color 0.2s; color: #d1d5db; }
-        .star.filled { color: #fbbf24; }
-        .star.hovered { color: #fbbf24; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+        
+        .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05); }
+        
+        .star { cursor: pointer; transition: all 0.2s ease; color: #d1d5db; }
+        .star.filled { color: #fbbf24; transform: scale(1.1); }
+        
+        /* Step indicator logic */
+        .step-active { background: #10b981 !important; color: white !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
+        .step-pending { background: #3b82f6 !important; color: white !important; }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        @media (max-width: 768px) {
+            .mobile-table-card { border-bottom: 1px solid #f1f5f9; padding: 1.5rem 0; }
+            .mobile-table-card:last-child { border-bottom: none; }
+        }
     </style>
 </head>
-<body class="min-h-screen bg-slate-50">
+<body class="min-h-screen">
 
     {% include 'core-templates/navbar.html' %}
     {% load i18n %}
 
-    <div class="h-20 lg:h-24"></div>
-
-    <main class="max-w-6xl mx-auto px-4 md:px-8 py-12">
-        <div class="glass shadow-sm">
-            <!-- Order Header -->
-            <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-8 rounded-t-lg">
-                <div class="flex flex-wrap items-center gap-6">
-                    <h1 class="text-3xl font-black uppercase tracking-tight">Order Registry</h1>
-                    <span class="bg-white/20 px-4 py-2 rounded-sm text-sm font-bold uppercase tracking-wider border border-white/30">
-                        #{{ order.order_number }}
-                    </span>
-                    <span class="text-xs uppercase font-bold px-3 py-1 rounded-full {% if order.order_status == 'delivered' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% elif order.order_status == 'shipped' %}bg-blue-500/20 text-blue-300 border border-blue-500/30{% else %}bg-slate-500/20 text-slate-300 border border-slate-500/30{% endif %}">
-                        {{ order.order_status|title }}
-                    </span>
-                    <div class="ml-auto text-right">
-                        <p class="text-2xl font-black tracking-tight">${{ order.total_amount|floatformat:2 }}</p>
-                        <p class="text-xs opacity-75 uppercase tracking-wider">{{ order.ordered_at|date:"M d, Y h:i A" }}</p>
+    <main class="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-12">
+        <div class="glass overflow-hidden">
+            <div class="bg-slate-900 text-white p-6 md:p-10">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-xl md:text-3xl font-black uppercase tracking-tighter">Order Registry</h1>
+                            <span class="bg-blue-600 text-[10px] md:text-xs font-black px-3 py-1 rounded-sm uppercase tracking-widest">
+                                #{{ order.order_number }}
+                            </span>
+                        </div>
+                        <p class="text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">
+                            {{ order.ordered_at|date:"M d, Y • h:i A" }}
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center md:text-right justify-between md:justify-end gap-6 border-t md:border-0 border-slate-800 pt-4 md:pt-0">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</p>
+                            <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full border border-blue-500/30 text-blue-400 bg-blue-500/10">
+                                {{ order.order_status|title }}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total</p>
+                            <p class="text-xl md:text-3xl font-black tracking-tighter">${{ order.total_amount|floatformat:2 }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Items Table -->
-            <div class="p-8">
-                <h3 class="text-lg font-black uppercase tracking-tighter mb-6 text-slate-900 border-b pb-3">Order Contents</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
+            <div class="p-6 md:p-10">
+                <h3 class="text-sm font-black uppercase tracking-[0.2em] mb-8 text-slate-400 border-b border-slate-100 pb-4">
+                    Shipment Contents
+                </h3>
+                
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-left">
                         <thead>
-                            <tr class="border-b border-slate-200">
-                                <th class="text-left py-4 font-bold uppercase tracking-wider text-xs text-slate-500 pr-4 w-16">Item</th>
-                                <th class="text-left py-4 font-bold uppercase tracking-wider text-xs text-slate-500">Product</th>
-                                <th class="text-right py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-24">Qty</th>
-                                <th class="text-right py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-28">Unit Price</th>
-                                <th class="text-right py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-28">Total</th>
-                                {% if eligible_items %}
-                                <th class="text-center py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-32">Review</th>
-                                {% endif %}
+                            <tr class="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
+                                <th class="pb-4 w-20 text-center">Node</th>
+                                <th class="pb-4">Product Specification</th>
+                                <th class="pb-4 text-center">Qty</th>
+                                <th class="pb-4 text-right">Unit Value</th>
+                                <th class="pb-4 text-right">Subtotal</th>
+                                <th class="pb-4 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-50">
                             {% for item in order.items.all %}
-                            <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                                <td class="py-4 pr-4 w-16">
-                                    {% with first_img=item.variant.images.first %}
-                                        {% if first_img %}
-                                            <img src="{{ first_img.image.url }}" class="w-16 h-16 object-cover rounded border">
-                                        {% else %}
-                                            <div class="w-16 h-16 bg-slate-100 flex items-center justify-center rounded border text-xs text-slate-400">
-                                                <i class="fa-solid fa-box"></i>
-                                            </div>
-                                        {% endif %}
-                                    {% endwith %}
+                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                                <td class="py-6">
+                                    <div class="w-16 h-16 bg-slate-100 rounded-sm overflow-hidden border border-slate-200">
+                                        {% with img=item.variant.images.first %}
+                                            <img src="{{ img.image.url|default:'https://via.placeholder.com/100' }}" class="w-full h-full object-cover">
+                                        {% endwith %}
+                                    </div>
                                 </td>
-                                <td class="py-4">
-<p class="font-bold text-slate-900 text-sm uppercase tracking-tight"><a href="{% url 'product_single' item.variant.slug %}" class="hover:text-blue-600 hover:underline transition-colors">{{ item.variant.product.name }}</a></p>
-                                    <p class="text-xs text-slate-400 uppercase tracking-tight">SKU: {{ item.variant.sku_code }}</p>
+                                <td class="py-6">
+                                    <a href="{% url 'product_single' item.variant.slug %}" class="font-black text-xs uppercase tracking-tight text-slate-900 hover:text-blue-600 transition-colors">
+                                        {{ item.variant.product.name }}
+                                    </a>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">ID: {{ item.variant.sku_code }}</p>
                                 </td>
-                                <td class="py-4 text-right font-mono font-bold text-slate-900">{{ item.quantity }}</td>
-                                <td class="py-4 text-right font-mono font-bold text-slate-900">${{ item.price_at_purchase|floatformat:2 }}</td>
-${{ item.subtotal|floatformat:2 }}
-                                {% if eligible_items %}
-                                <td class="py-4 text-center">
-                                    {% for eligible in eligible_items %}
-                                    {% if eligible.variant.product == item.variant.product %}
-                                        {% for pid,review in review_status_list %}
-                                            {% if pid == item.variant.product.id %}
-                                                {% if review %}
-                                                    <a href="{% url 'edit_review' review.id %}" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all shadow-sm inline-flex items-center">
-                                                        <i class="fa-solid fa-edit mr-1"></i>Edit Review
-                                                    </a>
-                                                {% else %}
-                                                    <button onclick="openReviewModal('{{ item.variant.product.id }}', '{{ item.variant.product.slug }}', '{{ order.id }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all shadow-sm">
-                                                        <i class="fa-solid fa-star mr-1"></i>Write Review
-                                                    </button>
-                                                {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                    {% endif %}
-                                    {% endfor %}
+                                <td class="py-6 text-center font-black text-xs">{{ item.quantity }}</td>
+                                <td class="py-6 text-right font-black text-xs text-slate-500">${{ item.price_at_purchase|floatformat:2 }}</td>
+                                <td class="py-6 text-right font-black text-xs text-slate-900">${{ item.subtotal|floatformat:2 }}</td>
+                                <td class="py-6 text-center">
+                                    {% include 'core-templates/partials/review-action-button.html' %}
                                 </td>
-                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
-                        <tfoot class="border-t-2 border-slate-200 mt-4">
-                            <tr>
-                                <td colspan="{% if eligible_items %}5{% else %}4{% endif %}" class="text-right py-4">
-                                    <span class="text-[12px] font-black uppercase tracking-wider text-slate-500">Grand Total:</span>
-                                </td>
-                                <td class="py-4 text-right">
-                                    <span class="text-2xl font-black text-slate-900">${{ order.total_amount|floatformat:2 }}</span>
-                                </td>
-                            </tr>
-                            </tfoot>
                     </table>
                 </div>
 
-                <!-- Order Tracking Timeline -->
-                <div class="mt-12 pt-8 border-t-2 border-slate-200">
-                    <h3 class="text-lg font-black uppercase tracking-tighter mb-8 text-slate-900 border-b pb-3 flex items-center gap-3">
-                        <i class="fa-solid fa-truck text-blue-600"></i>
-                        Order Tracking
-                    </h3>
-                    <div class="relative max-w-2xl mx-auto">
-                        <div class="flex items-center justify-between mb-4">
-                            <div></div>
-                            <div class="text-center">
-                                <div class="w-20 h-20 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl flex items-center justify-center shadow-2xl mx-auto mb-2 font-black text-sm tracking-tight uppercase">
-                                    {% if order.order_status == 'delivered' %} Delivered {% elif order.order_status == 'shipped' %} Shipped {% elif order.order_status == 'processing' %} Processing {% else %} Placed {% endif %}
-                                </div>
+                <div class="md:hidden space-y-4">
+                    {% for item in order.items.all %}
+                    <div class="mobile-table-card flex flex-col gap-4">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 bg-slate-100 rounded-sm shrink-0">
+                                {% with img=item.variant.images.first %}
+                                    <img src="{{ img.image.url|default:'https://via.placeholder.com/100' }}" class="w-full h-full object-cover rounded-sm">
+                                {% endwith %}
                             </div>
-                            <div></div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between relative">
-                            <!-- Step 1: Order Placed -->
-                            <div class="flex flex-col items-center w-1/4">
-                                <div class="{% if order.order_status != 'placed' %}bg-emerald-500 text-white shadow-lg shadow-emerald-200{% else %}bg-slate-100 text-slate-400 border-2 border-slate-200{% endif %} w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all mx-auto mb-2">
-                                    <i class="fa-solid fa-check {% if order.order_status == 'placed' %}text-slate-500{% else %}text-white{% endif %}"></i>
-                                </div>
-                                <span class="text-xs font-bold uppercase tracking-wider text-center">Order Placed</span>
-                                <span class="text-xs text-slate-400 mt-1">{{ order.ordered_at|date:"M d, Y" }}</span>
-                            </div>
-
-                            <!-- Vertical line 1 -->
-                            <div class="absolute left-1/4 top-20 h-20 w-px bg-gradient-to-b {% if order.order_status != 'placed' %}from-emerald-400 to-emerald-500{% else %}bg-slate-200{% endif %}"></div>
-
-                            <!-- Step 2: Processing -->
-                            <div class="flex flex-col items-center w-1/4 z-10">
-                                <div class="{% if order.order_status == 'processing' or order.order_status == 'shipped' or order.order_status == 'delivered' %}bg-blue-500 text-white shadow-lg shadow-blue-200{% elif order.order_status == 'placed' %}bg-slate-100 text-slate-400 border-2 border-slate-200{% else %}bg-slate-100 text-slate-400 border-2 border-slate-200{% endif %} w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all mx-auto mb-2">
-                                    <i class="fa-solid fa-spinner fa-spin {% if order.order_status == 'processing' or order.order_status == 'shipped' or order.order_status == 'delivered' %}text-white{% else %}text-slate-500{% endif %}"></i>
-                                </div>
-                                <span class="text-xs font-bold uppercase tracking-wider text-center">Processing</span>
-                                <span class="text-xs text-slate-400 mt-1">In Progress</span>
-                            </div>
-
-                            <!-- Vertical line 2 -->
-                            <div class="absolute right-1/2 top-20 h-20 w-px bg-gradient-to-b {% if order.order_status != 'processing' %}bg-slate-200 opacity-50{% elif order.order_status == 'processing' or order.order_status == 'shipped' or order.order_status == 'delivered' %}from-blue-400 to-blue-500{% else %}bg-slate-200{% endif %}"></div>
-
-                            <!-- Step 3: Shipped -->
-                            <div class="flex flex-col items-center w-1/4 z-20">
-                                <div class="{% if order.order_status == 'shipped' or order.order_status == 'delivered' %}bg-purple-500 text-white shadow-lg shadow-purple-200{% else %}bg-slate-100 text-slate-400 border-2 border-slate-200{% endif %} w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all mx-auto mb-2">
-                                    <i class="fa-solid fa-truck {% if order.order_status == 'shipped' or order.order_status == 'delivered' %}text-white{% else %}text-slate-500{% endif %}"></i>
-                                </div>
-                                <span class="text-xs font-bold uppercase tracking-wider text-center">Shipped</span>
-                                <span class="text-xs text-slate-400 mt-1">On the way</span>
-                            </div>
-
-                            <!-- Vertical line 3 -->
-                            <div class="absolute right-1/4 top-20 h-20 w-px bg-gradient-to-b {% if order.order_status == 'delivered' %}from-purple-400 to-purple-500{% else %}bg-slate-200{% endif %}"></div>
-
-                            <!-- Step 4: Delivered -->
-                            <div class="flex flex-col items-center w-1/4">
-                                <div class="{% if order.order_status == 'delivered' %}bg-emerald-600 text-white shadow-lg shadow-emerald-300{% else %}bg-slate-100 text-slate-400 border-2 border-slate-200{% endif %} w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all mx-auto mb-2">
-                                    <i class="fa-solid fa-home {% if order.order_status == 'delivered' %}text-white{% endif %}"></i>
-                                </div>
-                                <span class="text-xs font-bold uppercase tracking-wider text-center">Delivered</span>
-                                <span class="text-xs text-slate-400 mt-1">Completed</span>
+                            <div class="flex-1">
+                                <h4 class="font-black text-[11px] uppercase tracking-tight text-slate-900 leading-tight">{{ item.variant.product.name }}</h4>
+                                <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase">Qty: {{ item.quantity }} • ${{ item.price_at_purchase }}</p>
+                                <p class="text-sm font-black text-slate-900 mt-2">${{ item.subtotal }}</p>
                             </div>
                         </div>
-                        
-                        <div class="mt-8 pt-6 bg-slate-50 rounded-lg p-6 border border-slate-100">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="font-bold uppercase tracking-wider text-slate-900">Current Status:</span>
-                                <span class="font-black px-4 py-1.5 rounded-sm uppercase tracking-wider text-sm {% if order.order_status == 'delivered' %}bg-emerald-600 text-white{% elif order.order_status == 'shipped' %}bg-purple-500 text-white{% elif order.order_status == 'processing' %}bg-blue-500 text-white{% else %}bg-slate-500 text-white{% endif %}">
-                                    {{ order.order_status|title }}
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-                                Your order is being handled by our logistics partner. You will receive SMS/email updates for each step.
-                            </p>
+                        <div class="flex justify-stretch">
+                            {% include 'core-templates/partials/review-action-button.html' %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 md:p-10 border-t border-slate-100">
+                <h3 class="text-sm font-black uppercase tracking-[0.2em] mb-10 text-slate-900 flex items-center gap-3">
+                    <i class="fa-solid fa-route text-blue-600"></i> Logistics Pulse
+                </h3>
+
+                <div class="relative flex flex-col md:flex-row justify-between gap-8 md:gap-0 max-w-4xl mx-auto">
+                    <div class="hidden md:block absolute top-7 left-0 w-full h-0.5 bg-slate-200 z-0"></div>
+                    
+                    <div class="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 md:w-1/4">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center font-black text-sm step-active">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="flex flex-col md:items-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-900">Registered</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">{{ order.ordered_at|date:"M d" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 md:w-1/4">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all {% if order.order_status != 'placed' %}step-pending{% else %}bg-white border-2 border-slate-200 text-slate-300{% endif %}">
+                            <i class="fa-solid fa-microchip {% if order.order_status == 'processing' %}fa-spin{% endif %}"></i>
+                        </div>
+                        <div class="flex flex-col md:items-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest {% if order.order_status != 'placed' %}text-slate-900{% else %}text-slate-300{% endif %}">Processing</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Tech Check</span>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 md:w-1/4">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all {% if order.order_status == 'shipped' or order.order_status == 'delivered' %}step-pending{% else %}bg-white border-2 border-slate-200 text-slate-300{% endif %}">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <div class="flex flex-col md:items-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest {% if order.order_status == 'shipped' %}text-slate-900{% else %}text-slate-300{% endif %}">In Transit</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Logistics</span>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 flex md:flex-col items-center md:items-center gap-4 md:gap-3 md:w-1/4">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all {% if order.order_status == 'delivered' %}step-active{% else %}bg-white border-2 border-slate-200 text-slate-300{% endif %}">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <div class="flex flex-col md:items-center">
+                            <span class="text-[10px] font-black uppercase tracking-widest {% if order.order_status == 'delivered' %}text-slate-900{% else %}text-slate-300{% endif %}">Delivered</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">Final Node</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Review Modal -->
-
-        <div id="review-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4" onclick="closeReviewModal()">
-            <div class="glass max-w-md w-full p-8 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-                <button onclick="closeReviewModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 text-xl">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                <form method="POST" action="{% url 'submit_review' %}">
-                    {% csrf_token %}
-                    <input type="hidden" id="review-product-id" name="product_id">
-                    <input type="hidden" id="review-product-slug" name="product_slug">
-                    <input type="hidden" name="order_id" id="review-order-id">
-                    <h3 class="text-xl font-black uppercase tracking-tight mb-6 text-slate-900 text-center">Product Review</h3>
-                    <div class="mb-8">
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">Rating</label>
-                        <div class="flex justify-center gap-1 mb-3">
-                            {% for star in "12345" %}
-                            <i class="star fas fa-star text-2xl" data-rating="{{ star }}" onclick="setRating(this)"></i>
-                            {% endfor %}
-                            <input type="hidden" name="rating" id="review-rating" value="0">
-                        </div>
-                    </div>
-                    <div class="mb-8">
-                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">Feedback</label>
-                        <textarea name="comment" rows="4" class="w-full p-4 border border-slate-200 rounded-sm text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="Share your experience with this product..."></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-sm font-black uppercase text-[11px] tracking-wider shadow-lg transition-all">
-                        {% trans "Submit Review" %}
-                    </button>
-                </form>
-            </div>
-        </div>
-
     </main>
+
+    <div id="review-modal" class="fixed inset-0 z-[150] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm hidden p-4" onclick="closeReviewModal()">
+        <div class="glass max-w-md w-full p-6 md:p-10 relative max-h-[95vh] overflow-y-auto hide-scrollbar animate__animated animate__zoomIn animate__faster" onclick="event.stopPropagation()">
+            <button onclick="closeReviewModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-900 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <form method="POST" action="{% url 'submit_review' %}" class="space-y-8">
+                {% csrf_token %}
+                <input type="hidden" id="review-product-id" name="product_id">
+                <input type="hidden" id="review-product-slug" name="product_slug">
+                <input type="hidden" name="order_id" id="review-order-id">
+                
+                <div class="text-center">
+                    <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-900 mb-2">Technical Review</h3>
+                    <p class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Share your hardware experience</p>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 text-center">Score Allocation</label>
+                    <div class="flex justify-center gap-3">
+                        {% for star in "12345" %}
+                        <i class="star fas fa-star text-3xl" data-rating="{{ star }}" onclick="setRating(this)"></i>
+                        {% endfor %}
+                        <input type="hidden" name="rating" id="review-rating" value="0">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Analysis Field</label>
+                    <textarea name="comment" rows="5" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-sm text-sm font-medium focus:border-blue-600 focus:outline-none transition-all resize-none" placeholder="Input feedback regarding build quality and performance..."></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-slate-900 text-white py-4 rounded-sm font-black uppercase text-[10px] tracking-[0.2em] transition-all shadow-xl active:scale-95">
+                    Transmit Review
+                </button>
+            </form>
+        </div>
+    </div>
 
     <script>
         function openReviewModal(productId, productSlug, orderId) {
@@ -243,7 +232,6 @@ ${{ item.subtotal|floatformat:2 }}
         function closeReviewModal() {
             document.getElementById('review-modal').classList.add('hidden');
             document.body.style.overflow = '';
-            resetStars();
         }
         function setRating(star) {
             const rating = star.dataset.rating;
@@ -252,10 +240,6 @@ ${{ item.subtotal|floatformat:2 }}
                 if (idx < rating) s.classList.add('filled');
                 else s.classList.remove('filled');
             });
-        }
-        function resetStars() {
-            document.querySelectorAll('.star').forEach(s => s.classList.remove('filled'));
-            document.getElementById('review-rating').value = '0';
         }
     </script>
 </body>

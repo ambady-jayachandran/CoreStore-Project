@@ -19,30 +19,29 @@
         font-family: "Inter", sans-serif;
         background-color: var(--bg-main);
         color: var(--primary);
+        overflow-x: hidden; /* Prevents horizontal scroll on small devices */
       }
 
-      /* Noticeable Smooth Reveal */
       .reveal {
         opacity: 0;
         transform: translateY(20px);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .reveal.active {
         opacity: 1;
         transform: translateY(0);
       }
 
-      /* Sharp Professional Card with Ambient Shadow */
       .pro-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 4px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
       }
       .pro-card:hover {
         border-color: var(--accent);
-        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 10px 10px -5px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
         transform: translateY(-4px);
       }
     </style>
@@ -51,46 +50,52 @@
     {% include 'core-templates/navbar.html' %}
     {% include 'includes/message-toast.html' %}
 
-    <header class="container mx-auto px-4 md:px-6 py-4">
-      <div class="relative overflow-hidden rounded-sm bg-slate-900 h-[300px] md:h-[400px] flex items-center justify-center text-center">
-        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1400" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" alt="Hardware">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+    <header class="container mx-auto px-4 py-6">
+      <div class="relative overflow-hidden rounded-lg bg-slate-900 min-h-[400px] md:h-[500px] flex items-center justify-center text-center">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1400" 
+             class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay" 
+             alt="Hardware">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
         
-        <div class="relative z-10 px-6 max-w-3xl mx-auto text-white">
-          <span class="text-blue-400 font-bold tracking-widest text-[10px] uppercase mb-3 block">Est. 2026</span>
-          <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase">Born for Performance.</h1>
-          <p class="text-sm md:text-base text-slate-300 font-medium max-w-xl mx-auto">We don't just sell products. We provide the elite gear that powers your ambitions, built for those who demand nothing but the best.</p>
+        <div class="relative z-10 px-6 max-w-4xl mx-auto text-white">
+          <span class="text-blue-400 font-bold tracking-widest text-[10px] md:text-xs uppercase mb-4 block">Est. 2026</span>
+          <h1 class="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter mb-6 uppercase leading-tight">Born for <br class="block sm:hidden"> Performance.</h1>
+          <p class="text-sm sm:text-base md:text-lg text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
+            We don't just sell products. We provide the elite gear that powers your ambitions, built for those who demand nothing but the best.
+          </p>
         </div>
       </div>
     </header>
 
-    <section class="container mx-auto px-4 md:px-6 py-16 reveal">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div class="order-2 md:order-1 relative">
-          <div class="absolute -inset-4 bg-slate-100 rounded-sm transform rotate-2"></div>
-          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" alt="Workspace" class="relative z-10 w-full rounded-sm shadow-2xl border border-slate-200">
+    <section class="container mx-auto px-4 md:px-8 lg:px-12 py-16 md:py-24 reveal">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div class="order-2 lg:order-1 relative px-4 sm:px-0">
+          <div class="absolute -inset-2 sm:-inset-4 bg-slate-100 rounded-sm transform rotate-2"></div>
+          <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800" 
+               alt="Workspace" 
+               class="relative z-10 w-full rounded-sm shadow-2xl border border-slate-200 object-cover">
         </div>
         
-        <div class="order-1 md:order-2">
-          <div class="border-l-4 border-blue-600 pl-4 mb-6">
-            <span class="text-blue-600 font-bold tracking-widest text-[10px] uppercase block mb-1">Our Mission</span>
-            <h2 class="text-3xl font-black tracking-tighter uppercase text-slate-900">Redefining the Standard.</h2>
+        <div class="order-1 lg:order-2">
+          <div class="border-l-4 border-blue-600 pl-4 mb-8">
+            <span class="text-blue-600 font-bold tracking-widest text-[10px] uppercase block mb-2">Our Mission</span>
+            <h2 class="text-3xl sm:text-4xl font-black tracking-tighter uppercase text-slate-900">Redefining the Standard.</h2>
           </div>
-          <p class="text-sm text-slate-600 font-medium leading-relaxed mb-6">
+          <p class="text-sm sm:text-base text-slate-600 font-medium leading-relaxed mb-6">
             CORE STORE was founded on a simple principle: professionals shouldn't have to compromise on their tools. Whether you are building the next big app, designing the future, or dominating in esports, the hardware you use dictates your ceiling.
           </p>
-          <p class="text-sm text-slate-600 font-medium leading-relaxed mb-8">
+          <p class="text-sm sm:text-base text-slate-600 font-medium leading-relaxed mb-10">
             We meticulously curate every item in our inventory, partnering only with brands that share our obsession with quality, durability, and bleeding-edge technology.
           </p>
           
-          <div class="flex gap-8 border-t border-slate-100 pt-6">
+          <div class="flex flex-wrap gap-8 sm:gap-12 border-t border-slate-100 pt-8">
             <div>
-              <h4 class="text-3xl font-black text-slate-900 mb-1">10K+</h4>
-              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Global Customers</span>
+              <h4 class="text-3xl sm:text-4xl font-black text-slate-900 mb-1">10K+</h4>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Customers</span>
             </div>
             <div>
-              <h4 class="text-3xl font-black text-slate-900 mb-1">99%</h4>
-              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Satisfaction Rate</span>
+              <h4 class="text-3xl sm:text-4xl font-black text-slate-900 mb-1">99%</h4>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Satisfaction Rate</span>
             </div>
           </div>
         </div>
@@ -98,49 +103,50 @@
     </section>
 
     <section class="bg-slate-50 border-y border-slate-200 py-20 reveal">
-      <div class="container mx-auto px-4 md:px-6">
-        <div class="text-center mb-12">
-          <span class="text-blue-600 font-bold tracking-widest text-[10px] uppercase block mb-2">The Foundation</span>
-          <h2 class="text-2xl md:text-3xl font-black tracking-tighter uppercase text-slate-900">Our Core Values</h2>
+      <div class="container mx-auto px-4 md:px-8">
+        <div class="text-center mb-16">
+          <span class="text-blue-600 font-bold tracking-widest text-[10px] uppercase block mb-3">The Foundation</span>
+          <h2 class="text-3xl md:text-4xl font-black tracking-tighter uppercase text-slate-900">Our Core Values</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="pro-card p-8 flex flex-col items-center text-center group">
-            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-              <i class="fa-solid fa-microchip text-2xl text-blue-600 group-hover:text-white transition-colors"></i>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="pro-card p-8 md:p-10 flex flex-col items-center text-center group">
+            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-all duration-300">
+              <i class="fa-solid fa-microchip text-2xl text-blue-600 group-hover:text-white"></i>
             </div>
-            <h3 class="text-base font-bold text-slate-900 uppercase tracking-wide mb-3">Uncompromising Quality</h3>
-            <p class="text-xs text-slate-500 font-medium leading-relaxed">We rigorously test every product line. If it doesn't meet our elite standards for performance and longevity, it doesn't make it to our store.</p>
+            <h3 class="text-lg font-bold text-slate-900 uppercase tracking-wide mb-4">Uncompromising Quality</h3>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed">We rigorously test every product line. If it doesn't meet our elite standards for performance and longevity, it doesn't make it to our store.</p>
           </div>
 
-          <div class="pro-card p-8 flex flex-col items-center text-center group">
-            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-              <i class="fa-solid fa-truck-fast text-2xl text-blue-600 group-hover:text-white transition-colors"></i>
+          <div class="pro-card p-8 md:p-10 flex flex-col items-center text-center group">
+            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-all duration-300">
+              <i class="fa-solid fa-truck-fast text-2xl text-blue-600 group-hover:text-white"></i>
             </div>
-            <h3 class="text-base font-bold text-slate-900 uppercase tracking-wide mb-3">Rapid Fulfillment</h3>
-            <p class="text-xs text-slate-500 font-medium leading-relaxed">When you order gear, you need it yesterday. Our streamlined logistics ensure your equipment is packed and shipped with ruthless efficiency.</p>
+            <h3 class="text-lg font-bold text-slate-900 uppercase tracking-wide mb-4">Rapid Fulfillment</h3>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed">When you order gear, you need it yesterday. Our streamlined logistics ensure your equipment is packed and shipped with ruthless efficiency.</p>
           </div>
 
-          <div class="pro-card p-8 flex flex-col items-center text-center group">
-            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-              <i class="fa-solid fa-headset text-2xl text-blue-600 group-hover:text-white transition-colors"></i>
+          <div class="pro-card p-8 md:p-10 flex flex-col items-center text-center group sm:col-span-2 lg:col-span-1">
+            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-all duration-300">
+              <i class="fa-solid fa-headset text-2xl text-blue-600 group-hover:text-white"></i>
             </div>
-            <h3 class="text-base font-bold text-slate-900 uppercase tracking-wide mb-3">Elite Support</h3>
-            <p class="text-xs text-slate-500 font-medium leading-relaxed">Our relationship doesn't end at checkout. Our technical support team is available 24/7 to ensure your gear operates at peak performance.</p>
+            <h3 class="text-lg font-bold text-slate-900 uppercase tracking-wide mb-4">Elite Support</h3>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed">Our relationship doesn't end at checkout. Our technical support team is available 24/7 to ensure your gear operates at peak performance.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="container mx-auto px-4 md:px-6 py-20 reveal">
-        <div class="bg-slate-900 rounded-sm p-8 md:p-16 text-center text-white relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
-            
-            <h2 class="text-2xl md:text-4xl font-black tracking-tighter mb-4 uppercase relative z-10">Ready to Upgrade?</h2>
-            <p class="text-slate-400 font-medium mb-8 max-w-xl mx-auto relative z-10 text-sm">Explore our latest collection of premium hardware and take your performance to the next level.</p>
+    <section class="container mx-auto px-4 py-20 reveal">
+        <div class="bg-slate-900 rounded-lg p-10 md:p-20 text-center text-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[120px] opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-900 rounded-full blur-[120px] opacity-20 transform -translate-x-1/2 translate-y-1/2"></div>
             
             <div class="relative z-10">
-                <a href="{% url 'products' %}" class="bg-blue-600 text-white px-10 py-4 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-colors">
+                <h2 class="text-3xl md:text-5xl font-black tracking-tighter mb-6 uppercase">Ready to Upgrade?</h2>
+                <p class="text-slate-400 font-medium mb-10 max-w-xl mx-auto text-sm sm:text-base">Explore our latest collection of premium hardware and take your performance to the next level.</p>
+                
+                <a href="{% url 'products' %}" class="inline-block bg-blue-600 text-white px-10 py-5 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all duration-300 shadow-xl">
                     Shop The Collection
                 </a>
             </div>
@@ -148,17 +154,19 @@
     </section>
 
     <script>
-      // Reveal Animation
       function reveal() {
         const reveals = document.querySelectorAll(".reveal");
         reveals.forEach(el => {
-          if (el.getBoundingClientRect().top < window.innerHeight - 50) {
+          const windowHeight = window.innerHeight;
+          const elementTop = el.getBoundingClientRect().top;
+          const elementVisible = 100;
+          if (elementTop < windowHeight - elementVisible) {
             el.classList.add("active");
           }
         });
       }
       window.addEventListener("scroll", reveal);
-      reveal();
+      window.addEventListener("load", reveal); // Trigger on load in case user is already scrolled down
     </script>
 
     {% include 'core-templates/footer.html' %}
