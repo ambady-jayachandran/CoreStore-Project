@@ -26,22 +26,14 @@
         .glass { 
             background: white; 
             border: 1px solid #e2e8f0; 
-            border-radius: 4px;
+            border-radius: 4px; /* Sharp Edges */
         }
 
-        .address-card { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        @media (hover: hover) {
-            .address-card:hover {
-                transform: translateY(-4px);
-                border-color: var(--accent);
-                box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
-            }
+        .address-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .address-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
         }
 
         .btn-outline { 
@@ -56,39 +48,52 @@
             position: fixed; 
             inset: 0; 
             z-index: 1000; 
-            background: rgba(15, 23, 42, 0.85); 
-            backdrop-filter: blur(4px); 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-blur: 4px; 
         }
         #delete-modal.active { display: flex; }
     </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="min-h-screen pb-20">
 
-    {% include 'core-templates/navbar.html' %}
-
-    <main class="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-12">
-        <header class="mb-10 md:mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-            <div class="animate__animated animate__fadeInLeft">
-                <p class="text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] text-blue-600 mb-2">Endpoint Management</p>
-                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
-                    Dispatch <span class="text-blue-600">Registry.</span>
-                </h1>
+    <nav class="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 shadow-xl py-4 mb-12 animate__animated animate__fadeInDown">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-xl font-black tracking-tighter flex items-center gap-2 group text-white">
+                <div class="bg-blue-600 p-1.5 rounded-sm group-hover:bg-blue-500 transition-colors">
+                    <i class="fa-solid fa-location-dot text-xs"></i>
+                </div>
+                <span>CORE<span class="text-blue-400">STORE</span></span>
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="{% url 'profile' %}" class="text-[10px] font-bold uppercase tracking-widest text-blue-100/80 hover:text-white transition">Back to Registry</a>
+                <div class="w-9 h-9 rounded-full border border-blue-400/30 p-0.5 overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=2563eb&color=fff&bold=true" class="rounded-full w-full h-full">
+                </div>
             </div>
-            <a href="{% url 'add_address' %}" class="w-full md:w-auto animate__animated animate__fadeInRight">
-                <button class="w-full md:w-auto bg-slate-900 text-white px-8 py-4 rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl active:scale-95">
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-6">
+        <header class="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div class="animate__animated animate__slideInLeft">
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-600 mb-2">Endpoint Management</p>
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase italic">Dispatch <span class="text-blue-600">Registry.</span></h1>
+            </div>
+            <a href="{% url 'add_address' %}" class="animate__animated animate__slideInRight">
+                <button class="bg-slate-900 text-white px-8 py-4 rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95">
                     <i class="fa-solid fa-plus-square mr-2"></i> Register New Entry
                 </button>
             </a>
         </header>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for address in addresses %}
-            <div class="address-card glass p-6 md:p-8 relative animate__animated animate__fadeInUp {% if address.is_default %}border-t-4 border-t-blue-600 shadow-md{% endif %}" 
-                 style="animation-delay: {{ forloop.counter0 }}0ms;">
+            <div class="address-card glass p-8 relative animate__animated animate__fadeInUp {% if address.is_default %}border-t-4 border-t-blue-600 shadow-md{% endif %}" 
+                 style="animation-delay: {{ forloop.counter0 }}00ms;">
                 
                 {% if address.is_default %}
                 <div class="absolute top-4 right-4">
-                    <span class="bg-blue-50 text-blue-600 text-[8px] px-2.5 py-1 rounded-sm font-black uppercase border border-blue-100">Primary Node</span>
+                    <span class="bg-blue-50 text-blue-600 text-[8px] px-3 py-1 rounded-sm font-black uppercase border border-blue-100">Primary</span>
                 </div>
                 {% endif %}
 
@@ -102,74 +107,68 @@
                     {% endif %}
                 </div>
 
-                <div class="flex-grow">
-                    <h3 class="text-lg font-black text-slate-900 mb-2 uppercase tracking-tighter">{{ address.address_type }}</h3>
-                    <div class="text-[11px] text-slate-500 font-medium uppercase leading-relaxed tracking-wide space-y-1">
-                        <p class="font-black text-slate-900 text-xs">{{ address.full_name }}</p>
-                        <p class="text-slate-400 font-bold tracking-widest">{{ address.phone_number }}</p>
-                        <p>{{ address.house_info }}</p>
-                        <p>{{ address.locality }}</p>
-                        <p>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
-                        <p>{{ address.country }}</p>
-                        {% if address.landmark %}
-                        <p class="text-[9px] text-blue-600 mt-3 italic font-bold">Instruction: {{ address.landmark }}</p>
-                        {% endif %}
-                    </div>
+                <h3 class="text-lg font-black text-slate-900 mb-1 uppercase tracking-tighter">{{ address.address_type }}</h3>
+                <div class="text-[11px] text-slate-500 font-medium uppercase leading-relaxed tracking-wide">
+                    <p class="font-black text-slate-900 text-xs mb-1">{{ address.full_name }}</p>
+                    <p class="mb-1 text-slate-400 font-bold tracking-widest">{{ address.phone_number }}</p>
+                    <p class="mb-1">{{ address.house_info }}</p>
+                    <p class="mb-1">{{ address.locality }}</p>
+                    <p class="mb-1">{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+                    <p class="mb-1">{{ address.country }}</p>
+                    {% if address.landmark %}
+                    <p class="text-[9px] text-blue-600 mt-2 italic font-bold">Ref: {{ address.landmark }}</p>
+                    {% endif %}
                 </div>
 
                 <div class="flex gap-2 mt-8 pt-6 border-t border-slate-50">
                     <a href="{% url 'update_address' address.id %}" class="flex-1">
-                        <button class="w-full btn-outline py-3 text-[9px] font-black uppercase tracking-widest active:scale-95 transition-transform">Update</button>
+                        <button class="w-full btn-outline py-2.5 text-[9px] font-black uppercase tracking-widest">Update</button>
                     </a>
-                    <button onclick="openDeleteModal('{{ address.id }}', '{% url 'delete_address' address.id %}')" 
-                            class="px-5 btn-outline py-3 text-[9px] text-red-400 hover:bg-red-500 hover:text-white transition-all border-red-100 active:scale-95">
+                    <button onclick="openDeleteModal('{{ address.id }}', '{% url 'delete_address' address.id %}')" class="px-4 btn-outline py-2.5 text-[9px] text-red-400 hover:bg-red-500 transition-all border-red-100">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
             </div>
             {% empty %}
-            <div class="col-span-full py-20 md:py-32 text-center border-2 border-dashed border-slate-200 rounded-sm bg-white/50">
-                <i class="fa-solid fa-database text-5xl text-slate-200 mb-4 block"></i>
-                <p class="font-black uppercase tracking-[0.4em] text-xs text-slate-400">Database Entry: Null</p>
-                <p class="text-[10px] text-slate-400 mt-2 uppercase">No shipping endpoints found in the current registry.</p>
+            <div class="col-span-full py-24 text-center border-2 border-dashed border-slate-200 rounded-sm">
+                <i class="fa-solid fa-database text-5xl text-slate-100 mb-4 block"></i>
+                <p class="font-black uppercase tracking-[0.4em] text-xs text-slate-300">Database Entry: Null</p>
             </div>
             {% endfor %}
         </div>
 
-        <div class="mt-12 p-6 md:p-8 glass flex flex-col md:flex-row justify-between items-center gap-6 animate__animated animate__fadeIn">
+        <div class="mt-12 p-8 glass flex flex-col md:flex-row justify-between items-center gap-6 animate__animated animate__fadeIn">
             <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-slate-900 text-white rounded-sm flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 bg-slate-900 text-white rounded-sm flex items-center justify-center">
                     <i class="fa-solid fa-truck-fast text-xs"></i>
                 </div>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
-                    Protocol: Dispatch parameters are locked once unit has achieved <span class="text-blue-600">Transit Status</span>.
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Note: Dispatch parameters are locked once unit has achieved <span class="text-blue-600">Transit Status</span>.
                 </p>
             </div>
-            <a href="#" class="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors whitespace-nowrap">Logistics Policy →</a>
+            <a href="#" class="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">Logistics Policy →</a>
         </div>
     </main>
 
     <div id="delete-modal" class="fixed inset-0 items-center justify-center p-4">
-        <div class="glass max-w-xs w-full p-8 text-center animate__animated animate__fadeInUp animate__faster shadow-2xl relative">
+        <div class="glass max-w-xs w-full p-8 text-center animate__animated animate__fadeInUp animate__faster shadow-2xl">
             <div class="w-16 h-16 bg-red-50 text-red-500 rounded-sm border border-red-100 flex items-center justify-center mx-auto mb-6">
                 <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
             </div>
             <h3 class="text-sm font-black uppercase tracking-widest text-slate-900">Erase Entry?</h3>
             <p class="text-[10px] font-bold text-slate-400 mt-2 mb-8 uppercase tracking-widest leading-relaxed">
-                This record will be permanently removed from the dispatch registry.
+                This record will be permanently removed from the registry.
             </p>
             
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-2">
                 <form id="delete-form" method="POST">
                     {% csrf_token %}
-                    <button type="submit" class="w-full bg-red-600 text-white py-4 rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition active:scale-95 shadow-lg shadow-red-200">Confirm Deletion</button>
+                    <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition">Confirm Deletion</button>
                 </form>
-                <button onclick="closeDeleteModal()" class="w-full py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">Abort Sync</button>
+                <button onclick="closeDeleteModal()" class="w-full py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900">Abort</button>
             </div>
         </div>
     </div>
-
-    {% include 'core-templates/footer.html' %}
 
     <script>
         const modal = document.getElementById('delete-modal');
@@ -178,12 +177,10 @@
         function openDeleteModal(id, url) {
             deleteForm.action = url;
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
         }
 
         function closeDeleteModal() {
             modal.classList.remove('active');
-            document.body.style.overflow = '';
         }
 
         window.onclick = (e) => { if (e.target == modal) closeDeleteModal(); }

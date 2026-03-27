@@ -9,167 +9,129 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        
-        :root {
-            --primary: #0f172a; 
-            --accent: #2563eb; 
-            --bg-main: #f8fafc;
-        }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main);
-            color: var(--primary);
-            overflow-x: hidden;
-        }
-
-        .glass { 
-            background: white; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 4px; 
-            box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05); 
-        }
-
-        .star { cursor: pointer; transition: all 0.2s ease; color: #d1d5db; }
-        .star.filled { color: #fbbf24; transform: scale(1.1); }
-        
-        /* Prevent mobile browser from zooming in on input focus */
-        textarea { font-size: 16px !important; }
-        @media (min-width: 768px) {
-            textarea { font-size: 1.125rem !important; }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .star { cursor: pointer; transition: color 0.2s; color: #d1d5db; }
+        .star.filled { color: #fbbf24; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen bg-slate-50">
 
     {% include 'core-templates/navbar.html' %}
 
-    <main class="max-w-3xl mx-auto px-4 py-8 md:py-16 animate__animated animate__fadeIn">
+    <div class="h-24 lg:h-28"></div>
+
+    <main class="max-w-2xl mx-auto px-4 py-12">
         
-        <div class="glass p-6 md:p-10 mb-8 md:mb-12">
-            <div class="flex flex-col items-center text-center">
-                <h1 class="text-2xl md:text-4xl font-black uppercase tracking-tight text-slate-900 mb-6">Modify Report</h1>
-                
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mb-8 w-full">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-xl shrink-0">
+        <!-- Header -->
+        <div class="glass p-8 mb-12 rounded-lg shadow-sm">
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900 mb-4">Edit Review</h1>
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg">
                         <i class="fas fa-star"></i>
                     </div>
-                    <div class="text-center md:text-left">
-                        <p class="text-xl font-black text-slate-900 uppercase tracking-tighter">{{ product.name }}</p>
-                        <div class="flex flex-wrap justify-center md:justify-start items-center gap-2 mt-1">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Logged: {{ review.created_at|date:"M d, Y" }}</span>
-                            {% if review.is_edited %}
-                                <span class="bg-blue-50 text-blue-600 text-[8px] font-black px-2 py-0.5 rounded-sm border border-blue-100 uppercase">RE-EDIT</span>
-                            {% endif %}
-                        </div>
+                    <div>
+                        <p class="text-lg font-bold text-slate-700">{{ product.name }}</p>
+                        <p class="text-sm text-slate-500">{{ review.created_at|date:"M d, Y" }}{% if review.is_edited %} (Previously edited){% endif %}</p>
                     </div>
                 </div>
-
-                <div class="flex text-xl gap-1 text-slate-200">
+                <div class="flex text-2xl mb-4 justify-center">
                     {% for i in "12345"|make_list %}
-                        <i class="fas fa-star {% if forloop.counter <= review.rating %}text-amber-400{% endif %}"></i>
+                        {% if forloop.counter <= review.rating %}
+                            <i class="star filled fas fa-star"></i>
+                        {% else %}
+                            <i class="star far fa-star"></i>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
         </div>
 
-        <div class="glass p-6 md:p-10">
-            <form method="POST" class="space-y-10">
+        <!-- Edit Form -->
+        <div class="glass p-8 rounded-lg shadow-sm max-w-2xl mx-auto">
+            <form method="POST">
                 {% csrf_token %}
-                
-                <div class="text-center">
-                    <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-blue-600 mb-6">Adjustment: Rating Status</label>
-                    <div class="flex justify-center gap-3 md:gap-4" id="rating-stars">
+                <div class="mb-8">
+                    <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Update Rating</label>
+                    <div class="flex justify-center gap-1 mb-4" id="rating-stars">
                         {% for star in "12345" %}
-                            <i class="star fas fa-star text-4xl md:text-5xl edit-star hover:scale-125" data-rating="{{ forloop.counter }}"></i>
+                            <i class="star fas fa-star text-3xl edit-star" data-rating="{{ forloop.counter }}"></i>
                         {% endfor %}
                     </div>
                     <input type="hidden" name="rating" id="review-rating" value="{{ review.rating }}">
-                    <p id="rating-desc" class="mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic"></p>
                 </div>
                 
-                <div class="space-y-3">
-                    <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Analysis Field</label>
-                    <textarea name="comment" rows="6" 
-                              class="w-full p-4 md:p-6 bg-slate-50 border border-slate-200 rounded-sm font-medium focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 focus:bg-white resize-none transition-all placeholder:text-slate-300" 
-                              placeholder="Describe product performance update...">{{ review.comment|default_if_none:"" }}</textarea>
+                <div class="mb-8">
+                    <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">Feedback</label>
+                    <textarea name="comment" rows="6" class="w-full p-4 border border-slate-200 rounded-lg text-lg font-medium focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 resize-vertical transition-all" placeholder="Update your experience with this product...">{{ review.comment|default_if_none:"" }}</textarea>
                 </div>
                 
-                <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <a href="{% url 'my_reviews' %}" 
-                       class="flex-1 order-2 sm:order-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 px-8 rounded-sm font-black uppercase text-[10px] tracking-widest text-center transition-all active:scale-95">
-                        <i class="fa-solid fa-arrow-left mr-2"></i> Cancel Sync
+                <div class="flex gap-4">
+                    <a href="{% url 'my_reviews' %}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 px-8 rounded-lg font-black uppercase text-sm tracking-wider text-center transition-all">
+                        <i class="fa-solid fa-arrow-left mr-2"></i>Back to Reviews
                     </a>
-                    <button type="submit" 
-                            class="flex-1 order-1 sm:order-2 bg-slate-900 hover:bg-blue-600 text-white py-4 px-8 rounded-sm font-black uppercase text-[10px] tracking-widest shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
-                        <i class="fa-solid fa-save"></i> Commit Changes
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-lg font-black uppercase text-sm tracking-wider shadow-lg hover:shadow-xl transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-save mr-2"></i>Update Review
                     </button>
                 </div>
             </form>
         </div>
 
-        <div class="mt-12 p-6 border border-dashed border-slate-200 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+        <!-- Product Preview -->
+        <div class="glass mt-12 p-6 rounded-lg">
             <div class="flex items-center gap-4">
                 {% with first_variant=product.variants.first %}
-                    <div class="w-16 h-16 shrink-0 bg-white border border-slate-100 p-1 rounded-sm">
-                        {% if first_variant.images.first %}
-                            <img src="{{ first_variant.images.first.image.url }}" class="w-full h-full object-cover">
-                        {% else %}
-                            <div class="w-full h-full flex items-center justify-center text-slate-200"><i class="fas fa-image"></i></div>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <h3 class="font-black text-xs text-slate-900 uppercase tracking-tight">{{ product.name }}</h3>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Node ID: {{ product.id }}</p>
-                    </div>
+                    {% if first_variant.images.first %}
+                        <img src="{{ first_variant.images.first.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg border">
+                    {% else %}
+                        <div class="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center border">
+                            <i class="fas fa-box text-2xl text-slate-400"></i>
+                        </div>
+                    {% endif %}
                 {% endwith %}
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900">{{ product.name }}</h3>
+                    <a href="{% url 'product_single' product.variants.first.slug %}" class="text-blue-600 hover:text-blue-700 text-sm font-bold uppercase tracking-wider flex items-center gap-1 mt-1">
+                        View Product <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
             </div>
-            <a href="{% url 'product_single' product.variants.first.slug %}" 
-               class="text-[9px] font-black text-blue-600 uppercase tracking-widest border-b-2 border-blue-600 hover:text-slate-900 hover:border-slate-900 transition-all">
-                View Specification
-            </a>
         </div>
-    </main>
 
-    {% include 'core-templates/footer.html' %}
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const currentRating = parseInt(document.getElementById('review-rating').value) || 0;
+            const currentRating = {{ review.rating|default:0 }};
             const stars = document.querySelectorAll('.edit-star');
-            const desc = document.getElementById('rating-desc');
             
-            const descs = {
-                1: "Sub-optimal Performance",
-                2: "Adequate Functionality",
-                3: "Standard Operation",
-                4: "Elite Grade",
-                5: "Peak Technical Status"
-            };
+            // Pre-fill stars
+            for (let i = 0; i < stars.length; i++) {
+                if (i < currentRating) {
+                    stars[i].classList.add('filled');
+                }
+            }
+            document.getElementById('review-rating').value = currentRating;
+        });
 
-            function updateStars(rating) {
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-star')) {
+                const rating = parseInt(e.target.dataset.rating);
+                document.getElementById('review-rating').value = rating;
+                
+                // Update visual stars
+                const stars = document.querySelectorAll('.edit-star');
                 stars.forEach((star, index) => {
                     if (index < rating) {
-                        star.classList.add('filled', 'animate__animated', 'animate__pulse');
+                        star.classList.add('filled');
                     } else {
-                        star.classList.remove('filled', 'animate__animated', 'animate__pulse');
+                        star.classList.remove('filled');
                     }
                 });
-                if(rating > 0) desc.innerText = descs[rating];
             }
-
-            // Initialization
-            updateStars(currentRating);
-
-            // Click handling
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('edit-star')) {
-                    const rating = parseInt(e.target.dataset.rating);
-                    document.getElementById('review-rating').value = rating;
-                    updateStars(rating);
-                }
-            });
         });
     </script>
+
 </body>
 </html>

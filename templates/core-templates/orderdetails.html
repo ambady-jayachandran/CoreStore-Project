@@ -8,164 +8,130 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #FAF9F6; 
-            color: #3E2723; 
-            overflow-x: hidden;
-        }
-
-        .glass { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(62, 39, 35, 0.08); 
-        }
-
-        .label-caps { 
-            font-size: 9px; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 0.15em; 
-            color: rgba(62, 39, 35, 0.4); 
-            margin-bottom: 6px; 
-            display: block; 
-        }
-
-        /* Prevents layout shifts on smaller devices during animations */
-        .card-transition {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FAF9F6; color: #3E2723; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(62, 39, 35, 0.08); }
+        .label-caps { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: rgba(62, 39, 35, 0.4); margin-bottom: 4px; display: block; }
     </style>
 </head>
-<body class="bg-[#FAF9F6] pb-12 md:pb-20">
+<body class="bg-[#FAF9F6] pb-20">
 
-    <main class="container mx-auto px-4 py-6 md:py-10 max-w-6xl">
-        
-        <nav class="mb-6 md:mb-10">
-            <a href="userorders.html" class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#3E2723]/40 hover:text-[#00796B] transition-colors">
+    <main class="container mx-auto px-4 py-10 max-w-5xl">
+        <nav class="mb-10">
+            <a href="userorders.html" class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#3E2723]/40 hover:text-[#00796B] transition">
                 <i class="fa-solid fa-arrow-left"></i> My Orders
             </a>
         </nav>
 
-        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-10 md:mb-16">
-            <div class="w-full lg:w-auto">
-                <div class="flex flex-wrap items-center gap-3 mb-3">
-                    <h1 class="text-2xl md:text-4xl font-black italic uppercase tracking-tighter text-[#3E2723]">Order <span class="text-[#00796B]">#CS-9921</span></h1>
-                    <span class="bg-[#00796B]/10 text-[#00796B] text-[8px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest shadow-sm">In Transit</span>
-                </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-[#3E2723]/40">Placed on February 15, 2026 • 10:30 AM</p>
-            </div>
-            
-            <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 w-full lg:w-auto">
-                <button class="border border-[#3E2723]/10 px-5 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white transition-all active:scale-95 flex-1 sm:flex-none">Invoice</button>
-                
-                <a href="buyagain.html" class="flex-1 sm:flex-none">
-                    <button class="w-full bg-[#00796B] text-white px-5 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:opacity-95 transition-all shadow-lg shadow-[#00796B]/10 flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Buy Again
-                    </button>
-                </a>
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+    <div>
+        <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-3xl font-black italic uppercase tracking-tighter text-[#3E2723]">Order <span class="text-[#00796B]">#CS-9921</span></h1>
+            <span class="bg-[#00796B]/10 text-[#00796B] text-[8px] px-3 py-1 rounded-full font-black uppercase tracking-widest">In Transit</span>
+        </div>
+        <p class="text-[10px] font-black uppercase tracking-widest text-[#3E2723]/40">Placed on February 15, 2026 • 10:30 AM</p>
+    </div>
+    
+    <div class="flex flex-wrap gap-3 w-full md:w-auto">
+        <button class="flex-1 md:flex-none border border-[#3E2723]/10 px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-white transition">Invoice</button>
+        
+        <a href="buyagain.html" class="flex-1 md:flex-none">
+            <button class="w-full bg-[#00796B] text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:opacity-90 transition shadow-lg shadow-[#00796B]/10 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrows-rotate text-[10px]"></i> Buy Again
+            </button>
+        </a>
 
-                <a href="usertrack.html" class="col-span-2 sm:flex-none">
-                    <button class="w-full bg-[#3E2723] text-white px-8 py-3.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#4E342E] transition-all shadow-lg shadow-[#3E2723]/10 active:scale-95">Track Shipment</button>
-                </a>
-            </div>
-        </header>
+        <a href="usertrack.html" class="flex-1 md:flex-none">
+            <button class="w-full bg-[#3E2723] text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#4E342E] transition shadow-lg shadow-[#3E2723]/10">Track Shipment</button>
+        </a>
+    </div>
+</header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <div class="lg:col-span-2 space-y-6">
-                <div class="glass rounded-[2rem] overflow-hidden shadow-sm">
-                    <div class="p-6 md:p-8 border-b border-[#3E2723]/5">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest opacity-60">Shipment Items (1)</h3>
+                <div class="glass rounded-[2.5rem] overflow-hidden">
+                    <div class="p-8 border-b border-[#3E2723]/5">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest">Shipment Items (1)</h3>
                     </div>
-                    <div class="p-6 md:p-8">
-                        <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                            <div class="w-32 h-32 sm:w-24 sm:h-24 bg-white rounded-2xl overflow-hidden border border-[#3E2723]/5 shrink-0 shadow-sm">
-                                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" class="w-full h-full object-cover" alt="Vortex Racer X1">
+                    <div class="p-8">
+                        <div class="flex items-center gap-6">
+                            <div class="w-24 h-24 bg-white rounded-2xl overflow-hidden border border-[#3E2723]/5 shrink-0">
+                                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300" class="w-full h-full object-cover">
                             </div>
-                            
-                            <div class="flex-1 text-center sm:text-left">
-                                <p class="text-[9px] font-black uppercase text-[#00796B] mb-1 tracking-wider">SKU: VRX-9920</p>
-                                <h4 class="text-xl font-black uppercase tracking-tighter text-[#3E2723]">Vortex Racer X1</h4>
-                                <p class="text-[10px] font-bold text-[#3E2723]/40 uppercase mt-1 tracking-wide">Color: Neon Teal • Size: 42</p>
+                            <div class="flex-1">
+                                <p class="text-[10px] font-black uppercase text-[#00796B] mb-1">SKU: VRX-9920</p>
+                                <h4 class="text-lg font-black uppercase tracking-tighter text-[#3E2723]">Vortex Racer X1</h4>
+                                <p class="text-[9px] font-bold text-[#3E2723]/40 uppercase mt-1">Color: Neon Teal • Size: 42</p>
                             </div>
-                            
-                            <div class="text-center sm:text-right border-t sm:border-0 border-[#3E2723]/5 pt-4 sm:pt-0 w-full sm:w-auto">
-                                <p class="text-xl font-black text-[#3E2723]">$149.00</p>
-                                <p class="text-[10px] font-bold text-[#3E2723]/40 uppercase">Qty: 1</p>
+                            <div class="text-right">
+                                <p class="text-lg font-black text-[#3E2723]">$149.00</p>
+                                <p class="text-[9px] font-bold text-[#3E2723]/40 uppercase">Qty: 1</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass p-6 md:p-8 rounded-[2rem] shadow-sm">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest mb-6 pb-4 border-b border-[#3E2723]/5 opacity-60">Calculated Total</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between text-[11px] font-bold uppercase tracking-tight">
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <h3 class="text-[10px] font-black uppercase tracking-widest mb-6 pb-4 border-b border-[#3E2723]/5">Calculated Total</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-[10px] font-bold uppercase">
                             <span class="opacity-40">Subtotal</span>
                             <span>$149.00</span>
                         </div>
-                        <div class="flex justify-between text-[11px] font-bold uppercase tracking-tight">
+                        <div class="flex justify-between text-[10px] font-bold uppercase">
                             <span class="opacity-40">Shipping (Express)</span>
                             <span class="text-[#00796B]">Free</span>
                         </div>
-                        <div class="flex justify-between text-[11px] font-bold uppercase tracking-tight">
+                        <div class="flex justify-between text-[10px] font-bold uppercase">
                             <span class="opacity-40">Estimated Tax</span>
                             <span>$12.50</span>
                         </div>
-                        <div class="flex justify-between pt-5 border-t border-[#3E2723]/5 items-baseline">
-                            <span class="text-[12px] font-black uppercase tracking-widest">Total Amount</span>
-                            <span class="text-2xl font-black text-[#3E2723]">$161.50</span>
+                        <div class="flex justify-between pt-4 border-t border-[#3E2723]/5">
+                            <span class="text-[11px] font-black uppercase tracking-widest">Total Amount</span>
+                            <span class="text-xl font-black text-[#3E2723]">$161.50</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-1 space-y-6">
-                <div class="glass p-8 rounded-[2rem] shadow-sm">
-                    <div class="mb-10">
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <div class="mb-8">
                         <span class="label-caps">Shipping To</span>
-                        <p class="text-sm font-black uppercase tracking-tight">James Carter</p>
-                        <p class="text-[11px] font-bold text-[#3E2723]/60 uppercase leading-relaxed mt-2 italic">
+                        <p class="text-xs font-black uppercase">James Carter</p>
+                        <p class="text-[10px] font-bold text-[#3E2723]/60 uppercase leading-relaxed mt-1">
                             1224 Coastal Drive<br>
                             Suite 402<br>
                             Malibu, CA 90265
                         </p>
                     </div>
 
-                    <div class="mb-10">
+                    <div class="mb-8">
                         <span class="label-caps">Payment Method</span>
-                        <div class="flex items-center gap-3 bg-white/40 p-3 rounded-xl border border-[#3E2723]/5">
-                            <i class="fa-brands fa-cc-visa text-2xl text-[#3E2723]/30"></i>
-                            <p class="text-[10px] font-black uppercase tracking-tight">Visa Ending in •••• 4412</p>
+                        <div class="flex items-center gap-3">
+                            <i class="fa-brands fa-cc-visa text-xl text-[#3E2723]/20"></i>
+                            <p class="text-[10px] font-black uppercase">Visa Ending in •••• 4412</p>
                         </div>
                     </div>
 
                     <div>
                         <span class="label-caps">Merchant Details</span>
-                        <div class="flex items-center gap-4 mt-3">
-                            <div class="w-10 h-10 rounded-xl bg-[#3E2723] flex items-center justify-center text-white shadow-lg shadow-[#3E2723]/10">
-                                <i class="fa-solid fa-anchor text-xs"></i>
+                        <div class="flex items-center gap-3 mt-2">
+                            <div class="w-8 h-8 rounded-lg bg-[#3E2723] flex items-center justify-center text-white">
+                                <i class="fa-solid fa-anchor text-[10px]"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] font-black uppercase tracking-wider">Coastal Gear Co.</p>
-                                <p class="text-[9px] font-bold text-[#00796B] uppercase tracking-widest mt-0.5">Official Partner</p>
+                                <p class="text-[10px] font-black uppercase">Coastal Gear Co.</p>
+                                <p class="text-[8px] font-bold text-[#00796B] uppercase">Official Partner</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass p-8 rounded-[2rem] bg-[#3E2723] text-white shadow-xl shadow-[#3E2723]/10 relative overflow-hidden group">
-                    <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
-                        <i class="fa-solid fa-headset text-9xl"></i>
-                    </div>
-                    <div class="relative z-10">
-                        <h4 class="text-[11px] font-black uppercase tracking-[0.2em] mb-3">Something wrong?</h4>
-                        <p class="text-[10px] font-bold text-white/50 uppercase leading-relaxed mb-8">Return window is open until <br class="hidden sm:block"> March 15, 2026.</p>
-                        <button class="w-full bg-white/10 hover:bg-white text-white hover:text-[#3E2723] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">Contact Support</button>
-                    </div>
+                <div class="glass p-8 rounded-[2.5rem] bg-[#3E2723] text-white">
+                    <h4 class="text-[10px] font-black uppercase tracking-widest mb-2">Something wrong?</h4>
+                    <p class="text-[9px] font-bold text-white/50 uppercase leading-normal mb-6">Return window is open until March 15, 2026.</p>
+                    <button class="w-full bg-white/10 hover:bg-white/20 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition">Contact Support</button>
                 </div>
             </div>
         </div>

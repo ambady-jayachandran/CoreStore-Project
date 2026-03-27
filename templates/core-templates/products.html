@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CORE STORE | {% if is_search %}Search{% else %}Products{% endif %}</title>
@@ -13,6 +13,7 @@
       :root {
         --primary: #0f172a; 
         --accent: #2563eb; 
+        --bg-main: #ffffff;
       }
 
       body {
@@ -22,10 +23,16 @@
         overflow-x: hidden;
       }
 
+      .glass {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+      }
+
       .reveal {
         opacity: 0;
         transform: translateY(15px);
-        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .reveal.active {
         opacity: 1;
@@ -37,103 +44,117 @@
         border: 1px solid #e2e8f0;
         border-radius: 4px;
         transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+      }
+      .product-card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 10px 20px -10px rgba(15, 23, 42, 0.2);
+        transform: translateY(-4px);
       }
 
-      @media (hover: hover) {
-        .product-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 10px 20px -10px rgba(15, 23, 42, 0.15);
-            transform: translateY(-4px);
-        }
-      }
-
+      /* Beautiful Custom Select */
       .custom-select {
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb' stroke-width='3'%3E%3Cpath d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 0.7rem;
+        background-position: right 1rem center;
+        background-size: 0.8rem;
+        border-radius: 4px !important;
       }
 
       .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
-</head>
-<body>
+  </head>
+  <body>
 
     {% include 'core-templates/navbar.html' %}
 
-    <div class="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 py-12 md:py-20 shadow-lg">
+    <div class="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 py-16 shadow-lg">
       <div class="container mx-auto px-4 md:px-8">
-        <h1 class="text-3xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-tight">
+        <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-white uppercase italic">
           {% if is_search %}
-            Results for "<span class="text-blue-400">{{ search_query }}</span>"
+            Search Results for "<span class="text-blue-400">{{ search_query }}</span>" ({{ total_products }} found)
           {% else %}
             Product <span class="text-blue-400">Inventory</span>
           {% endif %}
         </h1>
-        <p class="text-blue-200/60 mt-3 text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">
-          Registry Status: Active • {{ total_products }} Units Found
+        <p class="text-blue-200/60 mt-2 text-xs font-bold uppercase tracking-[0.3em]">
+          {% if is_search %}
+            Matching Premium Gear
+          {% else %}
+            Advanced Gear for Professionals
+          {% endif %}
         </p>
       </div>
     </div>
 
-    {% if new_arrivals and not is_search %}
-    <section class="container mx-auto px-4 md:px-8 py-10 reveal">
+    <section class="container mx-auto px-4 md:px-8 py-12 reveal">
       <div class="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
-        <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-900">
-          <i class="fa-solid fa-bolt-lightning text-blue-600 mr-2"></i> Recent Dispatches
+        <h2 class="text-sm font-black uppercase tracking-widest text-slate-900">
+          <i class="fa-solid fa-bolt-lightning text-blue-600 mr-2"></i> Recently <span class="text-blue-600">Dispatched</span>
         </h2>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">New Series</span>
       </div>
 
-      <div class="flex overflow-x-auto gap-4 no-scrollbar pb-4">
+      {% if new_arrivals %}
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {% for product in new_arrivals %}
-        <a href="{% url 'product_single' product.slug %}" class="product-card p-2 min-w-[160px] md:min-w-[200px] group block">
-          <div class="relative aspect-square overflow-hidden rounded-sm bg-slate-50 mb-3">
+        <a href="{% url 'product_single' product.slug %}" class="product-card p-2 group block">
+          <div class="relative aspect-[1/1] overflow-hidden rounded-sm bg-slate-50 mb-3">
             {% with product.images.all|first as img %}
-                <img src="{{ img.image.url|default:'https://via.placeholder.com/300' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              {% if img %}
+                <img src="{{ img.image.url }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              {% endif %}
             {% endwith %}
-            <div class="absolute top-2 left-2 bg-blue-600 text-white text-[7px] font-black px-2 py-1 rounded-sm uppercase tracking-widest">NEW</div>
+            <div class="absolute top-2 left-2 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-sm uppercase tracking-widest">NEW</div>
           </div>
           <div class="px-1">
             <h3 class="text-[10px] font-bold truncate text-slate-900 uppercase tracking-tighter">{{ product.product.name }}</h3>
-            <p class="text-xs font-black text-slate-900 mt-1">${{ product.selling_price|floatformat:0 }}</p>
+            <p class="text-sm font-black text-slate-900 mt-1">${{ product.selling_price|floatformat:0 }}</p>
           </div>
         </a>
         {% endfor %}
       </div>
+      {% endif %}
     </section>
-    {% endif %}
 
-    <main class="container mx-auto px-4 md:px-8 pb-24">
+    <div class="container mx-auto px-4 md:px-8 pb-24 reveal">
       
-      <div class="bg-white border border-slate-200 rounded-sm p-3 mb-8 sticky top-[68px] md:top-[72px] z-[40] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="bg-white border border-slate-200 rounded-sm p-3 mb-8 sticky top-24 z-20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex items-center gap-3 pl-2">
-            <div class="text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                {% if is_search or category_filter or sort_filter != 'newest' %}
-                    <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
-                    <span class="text-blue-600">Filters Active</span>
-                    <span class="text-slate-300 mx-1">|</span>
-                    <a href="{% url 'products' %}" class="text-slate-900 hover:text-red-500 transition-colors">Reset</a>
-                {% else %}
-                    <span class="text-slate-400">Registry Filter: None</span>
-                {% endif %}
-            </div>
+            {% if is_search %}
+              <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-2">
+                <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                Searching "{{ search_query }}"
+                <span class="text-slate-300 mx-1">|</span>
+                <a href="{% url 'products' %}" class="text-slate-900 hover:text-red-500 transition-colors">Clear Search</a>
+              </div>
+            {% elif category_filter or sort_filter != 'newest' %}
+              <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-2">
+                <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                Filters Active
+                <span class="text-slate-300 mx-1">|</span>
+                <a href="{% url 'products' %}" class="text-slate-900 hover:text-red-500 transition-colors">Reset All</a>
+              </div>
+            {% else %}
+              <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Units: {{ total_products }}</span>
+            {% endif %}
           </div>
           
-          <form method="GET" class="flex items-center gap-2 md:gap-4">
-            {% if category_filter %}<input type="hidden" name="category_id" value="{{ category_filter }}">{% endif %}
-            {% if is_search %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
-            
-            <div class="flex items-center gap-2 flex-1 md:flex-none">
-                <span class="hidden sm:inline text-[9px] font-black uppercase tracking-widest text-slate-400">Sort</span>
-                <select name="sort" onchange="this.form.submit()" class="custom-select w-full md:w-[200px] pl-3 pr-8 py-2 border border-slate-200 rounded-sm focus:border-blue-600 focus:outline-none bg-slate-50 text-[10px] font-bold uppercase tracking-widest transition-all">
+          <form method="GET" class="flex items-center gap-4">
+            {% if category_filter %}
+            <input type="hidden" name="category_id" value="{{ category_filter }}">
+            {% endif %}
+            {% if is_search %}
+            <input type="hidden" name="q" value="{{ search_query }}">
+            {% endif %}
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Sort by</span>
+                <select name="sort" onchange="this.form.submit()" class="custom-select pl-4 pr-10 py-2 border border-slate-200 focus:border-blue-600 focus:outline-none bg-slate-50 hover:bg-white transition-colors font-bold text-[11px] uppercase tracking-wider min-w-[220px]">
                     <option value="newest" {% if sort_filter == 'newest' %}selected{% endif %}>Date: Newest</option>
                     <option value="oldest" {% if sort_filter == 'oldest' %}selected{% endif %}>Date: Oldest</option>
                     <option value="price_asc" {% if sort_filter == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
                     <option value="price_desc" {% if sort_filter == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="name Asc" {% if sort_filter == 'name Asc' %}selected{% endif %}>Name: A to Z</option>
                 </select>
             </div>
           </form>
@@ -141,7 +162,7 @@
 
       <div class="lg:grid lg:grid-cols-12 lg:gap-8">
         
-        <aside class="lg:col-span-3 sticky top-44 h-fit hidden lg:block">
+        <div class="lg:col-span-3 sticky top-44 h-fit hidden lg:block">
           <div class="bg-white border border-slate-200 rounded-sm p-6 shadow-sm">
             <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-900 mb-6 border-b border-slate-100 pb-4">
               Category Registry
@@ -149,139 +170,123 @@
             
             <form method="GET" class="space-y-1">
               <input type="hidden" name="sort" value="{{ sort_filter }}">
-              {% if is_search %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+              {% if is_search %}
+              <input type="hidden" name="q" value="{{ search_query }}">
+              {% endif %}
               
-              <div class="max-h-[400px] overflow-y-auto no-scrollbar space-y-1">
-                  {% for category in categories %}
-                  <label class="flex items-center justify-between p-2.5 rounded-sm hover:bg-blue-50 cursor-pointer group transition-all">
-                    <div class="flex items-center gap-3">
-                        <input type="radio" name="category_id" value="{{ category.id }}" 
-                               {% if category_filter == category.id|stringformat:'s' %}checked{% endif %}
-                               class="w-3 h-3 text-blue-600 border-slate-300 focus:ring-blue-600 cursor-pointer">
-                        <span class="font-bold text-[10px] uppercase tracking-wider text-slate-600 group-hover:text-blue-600">{{ category.name }}</span>
-                    </div>
-                    <span class="text-[8px] font-black text-slate-300 group-hover:text-blue-400">[{{ category.product_count }}]</span>
-                  </label>
-                  {% endfor %}
-              </div>
+              {% for category in categories %}
+              <label class="flex items-center justify-between p-3 rounded-sm hover:bg-blue-50 cursor-pointer group transition-all">
+                <div class="flex items-center gap-3">
+                    <input type="radio" name="category_id" value="{{ category.id }}" 
+                           {% if category_filter == category.id|stringformat:'s' %}checked{% endif %}
+                           class="w-3 h-3 text-blue-600 border-slate-300 focus:ring-blue-600">
+                    <span class="font-bold text-[11px] uppercase tracking-wider text-slate-600 group-hover:text-blue-600 transition-colors">{{ category.name }}</span>
+                </div>
+                <span class="text-[9px] font-bold text-slate-300 group-hover:text-blue-400">[{{ category.product_count }}]</span>
+              </label>
+              {% endfor %}
               
-              <button type="submit" class="w-full bg-slate-900 text-white py-3.5 mt-6 rounded-sm font-black uppercase tracking-widest text-[9px] hover:bg-blue-600 transition-all active:scale-95 shadow-lg shadow-slate-200">
-                Update Results
+              <button type="submit" class="w-full bg-slate-900 text-white py-4 mt-6 rounded-sm font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-md active:scale-95">
+                Apply Filters
               </button>
             </form>
           </div>
-        </aside>
+        </div>
 
         <div class="lg:col-span-9">
           <div class="lg:hidden mb-6">
-            <button onclick="toggleMobileFilters()" class="w-full bg-slate-900 text-white py-4 px-6 rounded-sm font-black uppercase tracking-widest text-[10px] flex items-center justify-between active:scale-[0.98] transition-transform">
+            <button id="mobileFilterToggle" class="w-full bg-slate-900 text-white py-4 px-6 rounded-sm font-black uppercase tracking-widest text-[10px] flex items-center justify-between">
               <span>Filter Registry</span>
-              <i id="filterIcon" class="fa-solid fa-chevron-down transition-transform"></i>
+              <i class="fa-solid fa-chevron-down"></i>
             </button>
-            <div id="mobileFilterPanel" class="hidden mt-2 bg-white border border-slate-200 rounded-sm p-4 animate__animated animate__fadeIn">
-                <form method="GET" class="space-y-4">
-                    <div class="grid grid-cols-1 gap-2">
-                        {% for category in categories %}
-                        <label class="flex items-center gap-3 p-2 bg-slate-50 rounded-sm">
-                            <input type="radio" name="category_id" value="{{ category.id }}" {% if category_filter == category.id|stringformat:'s' %}checked{% endif %}>
-                            <span class="text-[10px] font-bold uppercase tracking-wider">{{ category.name }}</span>
-                        </label>
-                        {% endfor %}
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 font-black uppercase text-[10px]">Apply</button>
-                </form>
-            </div>
+            <div id="mobileFilterPanel" class="mt-2 bg-white border border-slate-200 rounded-sm p-4 hidden"></div>
           </div>
 
           {% if all_products_page %}
-          <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             {% for product in all_products_page %}
-            <div class="product-card group reveal">
-              <a href="{% url 'product_single' product.slug %}" class="flex flex-col h-full p-2 md:p-3">
-                <div class="relative aspect-square overflow-hidden rounded-sm bg-slate-50 mb-4">
+            <div class="product-card p-3 group">
+              <a href="{% url 'product_single' product.slug %}" class="block">
+                <div class="relative aspect-[1/1] overflow-hidden rounded-sm bg-slate-50 mb-4">
                   {% with product.images.all|first as img %}
-                      <img src="{{ img.image.url|default:'https://via.placeholder.com/400' }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                    {% if img %}
+                      <img src="{{ img.image.url }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {% endif %}
                   {% endwith %}
                   
                   {% if product.stock_quantity == 0 %}
-                    <div class="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
-                        <span class="text-[9px] font-black uppercase tracking-widest border border-slate-900 px-3 py-1 bg-white">Zero Stock</span>
+                    <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+                        <span class="text-[9px] font-black uppercase tracking-widest border-2 border-slate-900 px-3 py-1">Zero Stock</span>
                     </div>
                   {% endif %}
 
-                  <div class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 hidden md:block">
-                    <button class="w-full bg-blue-600 text-white py-2.5 text-[9px] font-black uppercase tracking-widest">
+                  <div class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <button class="w-full bg-blue-600 text-white py-3 text-[10px] font-black uppercase tracking-widest hover:bg-slate-900">
                         Quick Purchase +
                     </button>
                   </div>
                 </div>
-
-                <div class="flex-grow flex flex-col justify-between">
-                    <div>
-                        <span class="text-[7px] md:text-[8px] font-black text-blue-500 uppercase tracking-widest block mb-1">{{ product.product.category.name }}</span>
-                        <h3 class="text-[10px] md:text-xs font-bold text-slate-800 uppercase tracking-tighter line-clamp-1 group-hover:text-blue-600 transition-colors">{{ product.product.name }}</h3>
-                    </div>
-                    <div class="mt-3">
-                        <p class="text-sm font-black text-slate-900 tracking-tighter">${{ product.selling_price|floatformat:0 }}</p>
-                        <div class="scale-75 origin-left opacity-60 mt-1">
-                            {% include 'core-templates/partials/product-rating.html' with product=product %}
-                        </div>
-                    </div>
-                </div>
+                <span class="text-[8px] font-bold text-blue-500 uppercase tracking-[0.2em] block mb-1">{{ product.product.category.name }}</span>
+                <h3 class="text-xs font-bold truncate text-slate-900 uppercase tracking-tighter line-clamp-1 group-hover:text-blue-600 transition-colors">{{ product.product.name }}</h3>
+                  <p class="text-sm font-black text-slate-900 mt-2">${{ product.selling_price|floatformat:0 }}</p>
+                  {% include 'core-templates/partials/product-rating.html' with product=product %}
               </a>
-              <button class="md:hidden w-full bg-slate-900 text-white py-2.5 text-[8px] font-black uppercase tracking-widest border-t border-slate-800">
-                  Add To Cart +
-              </button>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-24">
+              <i class="fa-solid fa-search text-6xl text-slate-300 mb-6"></i>
+              <h3 class="text-2xl font-black text-slate-700 mb-2 uppercase tracking-wider">No Products Found</h3>
+              <p class="text-slate-500 mb-8">Try different search terms or remove filters.</p>
+              <a href="{% url 'products' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-sm font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all">
+                Browse All Products
+              </a>
             </div>
             {% endfor %}
           </div>
 
+          {% if all_products_page.has_other_pages %}
           <div class="mt-16 flex justify-center items-center gap-4">
             {% if all_products_page.has_previous %}
               <a href="?page={{ all_products_page.previous_page_number }}{% if category_filter %}&category_id={{ category_filter }}{% endif %}{% if sort_filter != 'newest' %}&sort={{ sort_filter }}{% endif %}{% if is_search %}&q={{ search_query }}{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 hover:border-blue-600 hover:text-blue-600 transition-all"><i class="fa-solid fa-chevron-left text-xs"></i></a>
             {% endif %}
 
-            <div class="px-5 py-2.5 border border-slate-200 bg-white rounded-sm text-[9px] font-black uppercase tracking-widest text-slate-600">
-              Registry Page {{ all_products_page.number }} / {{ all_products_page.paginator.num_pages }}
+            <div class="px-6 py-2 border border-slate-200 bg-white rounded-sm text-[10px] font-black uppercase tracking-widest text-slate-900">
+              Page {{ all_products_page.number }} of {{ all_products_page.paginator.num_pages }}
             </div>
 
             {% if all_products_page.has_next %}
               <a href="?page={{ all_products_page.next_page_number }}{% if category_filter %}&category_id={{ category_filter }}{% endif %}{% if sort_filter != 'newest' %}&sort={{ sort_filter }}{% endif %}{% if is_search %}&q={{ search_query }}{% endif %}" class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 hover:border-blue-600 hover:text-blue-600 transition-all"><i class="fa-solid fa-chevron-right text-xs"></i></a>
             {% endif %}
           </div>
+          {% endif %}
           {% else %}
-          <div class="text-center py-20 bg-white border border-dashed border-slate-200 rounded-sm">
-            <i class="fa-solid fa-database text-5xl text-slate-100 mb-6"></i>
-            <h3 class="text-xl font-black text-slate-800 mb-2 uppercase tracking-tighter">No Registry Entries</h3>
-            <p class="text-slate-400 text-xs uppercase font-bold tracking-widest mb-8">Refine your search parameters or reset filters.</p>
-            <a href="{% url 'products' %}" class="inline-block bg-slate-900 text-white px-8 py-3 rounded-sm font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all">Clear All Constraints</a>
+          <div class="col-span-full text-center py-24">
+            <i class="fa-solid fa-search text-6xl text-slate-300 mb-6"></i>
+            <h3 class="text-2xl font-black text-slate-700 mb-2 uppercase tracking-wider">No Products Found</h3>
+            <p class="text-slate-500 mb-8">{% if is_search %}No results for "{{ search_query }}". Try different terms.{% else %}No products match your filters.{% endif %}</p>
+            <a href="{% url 'products' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-sm font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all">
+              Browse All Products
+            </a>
           </div>
           {% endif %}
         </div>
       </div>
-    </main>
+    </div>
 
     {% include 'core-templates/footer.html' %}
 
     <script>
       function reveal() {
-        const reveals = document.querySelectorAll(".reveal");
-        reveals.forEach(el => {
-          if (el.getBoundingClientRect().top < window.innerHeight - 80) {
-            el.classList.add("active");
+        var reveals = document.querySelectorAll(".reveal");
+        for (var i = 0; i < reveals.length; i++) {
+          if (reveals[i].getBoundingClientRect().top < window.innerHeight - 50) {
+            reveals[i].classList.add("active");
           }
-        });
+        }
       }
       window.addEventListener("scroll", reveal);
-      window.addEventListener("load", reveal);
       reveal();
-
-      function toggleMobileFilters() {
-        const panel = document.getElementById('mobileFilterPanel');
-        const icon = document.getElementById('filterIcon');
-        panel.classList.toggle('hidden');
-        icon.style.transform = panel.classList.contains('hidden') ? "rotate(0deg)" : "rotate(180deg)";
-      }
     </script>
-</body>
+  </body>
 </html>
+

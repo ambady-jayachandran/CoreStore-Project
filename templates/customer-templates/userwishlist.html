@@ -25,11 +25,12 @@
 
         .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; }
 
+        /* Ambient Separation Line */
         .ambient-divider {
             height: 1px;
-            background: linear-gradient(to right, transparent, #2563eb33, transparent);
+            background: linear-gradient(to right, transparent, #2563eb44, transparent);
             position: relative;
-            margin: 3rem 0;
+            margin: 2rem 0;
         }
         .ambient-divider::after {
             content: 'REGISTRY INDEX';
@@ -38,153 +39,165 @@
             top: 50%;
             transform: translate(-50%, -50%);
             background: #f8fafc;
-            padding: 0 20px;
+            padding: 0 15px;
             font-size: 8px;
             font-weight: 900;
             color: #2563eb;
-            letter-spacing: 0.5em;
+            letter-spacing: 0.4em;
         }
 
-        .wishlist-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 4px; display: flex; flex-direction: column; }
-        
-        @media (hover: hover) {
-            .wishlist-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1); }
-        }
+        .wishlist-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 4px; }
+        .wishlist-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1); }
 
         .collection-tab {
             transition: all 0.2s ease;
             border-radius: 4px;
             border: 1px solid #e2e8f0;
-            white-space: nowrap;
         }
 
-        .modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, 0.85); backdrop-blur: 8px; }
+        .modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, 0.8); backdrop-blur: 4px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Mobile Scroll Indicator Fade */
-        .tab-scroll-container {
-            position: relative;
-        }
-        .tab-scroll-container::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 40px;
-            background: linear-gradient(to right, transparent, white);
-            pointer-events: none;
-        }
-        @media (min-width: 1024px) { .tab-scroll-container::after { display: none; } }
     </style>
 </head>
-<body class="min-h-screen">
-
-    {% include 'core-templates/navbar.html' %}
+<body class="min-h-screen pb-20">
 
     <div id="renameModal" class="modal items-center justify-center p-4">
-        <div class="glass max-w-md w-full p-8 md:p-12 shadow-2xl animate__animated animate__fadeInDown animate__faster">
-            <h3 class="text-xs font-black uppercase tracking-[0.2em] mb-8 text-slate-400">Modify Identity</h3>
+        <div class="glass max-w-md w-full p-8 shadow-2xl animate__animated animate__fadeInDown">
+            <h3 class="text-xs font-black uppercase tracking-widest mb-6 text-slate-900">Modify Identity</h3>
             <form action="{% url 'rename_wishlist' active_wishlist.id %}" method="POST">
                 {% csrf_token %}
-                <input type="text" name="new_name" value="{{ active_wishlist.wishlist_name }}" 
-                       class="w-full bg-slate-50 border border-slate-200 rounded-sm p-4 mb-8 font-black text-sm outline-none focus:border-blue-600 focus:bg-white transition-all uppercase tracking-widest">
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button type="button" onclick="closeModal('renameModal')" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 order-2 sm:order-1">Abort</button>
-                    <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-sm text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-900/20 order-1 sm:order-2">Commit Changes</button>
+                <input type="text" name="new_name" value="{{ active_wishlist.wishlist_name }}" class="w-full bg-slate-50 border border-slate-200 rounded-sm p-4 mb-6 font-bold text-sm outline-none focus:border-blue-600">
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeModal('renameModal')" class="flex-1 py-3 text-[10px] font-black uppercase">Cancel</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-sm text-[10px] font-black uppercase">Commit Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="createModal" class="modal items-center justify-center p-4">
-        <div class="glass max-w-md w-full p-8 md:p-12 shadow-2xl animate__animated animate__fadeInDown animate__faster">
-            <h3 class="text-xs font-black uppercase tracking-[0.2em] mb-8 text-slate-400">Initialize Registry</h3>
-            <form action="{% url 'create_wishlist' %}" method="POST">
-                {% csrf_token %}
-                <input type="text" name="wishlist_name" placeholder="Collection Title" 
-                       class="w-full bg-slate-50 border border-slate-200 rounded-sm p-4 mb-8 font-black text-sm outline-none focus:border-blue-600 focus:bg-white transition-all uppercase tracking-widest">
-                <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-sm font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 transition-all shadow-xl active:scale-95">Establish Node</button>
-            </form>
+    <nav class="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 shadow-xl py-3 px-4 md:px-8">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="text-xl font-black tracking-tighter flex items-center gap-2 text-white cursor-pointer" onclick="window.location.href='/'">
+                <div class="bg-blue-600 p-1.5 rounded-sm text-white"><i class="fa-solid fa-heart text-xs"></i></div>
+                <span>CORE<span class="text-blue-400">STORE</span></span>
+            </div>
+            <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=2563eb&color=fff&bold=true" class="w-8 h-8 rounded-full border border-blue-400/30">
         </div>
-    </div>
+    </nav>
 
-    <main class="container mx-auto px-4 md:px-8 py-10 md:py-16">
-        
-        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-            <div class="space-y-2 border-l-4 border-blue-600 pl-6">
-                <p class="text-blue-600 font-black text-[9px] md:text-[10px] uppercase tracking-[0.4em]">Curation Hub</p>
-                <h1 class="text-4xl md:text-6xl font-black uppercase tracking-tighter text-slate-900 leading-none">
+    <div class="h-24"></div>
+
+    <div class="container mx-auto px-4 md:px-8 mt-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div>
+                <p class="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em] mb-2">Curation Hub</p>
+                <h1 class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-slate-900 leading-none">
                     {{ active_wishlist.wishlist_name }}
                 </h1>
             </div>
-            
-            <div class="flex flex-wrap gap-3">
-                <button onclick="openModal('renameModal')" class="flex-1 sm:flex-none glass px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-all active:scale-95 flex items-center justify-center gap-3">
-                    <i class="fa-solid fa-pen-nib"></i> Rename
+            <div class="flex flex-wrap gap-2">
+                <button onclick="openModal('renameModal')" class="glass px-5 py-3 text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-600 transition-colors">
+                    <i class="fa-solid fa-pen-nib mr-2"></i> Rename
                 </button>
-                <button onclick="openModal('createModal')" class="flex-1 sm:flex-none bg-slate-900 text-white px-6 py-4 rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3">
-                    New Collection <i class="fa-solid fa-plus"></i>
+                <button onclick="document.getElementById('createModal').style.display='flex'" class="bg-slate-900 text-white px-5 py-3 rounded-sm text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-colors">
+                    Initialize New List +
                 </button>
             </div>
         </div>
 
         <div class="bg-white border border-slate-200 p-2 rounded-sm shadow-sm">
-            <div class="tab-scroll-container">
-                <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-                    {% for list in all_wishlists %}
-                    <div class="shrink-0 flex flex-col group">
-                        <a href="?id={{ list.id }}" 
-                           class="collection-tab flex items-center gap-4 px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all
-                           {% if active_wishlist.id == list.id %} bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-900/10 {% else %} bg-slate-50 text-slate-400 hover:bg-slate-100 {% endif %}">
-                            {{ list.wishlist_name }}
-                            {% if request.session.active_wishlist_id == list.id|stringformat:"s" %}
-                                <i class="fa-solid fa-circle-check text-blue-300 animate__animated animate__pulse animate__infinite"></i>
-                            {% endif %}
-                        </a>
-                        {% if request.session.active_wishlist_id != list.id|stringformat:"s" %}
-                        <button onclick="setActiveCollection('{{ list.id }}')" 
-                                class="w-full py-2.5 text-[8px] font-black uppercase tracking-[0.3em] text-blue-600 hover:bg-blue-50 transition-colors border-x border-b border-slate-100">
-                            Set Primary
-                        </button>
-                        {% else %}
-                        <div class="w-full py-2.5 text-[8px] font-black uppercase tracking-[0.3em] text-slate-300 text-center bg-slate-50/50 border-x border-b border-slate-100">
-                            Current Node
-                        </div>
+            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                {% for list in all_wishlists %}
+                <div class="shrink-0 flex flex-col">
+                    <a href="?id={{ list.id }}" 
+                       class="collection-tab flex items-center gap-3 px-6 py-3 text-[10px] font-black uppercase tracking-widest 
+                       {% if active_wishlist.id == list.id %} bg-blue-600 text-white border-blue-600 shadow-md {% else %} bg-slate-50 text-slate-400 hover:bg-slate-100 {% endif %}">
+                        {{ list.wishlist_name }}
+                        {% if request.session.active_wishlist_id == list.id|stringformat:"s" %}
+                            <i class="fa-solid fa-circle-check text-blue-300 ml-1"></i>
                         {% endif %}
+                    </a>
+                    {% if request.session.active_wishlist_id != list.id|stringformat:"s" %}
+                    <button onclick="setActiveCollection('{{ list.id }}')" 
+                            class="w-full py-1.5 text-[7px] font-black uppercase tracking-[0.2em] text-blue-600 hover:bg-blue-50 transition-colors">
+                        Set Primary
+                    </button>
+                    {% else %}
+                    <div class="w-full py-1.5 text-[7px] font-black uppercase tracking-[0.2em] text-slate-300 text-center">
+                        Active Index
                     </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
+                {% endfor %}
             </div>
         </div>
 
         <div class="ambient-divider"></div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 animate__animated animate__fadeIn">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 animate__animated animate__fadeIn">
             {% for item in items %}
-            <div class="wishlist-card glass p-3 md:p-4 relative group">
-                <a href="{% url 'remove_wishlist_item' item.id %}" 
-                   class="absolute top-4 right-4 z-20 w-8 h-8 bg-white/90 backdrop-blur shadow-xl text-red-500 rounded-sm flex items-center justify-center lg:opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 hover:text-white active:scale-90">
-                    <i class="fa-solid fa-xmark text-xs"></i>
+            <div class="wishlist-card glass p-3 relative group">
+                <a href="{% url 'remove_wishlist_item' item.id %}" class="absolute top-3 right-3 z-20 w-7 h-7 bg-white shadow-md text-red-500 rounded-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white">
+                    <i class="fa-solid fa-xmark text-[10px]"></i>
                 </a>
 
-                <div class="relative aspect-square overflow-hidden rounded-sm bg-slate-50 mb-5">
+                <div class="relative aspect-square overflow-hidden rounded-sm bg-slate-50 mb-4">
                     {% with primary_image=item.variant.images.all|dictsortreversed:"is_primary"|first %}
-                        <img src="{{ primary_image.image.url|default:'https://via.placeholder.com/300' }}" 
-                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                             alt="{{ item.variant.product.name }}" loading="lazy">
+                        <img src="{{ primary_image.image.url }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                     {% endwith %}
                     
-                    <div class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 hidden md:block">
+                    <div class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                         <a href="{% url 'user_addto_cart' item.variant.slug %}" class="block">
-                            <button class="w-full bg-blue-600 text-white py-3.5 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-900 transition-colors">
-                                Add To Registry +
+                            <button class="w-full bg-blue-600 text-white py-3 text-[9px] font-black uppercase tracking-[0.2em] hover:bg-slate-900 transition-colors">
+                                Add to Bag +
                             </button>
                         </a>
                     </div>
                 </div>
 
-                <div class="px-1 flex-grow">
-                    <span class="text-[7px] md:text-[8px] font-black text-blue-500 uppercase tracking-[0.2em] mb-1 block">{{ item.variant.product.subcategory.name }}</span>
-                    <h3 class="text-[10px] md:text-
+                <div class="px-1">
+                    <span class="text-[8px] font-black text-blue-500 uppercase tracking-widest mb-1 block">{{ item.variant.product.subcategory.name }}</span>
+                    <h3 class="text-[11px] font-bold tracking-tight text-slate-900 uppercase truncate mb-2">{{ item.variant.product.name }}</h3>
+                    <p class="font-black text-slate-900 text-sm">${{ item.variant.selling_price|floatformat:0 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <a href="/" class="border-2 border-dashed border-slate-200 rounded-sm flex flex-col items-center justify-center p-8 hover:border-blue-600 hover:bg-blue-50/30 transition-all group aspect-square">
+                <div class="w-10 h-10 bg-slate-100 rounded-sm flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                </div>
+                <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest group-hover:text-blue-600">Scan Inventory</p>
+            </a>
+        </div>
+    </div>
+
+    <div id="createModal" class="modal items-center justify-center p-4">
+        <div class="glass max-w-md w-full p-8 shadow-2xl">
+            <h3 class="text-xs font-black uppercase tracking-widest mb-6">Create Registry</h3>
+            <form action="{% url 'create_wishlist' %}" method="POST">
+                {% csrf_token %}
+                <input type="text" name="wishlist_name" placeholder="Collection Title" class="w-full bg-slate-50 border border-slate-200 rounded-sm p-4 mb-6 font-bold text-sm outline-none">
+                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-sm font-black uppercase text-[10px] tracking-widest hover:bg-blue-600">Initialize</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        async function setActiveCollection(id) {
+            const response = await fetch(`/wishlist/set-active/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: `wishlist_id=${id}`
+            });
+            const data = await response.json();
+            if (data.status === 'success') { location.reload(); }
+        }
+
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = "none"; }
+    </script>
+</body>
+</html>

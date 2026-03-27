@@ -20,37 +20,31 @@
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-main); 
             color: var(--primary); 
-            overflow-x: hidden;
         }
 
         .glass { 
             background: white; 
             border: 1px solid #e2e8f0; 
-            border-radius: 4px;
+            border-radius: 4px; /* Sharp Edges */
         }
 
-        /* Technical Input Field - Zoom Prevention */
+        /* Technical Input Field */
         .input-field { 
             background-color: #ffffff; 
             border: 1px solid #e2e8f0; 
             border-radius: 4px; 
-            padding: 0.85rem 1rem; 
-            font-size: 16px; /* Optimized for mobile input focus */
+            padding: 0.85rem 1.25rem; 
+            font-size: 12px; 
             font-weight: 600; 
             width: 100%; 
             transition: all 0.2s ease; 
             color: var(--primary);
             text-transform: uppercase;
         }
-        
-        @media (min-width: 768px) {
-            .input-field { font-size: 12px; padding: 0.85rem 1.25rem; }
-        }
-
         .input-field:focus { 
             outline: none; 
             border-color: var(--accent); 
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            ring: 2px var(--accent);
             background-color: #fafafa; 
         }
 
@@ -76,6 +70,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* Type Toggles */
         .type-radio:checked + label { 
             background-color: var(--primary); 
             color: white; 
@@ -92,29 +87,29 @@
         }
     </style>
 </head>
-<body class="min-h-screen py-8 md:py-12 px-4">
+<body class="min-h-screen py-12 px-4 md:px-6 flex items-center justify-center">
 
-    {% include 'core-templates/navbar.html' %}
+    <div class="fixed inset-0 z-[-1] bg-gradient-to-br from-[#f8fafc] via-[#eff6ff] to-[#f8fafc]"></div>
 
-    <div class="max-w-2xl w-full mx-auto animate__animated animate__fadeIn mt-4">
-        <header class="mb-8 md:mb-12 flex flex-col items-center text-center">
-            <div class="bg-blue-600 w-14 h-14 rounded-sm text-white mb-6 flex items-center justify-center shadow-xl">
+    <div class="max-w-xl w-full animate__animated animate__fadeIn">
+        <header class="mb-10 flex flex-col items-center">
+            <div class="bg-blue-600 p-2 rounded-sm text-white mb-4 shadow-lg">
                 <i class="fa-solid fa-map-location-dot text-xl"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">
+            <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none">
                 Register New <span class="text-blue-600">Endpoint</span>
             </h1>
-            <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-3">Logistics Registry Management</p>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mt-3">Logistics Registry Management</p>
         </header>
 
-        <form method="POST" class="glass p-6 md:p-10 shadow-2xl relative">
+        <form method="POST" class="glass p-8 md:p-10 shadow-xl relative">
             {% csrf_token %}
             
             <div class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="md:col-span-2">
                         <label class="label-text">Authorized Recipient</label>
-                        <input type="text" name="full_name" required placeholder="Full Legal Name" class="input-field">
+                        <input type="text" name="full_name" required placeholder="Enter full legal name" class="input-field">
                     </div>
                     <div class="md:col-span-2">
                         <label class="label-text">Communication Line (Phone)</label>
@@ -122,29 +117,28 @@
                     </div>
                 </div>
 
-                <div class="h-px bg-slate-100 my-2"></div>
+                <div class="h-px bg-slate-100"></div>
 
-                <div class="space-y-6">
+                <div class="space-y-5">
                     <div class="relative">
                         <label class="label-text flex items-center gap-2">
                             Regional Pincode <span id="pin-loader" class="loader"></span>
                         </label>
-                        <input type="text" name="pincode" id="pincode" maxlength="6" required placeholder="000000" 
-                               class="input-field border-blue-200 bg-blue-50/20 focus:bg-white">
+                        <input type="text" name="pincode" id="pincode" maxlength="6" required placeholder="000000" class="input-field border-blue-100 bg-blue-50/30">
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="label-text">Structural Info (Building/Flat)</label>
-                            <input type="text" name="house_info" required placeholder="Suite / Floor / Flat" class="input-field">
+                            <label class="label-text">Structural Info (House/Flat)</label>
+                            <input type="text" name="house_info" required placeholder="E.G. SUITE 101" class="input-field">
                         </div>
                         <div>
                             <label class="label-text">Locality / Sector</label>
-                            <input type="text" name="locality" id="locality" required placeholder="Area Name" class="input-field">
+                            <input type="text" name="locality" id="locality" required placeholder="Sector / Area Name" class="input-field">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-2 gap-5">
                         <div>
                             <label class="label-text">Metropolis</label>
                             <input type="text" name="city" id="city" required placeholder="City" class="input-field">
@@ -157,42 +151,42 @@
 
                     <div>
                         <label class="label-text">Navigation Reference (Landmark)</label>
-                        <input type="text" name="landmark" placeholder="Known installation nearby" class="input-field">
+                        <input type="text" name="landmark" placeholder="Near major installation" class="input-field">
                     </div>
                 </div>
 
-                <div class="space-y-6 pt-4">
+                <div class="space-y-5 pt-2">
                     <div>
                         <label class="label-text">Destination Category</label>
-                        <div class="flex gap-3">
+                        <div class="flex gap-2">
                             <div class="flex-1">
                                 <input type="radio" name="address_type" id="HOME" value="HOME" class="hidden type-radio" checked>
-                                <label for="HOME" class="block text-center py-4 border border-slate-200 rounded-sm text-[10px] font-black uppercase cursor-pointer transition-all hover:bg-slate-50 select-none">Residential</label>
+                                <label for="HOME" class="block text-center py-3 border border-slate-200 rounded-sm text-[10px] font-black uppercase cursor-pointer transition-all hover:bg-slate-50">Residential</label>
                             </div>
                             <div class="flex-1">
                                 <input type="radio" name="address_type" id="WORK" value="WORK" class="hidden type-radio">
-                                <label for="WORK" class="block text-center py-4 border border-slate-200 rounded-sm text-[10px] font-black uppercase cursor-pointer transition-all hover:bg-slate-50 select-none">Commercial</label>
+                                <label for="WORK" class="block text-center py-3 border border-slate-200 rounded-sm text-[10px] font-black uppercase cursor-pointer transition-all hover:bg-slate-50">Commercial</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 p-4 bg-slate-50 border border-slate-100 rounded-sm cursor-pointer hover:bg-slate-100 transition-colors">
-                        <input type="checkbox" name="is_default" id="is_default" class="w-5 h-5 accent-blue-600 cursor-pointer">
-                        <label for="is_default" class="text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer select-none">Set as Primary Dispatch Node</label>
+                    <div class="flex items-center gap-3 px-1">
+                        <input type="checkbox" name="is_default" id="is_default" class="w-4 h-4 rounded-sm accent-blue-600 cursor-pointer">
+                        <label for="is_default" class="text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer hover:text-blue-600 transition-colors">Set as Primary Endpoint</label>
                     </div>
                 </div>
 
-                <div class="pt-8 space-y-4">
-                    <button type="submit" class="btn-main w-full bg-slate-900 text-white py-5 text-[11px] tracking-widest hover:bg-blue-600 transition-all shadow-xl active:scale-[0.98]">
-                        Commit Entry to Registry
+                <div class="pt-6 space-y-3">
+                    <button type="submit" class="btn-main w-full bg-slate-900 text-white py-4 text-[11px] tracking-widest hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                        Commit Destination to Registry
                     </button>
-                    <button type="button" onclick="window.history.back()" class="btn-main w-full bg-white text-slate-400 py-4 text-[11px] tracking-widest border border-slate-200 hover:text-slate-900 hover:border-slate-900 transition-all flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-xmark text-[10px]"></i> Abort Request
+                    <button type="button" onclick="window.history.back()" class="btn-main w-full bg-white text-slate-400 py-4 text-[11px] tracking-widest border border-slate-200 hover:text-slate-900 hover:border-slate-900 transition-all">
+                        Abort Entry
                     </button>
                 </div>
             </div>
         </form>
-        <p class="text-center text-[8px] font-black text-slate-300 uppercase tracking-[0.6em] mt-12 mb-8">Secure Data Protocol v2.6</p>
+        <p class="text-center text-[8px] font-bold text-slate-300 uppercase tracking-[0.6em] mt-10">Secure Data Transmit Protocol v2.6</p>
     </div>
 
     <script>
@@ -207,6 +201,7 @@
             if (pin.length === 6) {
                 loader.style.display = "inline-block";
                 try {
+                    // 1. Try Zippopotam (High Accuracy for Primary Locations)
                     const res = await fetch(`https://api.zippopotam.us/in/${pin}`);
                     if (res.ok) {
                         const data = await res.json();
@@ -215,6 +210,7 @@
                         cityInput.value = (place['community'] || place['place name']).toUpperCase();
                         stateInput.value = place['state'].toUpperCase();
                     } else {
+                        // 2. Fallback to India Post API
                         const postRes = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
                         const postData = await postRes.json();
                         if (postData[0].Status === "Success") {
@@ -230,6 +226,11 @@
                     loader.style.display = "none";
                 }
             }
+        });
+
+        // Clear pincode if user manually edits the City to avoid data mismatch
+        cityInput.addEventListener('input', () => {
+            if (cityInput.value.length > 0) pinInput.value = "";
         });
     </script>
 </body>
