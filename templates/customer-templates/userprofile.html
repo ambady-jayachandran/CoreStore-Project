@@ -23,40 +23,24 @@
             overflow-x: hidden; 
         }
         
-        /* Sharp Glassmorphism */
-        .glass { 
-            background: white; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 4px; 
-        }
+        .glass { background: white; border: 1px solid #e2e8f0; border-radius: 4px; }
         
         .reveal { 
             opacity: 0; 
-            transform: translateY(20px); 
+            transform: translateY(10px); 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
         }
-        .reveal.active { 
-            opacity: 1; 
-            transform: translateY(0); 
-        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
 
         #profile-modal { display: none; }
         #profile-modal.open { display: flex; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .btn-primary { 
-            transition: all 0.2s ease;
-            border-radius: 4px;
-        }
-        .btn-primary:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); 
-        }
-        
-        input { border-radius: 4px !important; transition: all 0.2s ease; }
+        /* Responsive Inputs - Mobile Zoom Prevention */
+        input { border-radius: 4px !important; transition: all 0.2s ease; font-size: 16px !important; }
+        @media (min-width: 768px) { input { font-size: 13px !important; } }
         input:focus { border-color: var(--accent) !important; ring: 2px var(--accent); }
 
-        /* Address Card States */
         .address-radio:checked + .address-card {
             border-color: var(--accent);
             background: #eff6ff;
@@ -64,226 +48,216 @@
         }
         
         .verify-badge {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(37, 99, 235, 0.05);
             color: var(--accent);
-            border: 1px solid rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(37, 99, 235, 0.1);
         }
 
-        /* Ambient Theme for Merchant Card */
         .sidebar-ambient {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: white;
         }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen">
 
-    {% include 'includes/message-toast.html' %}
+    {% include 'core-templates/navbar.html' %}
 
-    <nav class="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 shadow-xl">
-      <div class="container mx-auto px-4 md:px-8 py-3">
-        <div class="flex items-center justify-between gap-4">
-          
-          <a href="{% url 'home' %}" class="text-2xl font-black tracking-tighter text-white group flex items-center">
-            <span class="bg-blue-600 text-white px-2 py-1 rounded-sm mr-2 group-hover:bg-blue-500 transition-colors">C</span>
-            CORE<span class="text-blue-400">STORE</span>
-          </a>
-
-          <div class="flex items-center gap-6">
-            <a href="{% url 'home' %}" class="hidden sm:block text-[10px] font-bold uppercase tracking-widest text-blue-100/80 hover:text-white transition">Return to Shop</a>
-            
-            <div class="relative group">
-              <button onclick="toggleModal()" class="block w-10 h-10 rounded-full border-2 border-blue-400/30 p-0.5 hover:border-blue-400 transition-all duration-300 overflow-hidden shadow-lg">
-                <img src="https://ui-avatars.com/api/?name={% if data.first_name %}{{ data.first_name }}{% else %}{{ data.username }}{% endif %}&background=2563eb&color=fff&bold=true" class="w-full h-full object-cover rounded-full">
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="h-24 lg:h-28"></div>
-
-    <main class="max-w-6xl mx-auto px-4 md:px-6">
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-12">
         
-        <header class="mb-10 flex flex-col md:flex-row items-center gap-8 reveal">
+        <header class="mb-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 reveal">
             <div class="relative group cursor-pointer" onclick="toggleModal()">
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-sm bg-slate-900 flex items-center justify-center text-white text-4xl font-black shadow-xl relative z-10 overflow-hidden border-4 border-white">
+                <div class="w-32 h-32 md:w-44 md:h-44 rounded-sm bg-slate-900 flex items-center justify-center text-white text-4xl font-black shadow-2xl relative z-10 overflow-hidden border-4 border-white">
                     {% if data.profile_image %}
                         <img src="{{ data.profile_image.url }}" class="w-full h-full object-cover">
                     {% else %}
                         <span class="uppercase">{{ data.username|slice:":1" }}</span>
                     {% endif %}
                     
-                    <div class="absolute inset-0 bg-blue-600/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                        <i class="fa-solid fa-camera text-xl mb-1"></i>
-                        <span class="text-[8px] font-bold uppercase tracking-widest">Update</span>
+                    <div class="absolute inset-0 bg-blue-600/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                        <i class="fa-solid fa-camera text-2xl mb-1"></i>
+                        <span class="text-[9px] font-black uppercase tracking-[0.2em]">Sync Image</span>
                     </div>
                 </div>
             </div>
 
-            <div class="text-center md:text-left flex-1">
-                <div class="verify-badge inline-flex items-center gap-2 px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider mb-3">
-                    <i class="fa-solid fa-circle-check"></i> Verified Elite Member
+            <div class="text-center md:text-left pt-2">
+                <div class="verify-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-sm text-[9px] font-black uppercase tracking-widest mb-4">
+                    <i class="fa-solid fa-shield-check text-blue-600"></i> Verified Elite Operator
                 </div>
-                <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-                    {% if data.first_name and data.last_name %}
+                <h1 class="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+                    {% if data.first_name %}
                         {{ data.first_name }} <span class="text-blue-600">{{ data.last_name }}</span>
                     {% else %}
                         {{ data.username }}<span class="text-blue-600">.</span>
                     {% endif %}
                 </h1>
-                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-4">
-                    Account Status: <span class="text-slate-900">Active Consignment</span>
+                <p class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-6">
+                    Registry Node: <span class="text-slate-900">Active Secure Consignment</span>
                 </p>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             
             <div class="lg:col-span-4 space-y-6">
-                <div class="glass p-6 shadow-sm reveal">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 border-b pb-2">Navigation</h3>
-                    <nav class="flex flex-col gap-1">
-                        <a href="#" class="flex items-center justify-between p-3 bg-blue-600 text-white rounded-sm text-[11px] font-bold uppercase tracking-wider shadow-md">
-                            <span><i class="fa-solid fa-id-badge mr-3"></i> Profile Overview</span>
+                <div class="glass p-5 md:p-8 shadow-sm reveal">
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 border-b border-slate-50 pb-3">Registry Menu</h3>
+                    <nav class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+                        <a href="#" class="flex items-center justify-between p-4 bg-blue-600 text-white rounded-sm text-[11px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-900/20">
+                            <span><i class="fa-solid fa-id-badge mr-3"></i> Node Overview</span>
                             <i class="fa-solid fa-chevron-right text-[8px]"></i>
                         </a>
-                        <a href="{% url 'orders' %}" class="flex items-center justify-between p-3 hover:bg-slate-50 text-slate-600 rounded-sm text-[11px] font-bold uppercase tracking-wider group transition-all">
-                            <span><i class="fa-solid fa-box-open mr-3 text-slate-300 group-hover:text-blue-600"></i> My Orders</span>
+                        <a href="{% url 'orders' %}" class="flex items-center justify-between p-4 hover:bg-slate-50 text-slate-600 rounded-sm text-[11px] font-black uppercase tracking-[0.2em] group transition-all border border-transparent hover:border-slate-100">
+                            <span><i class="fa-solid fa-box-open mr-3 text-slate-300 group-hover:text-blue-600"></i> Transaction History</span>
                             <i class="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover:opacity-100"></i>
                         </a>
-                        <a href="/wishlist" class="flex items-center justify-between p-3 hover:bg-slate-50 text-slate-600 rounded-sm text-[11px] font-bold uppercase tracking-wider group transition-all">
-                            <span><i class="fa-solid fa-heart mr-3 text-slate-300 group-hover:text-red-500"></i> Wishlist</span>
+                        <a href="/wishlist" class="flex items-center justify-between p-4 hover:bg-slate-50 text-slate-600 rounded-sm text-[11px] font-black uppercase tracking-[0.2em] group transition-all border border-transparent hover:border-slate-100">
+                            <span><i class="fa-solid fa-heart mr-3 text-slate-300 group-hover:text-pink-500"></i> Saved Collection</span>
                             <i class="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover:opacity-100"></i>
                         </a>
-                        <a href="{% url 'my_reviews' %}" class="flex items-center justify-between p-3 hover:bg-slate-50 text-slate-600 rounded-sm text-[11px] font-bold uppercase tracking-wider group transition-all">
-                            <span><i class="fa-solid fa-star mr-3 text-slate-300 group-hover:text-amber-500"></i> My Reviews</span>
+                        <a href="{% url 'my_reviews' %}" class="flex items-center justify-between p-4 hover:bg-slate-50 text-slate-600 rounded-sm text-[11px] font-black uppercase tracking-[0.2em] group transition-all border border-transparent hover:border-slate-100">
+                            <span><i class="fa-solid fa-star mr-3 text-slate-300 group-hover:text-amber-500"></i> Field Reports</span>
                             <i class="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover:opacity-100"></i>
                         </a>
-                        <a href="{% url 'logout' %}" class="flex items-center justify-center gap-2 mt-6 py-3 border border-red-100 text-red-500 font-bold uppercase text-[10px] tracking-widest hover:bg-red-50 transition-all rounded-sm">
-                            <i class="fa-solid fa-right-from-bracket"></i> Logout Session
+                        <a href="{% url 'logout' %}" class="flex items-center justify-center gap-3 mt-6 p-4 border border-red-100 text-red-500 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-red-50 transition-all rounded-sm sm:col-span-2 lg:col-span-1">
+                            <i class="fa-solid fa-power-off"></i> Terminate Session
                         </a>
                     </nav>
                 </div>
 
-                <div class="reveal sidebar-ambient p-8 rounded-sm shadow-lg text-center">
-                    <i class="fa-solid fa-briefcase text-3xl text-blue-400 mb-4"></i>
-                    <h4 class="text-sm font-black uppercase tracking-tight text-white">Merchant Program</h4>
-                    <p class="text-[10px] text-slate-400 uppercase font-bold mt-2 mb-6 leading-relaxed">Expand your reach. Start selling on CoreStore today.</p>
-                    <button class="w-full bg-blue-600 hover:bg-white hover:text-blue-600 text-white py-3 rounded-sm font-black uppercase text-[10px] tracking-widest transition-all">Apply Now</button>
+                <div class="reveal sidebar-ambient p-8 md:p-10 rounded-sm shadow-xl text-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    <i class="fa-solid fa-briefcase text-4xl text-blue-400 mb-6"></i>
+                    <h4 class="text-base font-black uppercase tracking-tighter text-white">Merchant Registry</h4>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold mt-3 mb-8 leading-relaxed">Establish your own node. Start distribution on CoreStore.</p>
+                    <button class="w-full bg-blue-600 hover:bg-white hover:text-blue-600 text-white py-4 rounded-sm font-black uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg shadow-black/20">Apply for Credentials</button>
                 </div>
             </div>
 
-            <div class="lg:col-span-8 space-y-8">
-                <div class="glass p-8 md:p-10 shadow-sm reveal">
-                    <h3 class="text-lg font-black uppercase tracking-tighter text-slate-900 mb-8">System <span class="text-blue-600">Identity</span></h3>
+            <div class="lg:col-span-8 space-y-6 md:space-y-10">
+                <div class="glass p-6 md:p-12 shadow-sm reveal">
+                    <h3 class="text-xl font-black uppercase tracking-tighter text-slate-900 mb-10 border-l-4 border-blue-600 pl-5">Identity <span class="text-blue-600">Parameters</span></h3>
                     
-                    <form method="POST" class="space-y-6">
+                    <form method="POST" class="space-y-8">
                         {% csrf_token %}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-1.5">
-                                <label class="text-[9px] font-black uppercase tracking-widest text-slate-400">User Handle</label>
-                                <input type="text" value="{{ data.username }}" readonly class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-xs font-bold text-slate-400">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">User Handle</label>
+                                <input type="text" value="{{ data.username }}" readonly class="w-full bg-slate-50 border border-slate-200 px-5 py-4 text-xs font-bold text-slate-400 cursor-not-allowed">
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-[9px] font-black uppercase tracking-widest text-slate-400">Electronic Mail</label>
-                                <input type="email" value="{{ data.email }}" readonly class="w-full bg-slate-50 border border-slate-200 px-4 py-3.5 text-xs font-bold text-slate-400">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Secure Electronic Mail</label>
+                                <input type="email" value="{{ data.email }}" readonly class="w-full bg-slate-50 border border-slate-200 px-5 py-4 text-xs font-bold text-slate-400 cursor-not-allowed">
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-[9px] font-black uppercase tracking-widest text-slate-400">Contact Number</label>
-                                <input type="tel" name="phone_number" value="{{ data.phone_number|default:'' }}" class="w-full bg-white border border-slate-200 px-4 py-3.5 text-xs font-bold text-slate-900 outline-none">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Contact Line</label>
+                                <input type="tel" name="phone_number" value="{{ data.phone_number|default:'' }}" class="w-full bg-white border border-slate-200 px-5 py-4 text-xs font-bold text-slate-900 outline-none hover:border-blue-300">
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-[9px] font-black uppercase tracking-widest text-slate-400">Legal First Name</label>
-                                <input type="text" name="first_name" value="{{ data.first_name }}" class="w-full bg-white border border-slate-200 px-4 py-3.5 text-xs font-bold text-slate-900 outline-none">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">First Designation</label>
+                                <input type="text" name="first_name" value="{{ data.first_name }}" class="w-full bg-white border border-slate-200 px-5 py-4 text-xs font-bold text-slate-900 outline-none hover:border-blue-300">
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-[9px] font-black uppercase tracking-widest text-slate-400">Legal Last Name</label>
-                                <input type="text" name="last_name" value="{{ data.last_name }}" class="w-full bg-white border border-slate-200 px-4 py-3.5 text-xs font-bold text-slate-900 outline-none">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Last Designation</label>
+                                <input type="text" name="last_name" value="{{ data.last_name }}" class="w-full bg-white border border-slate-200 px-5 py-4 text-xs font-bold text-slate-900 outline-none hover:border-blue-300">
                             </div>
                         </div>
-                        <div class="pt-6 border-t border-slate-100 flex justify-end">
-                            <button type="submit" name="update_details" class="bg-slate-900 text-white px-10 py-3.5 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-blue-600 rounded-sm">Commit Changes</button>
+                        <div class="pt-8 border-t border-slate-50 flex justify-center md:justify-end">
+                            <button type="submit" name="update_details" class="w-full md:w-auto bg-slate-900 text-white px-12 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:bg-blue-600 rounded-sm active:scale-95 shadow-xl">Commit Updates</button>
                         </div>
                     </form>
+                </div>
 
-                    <div class="mt-12 pt-8 border-t border-slate-100">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                            <h3 class="text-lg font-black uppercase tracking-tighter text-slate-900">Shipping <span class="text-blue-600">Registry</span></h3>
-                            <a href="{% url 'user_addresses' %}" class="bg-blue-600 text-white px-5 py-3 rounded-sm text-[9px] font-black uppercase tracking-widest transition-all hover:bg-slate-900">
-                                <i class="fa-solid fa-plus mr-1"></i> Register New Address
-                            </a>
-                        </div>
-
-                        <form method="POST">
-                            {% csrf_token %}
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {% if addresses %}
-                                    {% for address in addresses %}
-                                    <label class="relative cursor-pointer group">
-                                        <input type="radio" name="selected_address" value="{{ address.id }}" class="address-radio hidden" {% if address.is_default %}checked{% endif %}>
-                                        <div class="address-card glass p-5 border-2 transition-all duration-200 min-h-[140px] flex flex-col justify-between">
-                                            <div class="flex justify-between items-start">
-                                                <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">{{ address.address_type|default:"Home" }}</span>
-                                                <a href="{% url 'update_address' address.id %}" class="text-slate-300 hover:text-blue-600 transition-colors">
-                                                    <i class="fa-solid fa-pen-nib text-xs"></i>
-                                                </a>
-                                            </div>
-                                            <div class="mt-4">
-                                                <p class="text-[11px] font-bold text-slate-900 uppercase tracking-tight">{{ address.house_info }}</p>
-                                                <p class="text-[10px] text-slate-500 mt-1 uppercase">
-                                                    {{ address.locality }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="md:col-span-2 py-12 bg-slate-50 border border-dashed border-slate-200 rounded-sm flex flex-col items-center">
-                                        <i class="fa-solid fa-map-location-dot text-slate-200 text-3xl mb-3"></i>
-                                        <p class="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Database Empty</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="mt-6 flex justify-end">
-                                <button type="submit" name="save_default_address" class="border-2 border-slate-900 text-slate-900 px-8 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all rounded-sm">
-                                    Set Default Destination
-                                </button>
-                            </div>
-                        </form>
+                <div class="glass p-6 md:p-12 shadow-sm reveal">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                        <h3 class="text-xl font-black uppercase tracking-tighter text-slate-900 border-l-4 border-blue-600 pl-5">Shipping <span class="text-blue-600">Registry</span></h3>
+                        <a href="{% url 'user_addresses' %}" class="bg-blue-600 text-white px-6 py-4 rounded-sm text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:bg-slate-900 shadow-lg active:scale-95 text-center">
+                            <i class="fa-solid fa-plus-square mr-2"></i> Register Endpoint
+                        </a>
                     </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {% if addresses %}
+                                {% for address in addresses %}
+                                <label class="relative cursor-pointer group h-full">
+                                    <input type="radio" name="selected_address" value="{{ address.id }}" class="address-radio hidden" {% if address.is_default %}checked{% endif %}>
+                                    <div class="address-card glass p-6 border-2 transition-all duration-300 h-full flex flex-col">
+                                        <div class="flex justify-between items-start mb-6">
+                                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-blue-600">{{ address.address_type|default:"Home" }}</span>
+                                            <a href="{% url 'update_address' address.id %}" class="text-slate-300 hover:text-blue-600 transition-colors p-1">
+                                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                            </a>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <p class="text-xs font-black text-slate-900 uppercase tracking-tight mb-2">{{ address.full_name }}</p>
+                                            <p class="text-[10px] text-slate-500 font-medium uppercase leading-relaxed italic">
+                                                {{ address.house_info }}, {{ address.locality }}<br>
+                                                {{ address.city }}, {{ address.state }} - {{ address.pincode }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            {% else %}
+                                <div class="md:col-span-2 py-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-sm flex flex-col items-center justify-center">
+                                    <i class="fa-solid fa-map-location-dot text-slate-200 text-5xl mb-4"></i>
+                                    <p class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em]">Endpoint Database Empty</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if addresses %}
+                        <div class="mt-10 flex justify-center md:justify-end">
+                            <button type="submit" name="save_default_address" class="w-full md:w-auto border-2 border-slate-900 text-slate-900 px-10 py-4 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all rounded-sm active:scale-95">
+                                Sync Primary Destination
+                            </button>
+                        </div>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="profile-modal" class="fixed inset-0 z-[200] items-center justify-center bg-slate-900/90 backdrop-blur-sm p-4">
-        <div class="glass max-w-sm w-full p-8 text-center relative animate__animated animate__fadeInUp animate__faster">
-            <button onclick="toggleModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
-                <i class="fa-solid fa-xmark text-lg"></i>
+    <div id="profile-modal" class="fixed inset-0 z-[200] items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+        <div class="glass max-w-md w-full p-8 md:p-12 text-center relative animate__animated animate__zoomIn animate__faster">
+            <button onclick="toggleModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-900 p-2">
+                <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
-            <h3 class="text-sm font-black uppercase tracking-widest text-slate-900 mb-8">Update Avatar</h3>
-            <div class="w-40 h-40 mx-auto bg-slate-50 rounded-sm overflow-hidden mb-8 border border-slate-200 flex items-center justify-center">
+            <h3 class="text-lg font-black uppercase tracking-[0.2em] text-slate-900 mb-10">Sync Avatar Node</h3>
+            
+            <div class="w-48 h-48 mx-auto bg-slate-50 rounded-sm overflow-hidden mb-10 border-2 border-slate-100 flex items-center justify-center shadow-inner relative">
                 {% if data.profile_image %}
                     <img id="modal-preview" src="{{ data.profile_image.url }}" class="w-full h-full object-cover">
                 {% else %}
-                    <div id="modal-initials" class="text-slate-300 text-5xl font-black uppercase">{{ data.username|slice:":1" }}</div>
+                    <div id="modal-initials" class="text-slate-200 text-6xl font-black uppercase">{{ data.username|slice:":1" }}</div>
                     <img id="modal-preview" class="w-full h-full object-cover hidden">
                 {% endif %}
             </div>
-            <form method="POST" enctype="multipart/form-data" class="space-y-4">
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
                 {% csrf_token %}
-                <input type="file" name="image" id="file-input" onchange="previewFile()" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"/>
-                <div class="pt-4">
-                    <button type="submit" name="update_photo" class="w-full bg-blue-600 text-white py-3.5 text-[10px] font-black uppercase tracking-widest shadow-md rounded-sm">Sync Avatar</button>
+                <div class="relative">
+                    <input type="file" name="image" id="file-input" onchange="previewFile()" class="hidden"/>
+                    <label for="file-input" class="cursor-pointer block w-full border-2 border-dashed border-slate-200 p-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:border-blue-500 hover:text-blue-500 transition-all">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Select Image Payload
+                    </label>
                 </div>
+                <button type="submit" name="update_photo" class="w-full bg-blue-600 text-white py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl hover:bg-slate-900 transition-all active:scale-95 rounded-sm">
+                    Initiate Synchronization
+                </button>
             </form>
         </div>
     </div>
 
+    {% include 'core-templates/footer.html' %}
+
     <script>
         function toggleModal() { document.getElementById('profile-modal').classList.toggle('open'); }
+        
         function previewFile() {
             const preview = document.getElementById('modal-preview');
             const initials = document.getElementById('modal-initials');
@@ -296,6 +270,7 @@
             }
             if (file) reader.readAsDataURL(file);
         }
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
         }, { threshold: 0.1 });
