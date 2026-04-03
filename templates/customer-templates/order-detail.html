@@ -18,8 +18,7 @@
 </head>
 <body class="min-h-screen bg-slate-50">
 
-    {% include 'core-templates/navbar.html' %}
-    {% load i18n %}
+    {% include 'core-templates/order-navbar.html' %}
 
     <div class="h-20 lg:h-24"></div>
 
@@ -54,9 +53,7 @@
                                 <th class="text-right py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-24">Qty</th>
                                 <th class="text-right py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-28">Unit Price</th>
                                 <th class="text-right py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-28">Total</th>
-                                {% if eligible_items %}
                                 <th class="text-center py-4 font-bold uppercase tracking-wider text-xs text-slate-500 w-32">Review</th>
-                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -65,7 +62,7 @@
                                 <td class="py-4 pr-4 w-16">
                                     {% with first_img=item.variant.images.first %}
                                         {% if first_img %}
-                                            <img src="{{ first_img.image.url }}" class="w-16 h-16 object-cover rounded border">
+                                            <img src="{{ first_img.images.url }}" class="w-16 h-16 object-cover rounded border">
                                         {% else %}
                                             <div class="w-16 h-16 bg-slate-100 flex items-center justify-center rounded border text-xs text-slate-400">
                                                 <i class="fa-solid fa-box"></i>
@@ -79,28 +76,24 @@
                                 </td>
                                 <td class="py-4 text-right font-mono font-bold text-slate-900">{{ item.quantity }}</td>
                                 <td class="py-4 text-right font-mono font-bold text-slate-900">${{ item.price_at_purchase|floatformat:2 }}</td>
-${{ item.subtotal|floatformat:2 }}
-                                {% if eligible_items %}
+                                <td class="py-4 text-right font-mono font-bold text-slate-900">${{ item.subtotal|floatformat:2 }}</td>
                                 <td class="py-4 text-center">
-                                    {% for eligible in eligible_items %}
-                                    {% if eligible.variant.product == item.variant.product %}
-                                        {% for pid,review in review_status_list %}
-                                            {% if pid == item.variant.product.id %}
-                                                {% if review %}
-                                                    <a href="{% url 'edit_review' review.id %}" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all shadow-sm inline-flex items-center">
-                                                        <i class="fa-solid fa-edit mr-1"></i>Edit Review
-                                                    </a>
-                                                {% else %}
-                                                    <button onclick="openReviewModal('{{ item.variant.product.id }}', '{{ item.variant.product.slug }}', '{{ order.id }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all shadow-sm">
-                                                        <i class="fa-solid fa-star mr-1"></i>Write Review
-                                                    </button>
-                                                {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
+                                    {% if order.order_status != 'delivered' %}
+                                        <button onclick="alert('Review only after product is delivered')" class="bg-slate-200 text-slate-600 px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-sm border border-slate-300">
+                                            Locked
+                                        </button>
+                                    {% else %}
+                                        {% if item.review %}
+                                            <a href="{% url 'edit_review' item.review.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all shadow-sm inline-flex items-center">
+                                                <i class="fa-solid fa-edit mr-1"></i>Edit Review
+                                            </a>
+                                        {% else %}
+                                            <button onclick="openReviewModal('{{ item.variant.product.id }}', '{{ item.variant.product.slug }}', '{{ order.id }}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-[10px] font-black uppercase tracking-wider rounded-sm transition-all shadow-sm">
+                                                <i class="fa-solid fa-star mr-1"></i>Write Review
+                                            </button>
+                                        {% endif %}
                                     {% endif %}
-                                    {% endfor %}
                                 </td>
-                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -224,8 +217,9 @@ ${{ item.subtotal|floatformat:2 }}
                         <textarea name="comment" rows="4" class="w-full p-4 border border-slate-200 rounded-sm text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="Share your experience with this product..."></textarea>
                     </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-sm font-black uppercase text-[11px] tracking-wider shadow-lg transition-all">
-                        {% trans "Submit Review" %}
+                        Submit Review
                     </button>
+
                 </form>
             </div>
         </div>

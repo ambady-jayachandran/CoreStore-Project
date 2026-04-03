@@ -69,6 +69,7 @@ class Order(models.Model):
     )
     ordered_at = models.DateTimeField(auto_now_add=True)
     shipping_address = models.ForeignKey("core.Address", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders")
+    cancel_reason = models.TextField(blank=True, null=True)
     
     def __str__(self):
         return self.order_number
@@ -81,5 +82,9 @@ class OrderItem(models.Model):
     quantity = models.IntegerField()
     price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2)
     
+    @property
+    def subtotal(self):
+        return self.quantity * self.price_at_purchase
+
     def __str__(self):
         return f"{self.variant.sku_code} (Order {self.order.order_number})"

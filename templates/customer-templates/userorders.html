@@ -69,12 +69,12 @@
 
     {% include 'core-templates/navbar.html' %}
 
-    <div class="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 py-12 md:py-16 shadow-lg px-4">
+    <div class="bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 py-10 sm:py-12 md:py-16 shadow-lg px-4">
       <div class="container mx-auto max-w-5xl">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-tight">
           Registry <span class="text-blue-400">History</span>
         </h1>
-        <div class="flex items-center gap-4 mt-4">
+        <div class="flex items-center gap-4 mt-3 sm:mt-4">
             <p class="text-[9px] sm:text-[10px] text-blue-200/60 font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] shrink-0">
                 {{ orders|length }} Recorded Transaction{{ orders|length|pluralize }}
             </p>
@@ -83,30 +83,32 @@
       </div>
     </div>
 
-    <main class="container mx-auto px-4 md:px-8 mt-8 md:mt-12 max-w-5xl">
+    <main class="container mx-auto px-4 sm:px-6 md:px-8 mt-8 md:mt-12 max-w-5xl">
         
         {% if orders %}
-            <div class="space-y-4 md:space-y-6">
+            <div class="space-y-4 sm:space-y-6">
                 {% for order in orders %}
                 <div class="order-card glass overflow-hidden animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter0|add:1 }}00ms">
                     {% with first_item=order.items.first %}
                     
-                    <div class="p-5 md:p-8 flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+                    <div class="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-5 sm:gap-6 md:gap-8">
                         
-                        <div class="flex items-start md:items-center gap-4 md:gap-8 flex-1 min-w-0">
+                        <div class="flex items-start sm:items-center gap-4 sm:gap-6 md:gap-8 flex-1 min-w-0">
                             
                             <div class="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-slate-50 border border-slate-100 rounded-sm overflow-hidden shrink-0 shadow-sm">
-                                {# Try variant images first, fallback to product images #}
-                                {% with variant_img=first_item.variant.images.first product_img=first_item.variant.product.images.first %}
+                                {% with variant_img=first_item.variant.images.all|dictsortreversed:"is_primary"|first %}
                                     {% if variant_img %}
-                                        <img src="{{ variant_img.image.url }}" alt="{{ first_item.variant.product.name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.onerror=null;this.src='{{ product_img.image.url }}';if(!this.src || this.src==='{{ product_img.image.url }}') this.style.display='none';">
-                                    {% elif product_img %}
-                                        <img src="{{ product_img.image.url }}" alt="{{ first_item.variant.product.name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none';">
+                                        <img src="{{ variant_img.images.url }}" class="w-full h-full object-cover" alt="{{ first_item.variant.product.name }}">
+                                    {% else %}
+                                        {% if first_item.variant.images.all %}
+                                            <img src="{{ first_item.variant.images.all.0.images.url }}" class="w-full h-full object-cover" alt="{{ first_item.variant.product.name }}">
+                                        {% else %}
+                                            <div class="w-full h-full flex items-center justify-center bg-slate-100">
+                                                <i class="fa-solid fa-box text-slate-300 text-2xl sm:text-3xl"></i>
+                                            </div>
+                                        {% endif %}
                                     {% endif %}
                                 {% endwith %}
-                                <div class="absolute inset-0 flex items-center justify-center bg-slate-50 text-slate-200 z-10 hidden data-[no-image]:flex" data-no-image="{% if not first_item.variant.images.first and not first_item.variant.product.images.first %}true{% endif %}">
-                                    <i class="fa-solid fa-box text-2xl md:text-3xl"></i>
-                                </div>
                             </div>
 
                             <div class="flex-1 min-w-0">
@@ -119,42 +121,50 @@
                                         <span class="status-badge status-processing pulse-processing"><i class="fa-solid fa-gear fa-spin mr-1.5 text-[10px]"></i>Processing</span>
                                     {% elif order.order_status == 'placed' %}
                                         <span class="status-badge status-placed"><i class="fa-solid fa-clock mr-1.5 text-[10px]"></i>Order Placed</span>
+                                    {% elif order.order_status == 'cancelled' %}
+                                        <span class="status-badge status-cancelled"><i class="fa-solid fa-xmark mr-1.5 text-[10px]"></i>Cancelled</span>
                                     {% else %}
-                                        <span class="status-badge status-cancelled"><i class="fa-solid fa-xmark mr-1.5 text-[10px]"></i>{{ order.order_status|upper }}</span>
+                                        <span class="status-badge status-placed"><i class="fa-solid fa-question mr-1.5 text-[10px]"></i>{{ order.order_status|upper }}</span>
                                     {% endif %}
                                     
-                                    <h3 class="text-lg sm:text-xl font-black uppercase tracking-tighter text-slate-900 truncate leading-tight mt-2 sm:mt-3">
+                                    <h3 class="text-base sm:text-lg md:text-xl font-black uppercase tracking-tighter text-slate-900 truncate leading-tight mt-2.5 sm:mt-3">
                                         {{ first_item.variant.product.name }}
                                     </h3>
                                 </div>
                                 
-                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-slate-500 text-[9px] font-bold uppercase tracking-widest">
+                                <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1.5 text-slate-500 text-[9px] font-bold uppercase tracking-widest">
                                     <span>Ref: #{{ order.order_number }}</span>
                                     <span class="hidden sm:block w-1 h-1 rounded-full bg-slate-300"></span>
                                     <span>Units: {{ first_item.quantity }}{% if order.items.count > 1 %} (+{{ order.items.count|add:-1 }}){% endif %}</span>
                                     <span class="hidden sm:block w-1 h-1 rounded-full bg-slate-300"></span>
-                                    <span>Dispatch: {{ order.ordered_at|date:"M d, Y" }}</span>
+                                    <span>{{ order.ordered_at|date:"M d, Y" }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row md:flex-col items-center sm:items-stretch md:items-end gap-4 shrink-0 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-8">
+                        <div class="flex flex-col sm:flex-row md:flex-col items-center sm:items-stretch md:items-end gap-3 sm:gap-4 shrink-0 pt-4 sm:pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100 md:pl-8">
                             
-                            <div class="w-full sm:w-auto md:w-full flex justify-between md:justify-end items-center mb-2 md:mb-0">
+                            <div class="w-full sm:w-auto md:w-full flex justify-between md:justify-end items-center mb-1 sm:mb-0">
                                 <span class="md:hidden text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total</span>
                                 <p class="text-xl sm:text-2xl font-black text-slate-900 tracking-tighter">${{ order.total_amount|floatformat:2 }}</p>
                             </div>
                             
-                            <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 w-full">
-                                <a href="{% url 'order_detail' order.id %}" class="flex-1 bg-slate-900 text-white px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest hover:bg-blue-600 transition-all text-center shadow-sm">
+                            <div class="grid grid-cols-2 sm:flex sm:flex-row md:flex-col gap-2 w-full">
+                                <a href="{% url 'order_detail' order.id %}" class="col-span-2 sm:flex-1 bg-slate-900 text-white px-4 sm:px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest hover:bg-blue-600 transition-all text-center shadow-sm">
                                     View Details
                                 </a>
-                                <a href="{% url 'track_order' order.id %}" class="flex-1 bg-white border border-slate-200 text-slate-600 px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest hover:text-slate-900 hover:border-slate-900 hover:bg-slate-50 transition-all text-center shadow-sm">
-                                    Track Order
+                                <a href="{% url 'track_order' order.id %}" class="col-span-1 sm:flex-1 bg-white border border-slate-200 text-slate-600 px-3 sm:px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest hover:text-slate-900 hover:border-slate-900 hover:bg-slate-50 transition-all text-center shadow-sm">
+                                    Track
                                 </a>
-                                <button type="button" class="flex-1 bg-white border border-slate-200 text-slate-600 px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest hover:text-slate-900 hover:border-slate-900 hover:bg-slate-50 transition-all text-center shadow-sm">
-                                    Invoice
-                                </button>
+                                {% if order.order_status != 'delivered' and order.order_status != 'cancelled' %}
+                                <a href="{% url 'cancel_order' order.id %}" class="col-span-1 sm:flex-1 bg-red-50 border border-red-200 text-red-600 px-3 sm:px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest hover:text-red-700 hover:border-red-300 hover:bg-red-100 transition-all text-center shadow-sm">
+                                    Cancel
+                                </a>
+                                {% else %}
+                                <div class="col-span-1 sm:flex-1 bg-slate-100 border border-slate-200 text-slate-400 px-3 sm:px-5 py-3 md:py-2.5 rounded-sm font-black text-[9px] uppercase tracking-widest text-center">
+                                    {% if order.order_status == 'cancelled' %}Cancelled{% else %}Delivered{% endif %}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -175,9 +185,9 @@
             </div>
         {% endif %}
 
-        <div class="mt-16 sm:mt-20 p-6 sm:p-10 glass text-center border-dashed border-2">
+        <div class="mt-12 sm:mt-16 md:mt-20 p-6 sm:p-10 glass text-center border-dashed border-2">
             <h4 class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-slate-400 mb-6 sm:mb-8">Supply Chain Status</h4>
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-6 sm:gap-12 opacity-50 grayscale">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-5 sm:gap-12 opacity-50 grayscale">
                 <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fa-solid fa-warehouse text-slate-500"></i> Inventory</div>
                 <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fa-solid fa-shield-check text-slate-500"></i> Quality Control</div>
                 <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fa-solid fa-plane-departure text-slate-500"></i> Dispatch</div>

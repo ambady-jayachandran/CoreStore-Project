@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         :root {
             --primary: #0f172a; 
@@ -29,20 +29,26 @@
             border-radius: 4px;
         }
 
+        /* Image Zoom Styling */
         .main-img-container { cursor: zoom-in; overflow: hidden; border-radius: 4px; border: 1px solid #e2e8f0; }
-        .main-img-container:hover .main-img { transform: scale(1.8); }
+        /* Disabled zoom hover on small mobile devices to prevent touch issues */
+        @media (min-width: 768px) {
+            .main-img-container:hover .main-img { transform: scale(1.8); }
+        }
         .main-img { 
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             transform-origin: center center; 
         }
 
         .thumbnail-btn { border-radius: 4px; transition: all 0.2s ease; border: 1px solid #e2e8f0; }
-        .thumbnail-active { border-color: var(--accent) !important; ring: 2px var(--accent); }
+        .thumbnail-active { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent); }
         
         .tab-btn { transition: all 0.2s ease; border-bottom: 2px solid transparent; }
         .tab-active { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         .heart-filled { color: #ef4444 !important; }
 
         .btn-action {
@@ -62,151 +68,161 @@
 
     <div id="wishlist-toast" class="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4 hidden">
         <div class="p-4 glass border-l-4 border-blue-600 shadow-2xl animate__animated animate__fadeInDown text-center">
-            <p id="toast-text" class="text-[10px] font-black uppercase tracking-widest text-slate-900"></p>
+            <p id="toast-text" class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-900"></p>
         </div>
     </div>
 
     {% include 'includes/message-toast.html' %}
 
     <nav class="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 shadow-xl py-3">
-        <div class="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <button onclick="window.history.back()" class="w-9 h-9 border border-blue-400/30 text-blue-100 flex items-center justify-center hover:bg-blue-600 transition-all rounded-sm">
-                    <i class="fa-solid fa-arrow-left text-xs"></i>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button onclick="window.history.back()" class="w-8 h-8 sm:w-9 sm:h-9 border border-blue-400/30 text-blue-100 flex items-center justify-center hover:bg-blue-600 transition-all rounded-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px] sm:text-xs"></i>
                 </button>
-                <a href="{% url 'home' %}" class="text-xl font-black tracking-tighter flex items-center gap-2 group text-white">
+                <a href="{% url 'home' %}" class="text-lg sm:text-xl font-black tracking-tighter flex items-center gap-2 group text-white">
                     <div class="bg-blue-600 p-1 rounded-sm group-hover:bg-blue-50 transition-transform">
-                        <i class="fa-solid fa-bolt-lightning text-xs"></i>
+                        <i class="fa-solid fa-bolt-lightning text-[10px] sm:text-xs group-hover:text-blue-600"></i>
                     </div>
-                    <span>CORE<span class="text-blue-400">STORE</span></span>
+                    <span>CORE<span class="text-blue-400 hidden sm:inline">STORE</span></span>
                 </a>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="/wishlist/" class="w-9 h-9 border border-blue-400/30 flex items-center justify-center text-blue-100 hover:text-white transition-all rounded-sm">
-                    <i class="fa-solid fa-heart text-xs"></i>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="/wishlist/" class="w-8 h-8 sm:w-9 sm:h-9 border border-blue-400/30 flex items-center justify-center text-blue-100 hover:text-white transition-all rounded-sm">
+                    <i class="fa-solid fa-heart text-[10px] sm:text-xs"></i>
                 </a>
-                <a href="/cart" class="relative w-9 h-9 border border-blue-400/30 flex items-center justify-center text-blue-100 hover:text-white transition-all rounded-sm">
-                    <i class="fa-solid fa-shopping-bag text-xs"></i>
+                <a href="/cart" class="relative w-8 h-8 sm:w-9 sm:h-9 border border-blue-400/30 flex items-center justify-center text-blue-100 hover:text-white transition-all rounded-sm">
+                    <i class="fa-solid fa-shopping-bag text-[10px] sm:text-xs"></i>
                     {% if cart_count > 0 %}
-                    <span class="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[9px] font-black rounded-full flex items-center justify-center">{{ cart_count }}</span>
+                    <span class="absolute -top-1.5 -right-1.5 w-4 h-4 sm:w-4 sm:h-4 bg-blue-600 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-slate-900">{{ cart_count }}</span>
                     {% endif %}
                 </a>
             </div>
         </div>
     </nav>
 
-    <div class="h-20 lg:h-24"></div>
+    <div class="h-16 sm:h-20 lg:h-24"></div>
 
-    <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div class="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12">
             
-            <div class="lg:col-span-7 flex flex-col md:flex-row gap-4 animate__animated animate__fadeInLeft animate__faster">
-                <div class="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto hide-scrollbar max-h-[500px]">
+            <div class="lg:col-span-7 flex flex-col md:flex-row gap-4 sm:gap-6 animate__animated animate__fadeInLeft animate__faster">
+                
+                <div class="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto hide-scrollbar max-h-[500px] w-full md:w-auto pb-2 md:pb-0 snap-x">
                     {% for img in data.images.all %}
-onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0 w-16 h-16 md:w-20 md:h-20 glass overflow-hidden {% if img.is_primary %}thumbnail-active{% endif %}">
-                        <img src="{{ img.images.url }}" class="w-full h-full object-cover">
-                    </button>
-
+                        <button onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0 w-16 h-16 sm:w-20 sm:h-20 glass overflow-hidden snap-start {% if img.is_primary %}thumbnail-active{% endif %}">
+                            <img src="{{ img.images.url }}" class="w-full h-full object-cover">
+                        </button>
                     {% endfor %}
                 </div>
 
-                <div class="flex-1 order-1 md:order-2">
-                    <div class="main-img-container relative aspect-[1/1] sm:aspect-[4/5] shadow-sm" onmousemove="zoom(event)">
+                <div class="flex-1 order-1 md:order-2 w-full">
+                    <div class="main-img-container relative aspect-square sm:aspect-[4/5] shadow-sm bg-slate-50" onmousemove="zoom(event)">
                         {% with primary=data.images.all|dictsortreversed:"is_primary"|first %}
-                        <img id="mainHero" src="{{ primary.image.url }}" class="main-img w-full h-full object-cover">
+                            {% if primary %}
+                                <img id="mainHero" src="{{ primary.images.url }}" class="main-img w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-slate-300">
+                                    <i class="fa-solid fa-image text-4xl"></i>
+                                </div>
+                            {% endif %}
                         {% endwith %}
                         
                         <button onclick="toggleWishlist(this, '{{ data.slug }}')" 
                             data-is-authenticated="{{ request.user.is_authenticated|yesno:'true,false' }}"
-                            class="absolute top-4 right-4 w-10 h-10 bg-white shadow-lg flex items-center justify-center text-slate-900 hover:scale-110 transition-all rounded-sm group">
+                            class="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 bg-white shadow-lg flex items-center justify-center text-slate-900 hover:scale-110 transition-all rounded-sm group z-10">
                             <i class="fa-solid fa-heart transition-colors duration-300 {% if is_in_wishlist %}heart-filled{% endif %}"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-5 space-y-8 animate__animated animate__fadeInRight animate__faster">
+            <div class="lg:col-span-5 space-y-6 sm:space-y-8 animate__animated animate__fadeInRight animate__faster">
+                
                 <div class="space-y-4">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <span class="text-[9px] font-bold text-blue-600 uppercase tracking-widest border border-blue-100 px-2 py-1 bg-blue-50 rounded-sm">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span class="text-[9px] sm:text-[10px] font-bold text-blue-600 uppercase tracking-widest border border-blue-100 px-2 py-1 bg-blue-50 rounded-sm">
                             SKU: {{ data.sku_code }}
                         </span>
-                        {% if data.stock_quantity == 0 %}
-                            <span class="text-[9px] font-bold text-red-600 uppercase flex items-center gap-1">Out of Stock</span>
+                        {% if data.stock_quantity <= 0 %}
+                            <span class="text-[9px] sm:text-[10px] font-bold text-red-600 uppercase flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> Out of Stock</span>
                         {% else %}
-                            <span class="text-[9px] font-bold text-emerald-600 uppercase flex items-center gap-1">In Stock</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> In Stock</span>
                         {% endif %}
                     </div>
                     
-                    <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-tight">
                         {{ data.product.name }}
                     </h1>
                     
-                    <div class="flex items-center gap-4">
-                        <span class="text-4xl font-black text-slate-900">${{ data.selling_price }}</span>
+                    <div class="flex items-end gap-3 sm:gap-4">
+                        <span class="text-3xl sm:text-4xl font-black text-slate-900 leading-none">${{ data.selling_price }}</span>
                         {% if data.mrp > data.selling_price %}
-                            <span class="text-xl text-slate-300 line-through font-medium">${{ data.mrp }}</span>
-                            <span class="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase">SALE</span>
+                            <span class="text-lg sm:text-xl text-slate-400 line-through font-medium leading-none mb-1">${{ data.mrp }}</span>
+                            <span class="bg-red-500 text-white text-[9px] sm:text-[10px] font-black px-2 py-1.5 rounded-sm uppercase mb-1 shadow-sm">SALE</span>
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="border-b border-slate-100 flex gap-8">
-                    <button onclick="switchTab('desc', this)" class="tab-btn pb-3 text-[11px] font-bold uppercase tracking-widest tab-active">Overview</button>
-                    <button onclick="switchTab('spec', this)" class="tab-btn pb-3 text-[11px] font-bold uppercase tracking-widest text-slate-400">Specifications</button>
+                <div class="border-b border-slate-200 flex gap-6 sm:gap-8 overflow-x-auto hide-scrollbar">
+                    <button onclick="switchTab('desc', this)" class="tab-btn pb-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest tab-active shrink-0">Overview</button>
+                    <button onclick="switchTab('spec', this)" class="tab-btn pb-3 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-slate-400 shrink-0">Specifications</button>
                 </div>
                 
                 <div class="min-h-[100px]">
                     <div id="desc-content" class="tab-pane block">
-                        <p class="text-sm font-medium leading-relaxed text-slate-500 italic">
+                        <p class="text-sm sm:text-base font-medium leading-relaxed text-slate-600 italic">
                             {{ data.product.description|default:"Precision engineered for peak performance." }}
                         </p>
                     </div>
                     <div id="spec-content" class="tab-pane hidden space-y-3">
-                        <div class="grid grid-cols-2 py-2 border-b border-slate-50 text-[10px] font-bold uppercase">
+                        <div class="grid grid-cols-2 py-2 border-b border-slate-100 text-[10px] sm:text-xs font-bold uppercase">
                             <span class="text-slate-400">Dimensions</span>
-                            <span class="text-right">{{ data.length }}x{{ data.width }}x{{ data.height }} cm</span>
+                            <span class="text-right text-slate-800">{{ data.length }} x {{ data.width }} x {{ data.height }} cm</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="space-y-6 pt-6">
-                    <!-- Rating Section -->
+                <div class="space-y-6 pt-4 sm:pt-6">
+                    
                     {% if avg_rating > 0 %}
-                    <div class="flex items-center gap-4 p-4 bg-emerald-50 border border-emerald-200 rounded-sm">
-                        <div class="flex text-xl">
+                    <div class="flex items-center gap-4 p-4 bg-emerald-50 border border-emerald-100 rounded-sm">
+                        <div class="flex text-lg sm:text-xl">
                             {% for i in "12345"|make_list %}
                                 {% if forloop.counter <= avg_rating %}
                                     <i class="fas fa-star text-amber-400"></i>
                                 {% else %}
-                                    <i class="far fa-star text-amber-400"></i>
+                                    <i class="far fa-star text-amber-400/30"></i>
                                 {% endif %}
                             {% endfor %}
                         </div>
                         <div>
-                            <p class="font-bold text-emerald-800 text-sm">{{ avg_rating }}/5 ({{ review_count }} reviews)</p>
+                            <p class="font-bold text-emerald-800 text-xs sm:text-sm">{{ avg_rating }}/5 ({{ review_count }} reviews)</p>
                         </div>
                     </div>
                     {% endif %}
-                    <div class="flex items-center bg-slate-50 p-3 border border-slate-100 rounded-sm">
-                        <span class="text-[10px] font-black uppercase text-slate-400 mr-4">Quantity</span>
-                        <div class="flex items-center bg-white border border-slate-200 p-1">
-                            <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-slate-50 transition-colors" id="qty-decrease">
-                                <i class="fa-solid fa-minus text-[10px]"></i>
-                            </button>
-                            <input type="number" id="shared-qty-input" min="1" max="{{ data.stock_quantity }}" value="1" 
-                                   class="w-12 text-center text-sm font-black text-slate-900 border-0 outline-none bg-transparent" readonly>
-                            <button type="button" class="w-8 h-8 flex items-center justify-center hover:bg-slate-50 transition-colors" id="qty-increase">
-                                <i class="fa-solid fa-plus text-[10px]"></i>
-                            </button>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center bg-slate-50 p-3 sm:p-4 border border-slate-100 rounded-sm gap-3 sm:gap-0">
+                        <span class="text-[10px] font-black uppercase text-slate-500 sm:mr-4">Quantity</span>
+                        <div class="flex items-center justify-between sm:justify-start w-full sm:w-auto">
+                            <div class="flex items-center bg-white border border-slate-200 p-1 rounded-sm shadow-sm">
+                                <button type="button" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-slate-50 text-slate-600 transition-colors" id="qty-decrease">
+                                    <i class="fa-solid fa-minus text-[10px]"></i>
+                                </button>
+                                <input type="number" id="shared-qty-input" min="1" max="{{ data.stock_quantity }}" value="1" 
+                                       class="w-12 sm:w-14 text-center text-sm sm:text-base font-black text-slate-900 border-0 outline-none bg-transparent" readonly>
+                                <button type="button" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-slate-50 text-slate-600 transition-colors" id="qty-increase">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                </button>
+                            </div>
+                            <span class="sm:ml-4 text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ data.stock_quantity }} Available</span>
                         </div>
-                        <span class="ml-auto text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ data.stock_quantity }} Available</span>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col sm:grid sm:grid-cols-2 gap-3 sm:gap-4">
                         {% if is_in_cart %}
                             <a href="{% url 'cart' %}" class="col-span-2">
-                                <button class="btn-action w-full h-14 bg-blue-600 text-white hover:bg-slate-900 shadow-lg shadow-blue-100">
+                                <button class="btn-action w-full h-14 bg-blue-600 text-white hover:bg-slate-900 shadow-lg shadow-blue-600/20 text-[10px] sm:text-[11px]">
                                     <i class="fa-solid fa-arrow-right mr-2"></i> Review Cart
                                 </button>
                             </a>
@@ -214,8 +230,8 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
                             <form action="{% url 'user_addto_cart' data.slug %}" method="POST" class="col-span-2 sm:col-span-1" id="add-to-cart-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="quantity" id="cart-form-qty" value="1">
-                                <button type="submit" {% if data.stock_quantity == 0 %}disabled{% endif %} 
-                                        class="btn-action w-full h-14 bg-slate-900 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <button type="submit" {% if data.stock_quantity <= 0 %}disabled{% endif %} 
+                                        class="btn-action w-full h-14 bg-slate-900 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-[10px] sm:text-[11px]">
                                     Add to Bag
                                 </button>
                             </form>
@@ -224,8 +240,8 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
                         <form action="{% url 'buy_now_checkout' data.slug %}" method="POST" class="col-span-2 sm:col-span-1" id="buy-now-form">
                             {% csrf_token %}
                             <input type="hidden" name="quantity" id="buy-form-qty" value="1">
-                            <button type="submit" {% if data.stock_quantity == 0 %}disabled{% endif %} 
-                                    class="btn-action w-full h-14 border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button type="submit" {% if data.stock_quantity <= 0 %}disabled{% endif %} 
+                                    class="btn-action w-full h-14 bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-sm text-[10px] sm:text-[11px]">
                                 Buy Now
                             </button>
                         </form>
@@ -234,105 +250,116 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
             </div>
         </div>
 
-        <!-- Related Products Section -->
-        <section class="mt-24">
-            <h2 class="text-3xl font-black text-slate-900 mb-12 text-center uppercase tracking-tighter">Related Items</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <section class="mt-20 sm:mt-24">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-8 sm:mb-12 text-center uppercase tracking-tighter">Related Items</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {% for related in related_products %}
-                <a href="{{ related.get_absolute_url }}" class="group glass p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-                    <div class="aspect-[4/5] overflow-hidden rounded-sm mb-3 group-hover:scale-105 transition-transform">
+                <a href="{{ related.get_absolute_url }}" class="group glass p-3 sm:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 sm:hover:-translate-y-2 flex flex-col h-full">
+                    <div class="aspect-[4/5] overflow-hidden rounded-sm mb-3 group-hover:scale-105 transition-transform bg-slate-50 relative">
                         {% with primary=related.images.all|dictsortreversed:"is_primary"|first %}
-                        <img src="{{ primary.image.url }}" alt="{{ related.product.name }}" class="w-full h-full object-cover">
+                            {% if primary %}
+                                <img src="{{ primary.images.url }}" alt="{{ related.product.name }}" class="w-full h-full object-cover absolute inset-0">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center absolute inset-0 text-slate-200">
+                                    <i class="fa-solid fa-box text-2xl"></i>
+                                </div>
+                            {% endif %}
                         {% endwith %}
                     </div>
-                    <h3 class="font-bold text-sm text-slate-900 line-clamp-2 mb-2 group-hover:text-blue-600">{{ related.product.name }}</h3>
-                    <p class="text-lg font-black text-slate-900">${{ related.selling_price }}</p>
+                    <div class="flex flex-col flex-1">
+                        <h3 class="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 mb-2 group-hover:text-blue-600">{{ related.product.name }}</h3>
+                        <p class="text-base sm:text-lg font-black text-slate-900 mt-auto">${{ related.selling_price }}</p>
+                    </div>
                 </a>
                 {% empty %}
-                <p class="col-span-full text-center text-slate-500 py-12">No related products found.</p>
+                <div class="col-span-full text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-sm py-12">
+                    <p class="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">No related products found.</p>
+                </div>
                 {% endfor %}
             </div>
         </section>
 
-        <section class="mt-24 border-t border-slate-100 pt-16">
-    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-12">
-        <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Customer Reviews</h2>
-        {% if review_count > 0 %}
-        <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-sm">
-            <span class="font-bold text-lg text-emerald-800">{{ avg_rating }}/5</span>
-            <span class="text-sm font-bold text-slate-400">({{ review_count }} Total)</span>
-        </div>
-        {% endif %}
-    </div>
-    
-    {% if review_count > 0 %}
-    <div class="max-w-xl mx-auto mb-16 space-y-3 px-4">
-        {% for dist in rating_distribution %}
-            {% if review_count > 0 %}
-                {% widthratio dist.count review_count 100 as percent %}
-            {% else %}
-                {% widthratio 0 1 100 as percent %}
-            {% endif %}
-            
-            <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end gap-2 w-16">
-                    <span class="text-xs font-black text-slate-700">{{ dist.rating }}</span>
-                    <i class="fas fa-star text-amber-400 text-[10px]"></i>
+        <section class="mt-20 sm:mt-24 border-t border-slate-200 pt-12 sm:pt-16">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-10 sm:mb-12">
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tighter text-center">Customer Reviews</h2>
+                {% if review_count > 0 %}
+                <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-sm shadow-sm">
+                    <span class="font-bold text-lg text-emerald-800">{{ avg_rating }}/5</span>
+                    <span class="text-xs sm:text-sm font-bold text-emerald-600/70">({{ review_count }} Total)</span>
                 </div>
+                {% endif %}
+            </div>
+            
+            {% if review_count > 0 %}
+            <div class="max-w-xl mx-auto mb-12 sm:mb-16 space-y-3 px-4">
+                {% for dist in rating_distribution %}
+                    {% if review_count > 0 %}
+                        {% widthratio dist.count review_count 100 as percent %}
+                    {% else %}
+                        {% widthratio 0 1 100 as percent %}
+                    {% endif %}
+                    
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="flex items-center justify-end gap-1.5 sm:gap-2 w-12 sm:w-16">
+                            <span class="text-[10px] sm:text-xs font-black text-slate-700">{{ dist.rating }}</span>
+                            <i class="fas fa-star text-amber-400 text-[9px] sm:text-[10px]"></i>
+                        </div>
 
-                <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                    <div class="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-700 ease-out" 
-                         style="width: {{ percent }}%">
+                        <div class="flex-1 h-2.5 sm:h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                            <div class="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-700 ease-out" 
+                                 style="width: {{ percent }}%">
+                            </div>
+                        </div>
+
+                        <div class="w-16 sm:w-20 text-right">
+                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-500 uppercase">{{ percent }}%</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400 ml-1">({{ dist.count }})</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="space-y-4 sm:space-y-6 max-w-4xl mx-auto">
+                {% for review in reviews %}
+                <div class="glass p-5 sm:p-6 hover:shadow-lg transition-all border border-slate-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
+                        <div class="flex text-amber-400 gap-1 text-xs sm:text-sm">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star text-slate-200"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            {{ review.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm leading-relaxed text-slate-600 font-medium">{{ review.comment }}</p>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-[10px] sm:text-[11px] font-black text-slate-700 shadow-sm border border-slate-200 shrink-0">
+                            {{ review.user.get_full_name|slice:":1"|default:review.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">{{ review.user.get_full_name|default:review.user.username }}</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase tracking-wider"><i class="fa-solid fa-check-circle mr-1"></i> Verified Purchase</span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="w-20 text-right">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">{{ percent }}%</span>
-                    <span class="text-[10px] text-slate-300 ml-1">({{ dist.count }})</span>
+                {% empty %}
+                <div class="text-center py-16 sm:py-20 bg-slate-50 rounded-sm border-2 border-dashed border-slate-200 px-4">
+                    <i class="far fa-comment-dots text-3xl sm:text-4xl text-slate-300 mb-4"></i>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px] sm:text-xs">No reviews yet for this variant</p>
                 </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="space-y-6 max-w-4xl mx-auto px-4">
-        {% for review in reviews %}
-        <div class="glass p-6 hover:shadow-lg transition-all border border-slate-100">
-            <div class="flex justify-between items-start mb-4">
-                <div class="flex text-amber-400 gap-1">
-                    {% for i in "12345"|make_list %}
-                        {% if forloop.counter <= review.rating %}
-                            <i class="fas fa-star text-sm"></i>
-                        {% else %}
-                            <i class="far fa-star text-sm text-slate-200"></i>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                    {{ review.created_at|date:"M d, Y" }}
-                </span>
-            </div>
-            <p class="text-sm leading-relaxed text-slate-600 font-medium">{{ review.comment }}</p>
-            <div class="mt-4 pt-4 border-t border-slate-50 flex items-center gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-[11px] font-black text-slate-700 shadow-sm border border-slate-200">
-                    {{ review.user.get_full_name|slice:":1"|default:review.user.username|slice:":1"|upper }}
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-sm font-bold text-slate-800 tracking-tight">{{ review.user.get_full_name|default:review.user.username }}</span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verified Purchase</span>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="text-center py-20 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
-            <i class="far fa-comment-dots text-4xl text-slate-200 mb-4"></i>
-            <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">No reviews yet for this variant</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
+        </section>
 
     </main>
+
+    {% include 'core-templates/footer.html' %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -341,7 +368,7 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
             const buyQty = document.getElementById('buy-form-qty');
             const decreaseBtn = document.getElementById('qty-decrease');
             const increaseBtn = document.getElementById('qty-increase');
-            const maxStock = parseInt(masterQty.max);
+            const maxStock = parseInt(masterQty.max) || 0;
 
             // Function to sync all hidden inputs
             function syncQuantity(val) {
@@ -349,25 +376,28 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
                 if(buyQty) buyQty.value = val;
             }
 
-            decreaseBtn.addEventListener('click', () => {
-                let current = parseInt(masterQty.value);
-                if (current > 1) {
-                    masterQty.value = current - 1;
-                    syncQuantity(masterQty.value);
-                }
-            });
+            if(decreaseBtn && increaseBtn && masterQty) {
+                decreaseBtn.addEventListener('click', () => {
+                    let current = parseInt(masterQty.value);
+                    if (current > 1) {
+                        masterQty.value = current - 1;
+                        syncQuantity(masterQty.value);
+                    }
+                });
 
-            increaseBtn.addEventListener('click', () => {
-                let current = parseInt(masterQty.value);
-                if (current < maxStock) {
-                    masterQty.value = current + 1;
-                    syncQuantity(masterQty.value);
-                }
-            });
+                increaseBtn.addEventListener('click', () => {
+                    let current = parseInt(masterQty.value);
+                    if (current < maxStock) {
+                        masterQty.value = current + 1;
+                        syncQuantity(masterQty.value);
+                    }
+                });
+            }
         });
 
-        // Gallery & Tabs logic preserved
+        // Gallery Zoom (Disabled on mobile inside CSS via media query for better touch experience)
         function zoom(e) {
+            if(window.innerWidth < 768) return; // Don't zoom on phones, let them scroll normally
             const container = e.currentTarget;
             const img = container.querySelector('.main-img');
             const rect = container.getBoundingClientRect();
@@ -376,14 +406,17 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
             img.style.transformOrigin = `${(x / container.offsetWidth) * 100}% ${(y / container.offsetHeight) * 100}%`;
         }
 
+        // Gallery Switch
         function changeHero(url, btn) {
             const hero = document.getElementById('mainHero');
+            if(!hero) return;
             hero.style.opacity = '0.4';
             setTimeout(() => { hero.src = url; hero.style.opacity = '1'; }, 200);
             document.querySelectorAll('.thumbnail-btn').forEach(b => b.classList.remove('thumbnail-active'));
             btn.classList.add('thumbnail-active');
         }
 
+        // Content Tabs
         function switchTab(tab, btn) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
             document.getElementById(tab + '-content').classList.remove('hidden');
@@ -391,6 +424,7 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
             btn.classList.add('tab-active');
         }
 
+        // Wishlist Toggle
         async function toggleWishlist(btn, variantId) {
             const isAuthenticated = btn.getAttribute('data-is-authenticated') === 'true';
             if (!isAuthenticated) {
@@ -403,7 +437,7 @@ onclick="changeHero('{{ img.images.url }}', this)" class="thumbnail-btn shrink-0
 
             try {
                 const response = await fetch(`/wishlist/toggle/${variantId}/`, {
-                    method: 'GET',
+                    method: 'GET', // Note: usually toggle routes are POST, but using your provided logic
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 const data = await response.json();

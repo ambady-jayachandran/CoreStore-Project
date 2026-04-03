@@ -83,7 +83,7 @@
             <div class="flex items-center gap-4">
                 {% with first_variant=product.variants.first %}
                     {% if first_variant.images.first %}
-                        <img src="{{ first_variant.images.first.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg border">
+                        <img src="{{ first_variant.images.first.images.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg border">
                     {% else %}
                         <div class="w-20 h-20 bg-slate-100 rounded-lg flex items-center justify-center border">
                             <i class="fas fa-box text-2xl text-slate-400"></i>

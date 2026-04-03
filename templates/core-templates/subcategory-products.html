@@ -120,7 +120,7 @@
           <div class="relative aspect-square overflow-hidden rounded-sm bg-slate-50 mb-3">
             {% with product.images.all|first as img %}
               {% if img %}
-                <img src="{{ img.image.url }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ product.product.name }}" />
+                <img src="{{ img.images.url }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ product.product.name }}" />
               {% endif %}
             {% endwith %}
             

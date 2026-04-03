@@ -463,9 +463,24 @@ def user_profile(request):
             else:
                 messages.error(request, 'No image selected.')
 
-        return redirect('profile') 
-            
-    return render(request, 'customer-templates/userprofile.html', {'data': user_data, 'addresses': addresses})
+        elif 'save_default_address' in request.POST:
+            selected_address_id = request.POST.get('selected_address')
+            if selected_address_id:
+                address = get_object_or_404(Address, id=selected_address_id, user=request.user)
+                # Unset all other defaults first
+                Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+                # Set selected as default
+                address.is_default = True
+                address.save()
+                messages.success(request, 'Default address updated successfully!')
+                # Refetch updated addresses for immediate UI update
+                addresses = Address.objects.filter(user=request.user)
+            else:
+                messages.error(request, 'No address selected or invalid address.')
+
+        return render(request, 'customer-templates/userprofile.html', {'data': user_data, 'addresses': addresses})
+    else:
+        return render(request, 'customer-templates/userprofile.html', {'data': user_data, 'addresses': addresses})
 
 
 # @login_required
@@ -937,16 +952,16 @@ def user_orders(request):
     orders = Order.objects.filter(
         user=request.user
     ).prefetch_related(
-        'items__variant__product__images',
         'items__variant__images'
     ).select_related(
-        'items__variant__product'
+        'shipping_address'
     ).order_by('-ordered_at')
     return render(request, 'customer-templates/userorders.html', {'orders': orders})
 
 @customer_required
 def user_track(request, order_id):
-    return render(request, 'customer-templates/usertrack.html', {'order_id': order_id})
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'customer-templates/usertrack.html', {'order': order})
 
 @customer_required
 def order_detail(request, order_id):
@@ -962,23 +977,24 @@ def order_detail(request, order_id):
         'order': order,
         'order_items': order.items.all(),
         'order_status_display': order.order_status.replace('_', ' ').title(),
-        'eligible_items': [],
-        'review_status_list': []
     }
-    
+
     # Add review eligibility for delivered orders only
     if order.order_status == 'delivered':
-        eligible_items = order.items.all()
-        product_ids = [item.variant.product.id for item in eligible_items]
+        ordered_items = order.items.all()
+        product_ids = [item.variant.product.id for item in ordered_items]
+
         user_reviews = Review.objects.filter(
             user=request.user,
             product_id__in=product_ids
-        )
-        review_status_list = [(review.product_id, review) for review in user_reviews]
-        
-        context['eligible_items'] = eligible_items
-        context['review_status_list'] = review_status_list
-    
+        ).select_related('product')
+
+        review_map = {review.product_id: review for review in user_reviews}
+
+        # Add review to each item
+        for item in ordered_items:
+            item.review = review_map.get(item.variant.product.id)
+
     return render(request, 'customer-templates/order-detail.html', context)
 
 @customer_required
@@ -1013,28 +1029,32 @@ def submit_review(request):
         
         product = get_object_or_404(Product, id=product_id)
         order = get_object_or_404(Order, id=order_id, user=request.user)
-        
-        review, created = Review.objects.get_or_create(
+
+        if order.order_status != 'delivered':
+            messages.error(request, 'Review only after product is delivered.')
+            return redirect('order_detail', order_id=order_id)
+
+        existing_review = Review.objects.filter(user=request.user, product=product).first()
+        if existing_review:
+            messages.error(request, 'You have already reviewed this product.')
+            return redirect('order_detail', order_id=order_id)
+
+        Review.objects.create(
             user=request.user,
             product=product,
-            defaults={'rating': rating, 'comment': comment}
+            rating=rating,
+            comment=comment
         )
-        
-        if not created:
-            review.rating = rating
-            review.comment = comment
-            review.is_edited = True
-            review.save()
-        
-        messages.success(request, f"{'Review created' if created else 'Review updated'} successfully!")
-        
+
+        messages.success(request, 'Review created successfully!')
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'status': 'success',
-                'message': 'Review submitted/updated!',
-                'created': created
+                'message': 'Review submitted!',
+                'created': True
             })
-    
+
     return redirect('order_detail', order_id=order_id)
 
 
@@ -1062,5 +1082,37 @@ def edit_review(request, review_id):
         'product': product,
     }
     return render(request, 'customer-templates/edit-review.html', context)
+
+
+@customer_required
+def cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Check if order can be cancelled
+    if order.order_status in ['delivered', 'cancelled']:
+        messages.error(request, 'This order cannot be cancelled.')
+        return redirect('orders')
+    
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        custom_reason = request.POST.get('custom_reason', '').strip()
+        
+        if reason == 'other' and not custom_reason:
+            messages.error(request, 'Please provide a reason for cancellation.')
+            return redirect('cancel_order', order_id=order.id)
+        
+        final_reason = custom_reason if reason == 'other' else reason
+        order.cancel_reason = final_reason
+        order.order_status = 'cancelled'
+        order.save()
+        
+        messages.success(request, 'Order cancelled successfully.')
+        return redirect('orders')
+    
+    context = {
+        'order': order,
+    }
+    return render(request, 'customer-templates/cancel-order.html', context)
+
 
 # Create your views here.

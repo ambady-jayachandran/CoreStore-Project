@@ -49,6 +49,7 @@ urlpatterns = [
     path('checkout/process/', views.user_checkout_process, name='checkout_process'),
     path('order/success/<uuid:order_id>/', views.order_success, name='order_success'),
     path('order/<uuid:order_id>/', views.order_detail, name='order_detail'),
+    path('order/cancel/<uuid:order_id>/', views.cancel_order, name='cancel_order'),
     path('review/submit/', views.submit_review, name='submit_review'),
     path('my-reviews/', views.my_reviews, name='my_reviews'),
     path('review/edit/<uuid:review_id>/', views.edit_review, name='edit_review'),

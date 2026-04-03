@@ -143,7 +143,7 @@
 
                 <div class="relative aspect-square overflow-hidden rounded-sm bg-slate-50 mb-4">
                     {% with primary_image=item.variant.images.all|dictsortreversed:"is_primary"|first %}
-                        <img src="{{ primary_image.image.url }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <img src="{{ primary_image.images.url }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                     {% endwith %}
                     
                     <div class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">

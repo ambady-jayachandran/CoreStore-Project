@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from seller.models import Product, ProductVariant
+from seller.models import Product, ProductVariant, ProductImage
 from customer.models import *
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Avg, Count, Q
+from customer.models import Review
 
 
 def buy_again(request):
@@ -81,11 +82,34 @@ def product_single(request, slug):
             ).exists()
     
     # Reviews section
-    from customer.models import Review
-    from django.db.models import Avg
+    # Reviews
     reviews = product.product.reviews.select_related('user').order_by('-created_at')[:12]
     avg_result = reviews.aggregate(avg_rating=Avg('rating'))
     avg_rating = avg_result['avg_rating'] or 0
+    review_count = reviews.count()
+    
+    # Rating distribution
+    rating_distribution = product.product.reviews.aggregate(
+        star_5=Count('id', filter=Q(rating=5)),
+        star_4=Count('id', filter=Q(rating=4)),
+        star_3=Count('id', filter=Q(rating=3)),
+        star_2=Count('id', filter=Q(rating=2)),
+        star_1=Count('id', filter=Q(rating=1))
+    )
+    rating_distribution = [
+        {'rating': 5, 'count': rating_distribution['star_5'] or 0},
+        {'rating': 4, 'count': rating_distribution['star_4'] or 0},
+        {'rating': 3, 'count': rating_distribution['star_3'] or 0},
+        {'rating': 2, 'count': rating_distribution['star_2'] or 0},
+        {'rating': 1, 'count': rating_distribution['star_1'] or 0},
+    ]
+    
+    # Related products (same subcategory, exclude self)
+    related_products = ProductVariant.objects.filter(
+        product__subcategory=product.product.subcategory,
+        product__approval_status='APPROVED',
+        product__is_active=True
+    ).exclude(product=product.product).select_related('product').prefetch_related('images')[:4]
     
     return render(request, 'core-templates/productsingle.html', {
         "data": product, 
@@ -97,8 +121,11 @@ def product_single(request, slug):
         'is_in_cart': is_in_cart,
         'reviews': reviews,
         'avg_rating': round(float(avg_rating), 1),
-        'review_count': reviews.count()
+        'review_count': review_count,
+        'rating_distribution': rating_distribution,
+        'related_products': related_products
     })
+
     
 def helpe_center(request):
     return render(request, 'core-templates/helpe_center.html')
