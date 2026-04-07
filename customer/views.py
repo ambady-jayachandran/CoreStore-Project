@@ -1147,7 +1147,7 @@ def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     
     # Check if order can be cancelled
-    if order.order_status in ['delivered', 'cancelled']:
+    if order.order_status in ['delivered', 'cancelled', 'processing', 'shipped', 'returned', 'refunded']:
         messages.error(request, 'This order cannot be cancelled.')
         return redirect('orders')
     
@@ -1174,6 +1174,60 @@ def cancel_order(request, order_id):
 
 
 # Create your views here.
+
+@customer_required
+def return_product(request, order_id, order_item_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order_item = get_object_or_404(OrderItem, id=order_item_id, order=order)
+    
+    # Check if product is returnable
+    if order.order_status != 'delivered':
+        messages.error(request, 'Product can only be returned after delivery.')
+        return redirect('orders')
+    
+    product = order_item.variant.product
+    if not product.is_returnable:
+        messages.error(request, f'{product.name} is not returnable.')
+        return redirect('order_detail', order_id=order.id)
+    
+    return_days = product.return_days
+    if timezone.now() > order.ordered_at + timedelta(days=return_days):
+        messages.error(request, f'Return window ({return_days} days) has expired.')
+        return redirect('order_detail', order_id=order.id)
+    
+    # Check if already returned
+    existing_return = ReturnRequest.objects.filter(order_item=order_item).first()
+    if existing_return:
+        messages.error(request, 'Return request already exists for this item.')
+        return redirect('order_detail', order_id=order.id)
+    
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+        custom_reason = request.POST.get('custom_reason', '').strip()
+        
+        if reason == 'other' and not custom_reason:
+            messages.error(request, 'Please provide a reason for return.')
+            return redirect('return_product', order_id=order.id, order_item_id=order_item.id)
+        
+        final_reason = custom_reason if reason == 'other' else reason
+        
+        # Create return request
+        ReturnRequest.objects.create(
+            order_item=order_item,
+            seller=order_item.seller,
+            reason=final_reason
+        )
+        
+        messages.success(request, 'Return request submitted successfully.')
+        return redirect('orders')
+    
+    context = {
+        'order': order,
+        'order_item': order_item,
+        'product': product,
+    }
+    return render(request, 'customer-templates/return-product.html', context)
+
 
 @customer_required
 def user_account(request):
