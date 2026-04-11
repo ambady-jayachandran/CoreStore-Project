@@ -14,9 +14,16 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import timedelta
 from core.decorator import customer_required
+from django.conf import settings
+import razorpay
 
 
 User = get_user_model()
+
+try:
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+except Exception:
+    client = None
 
 def home(request):
     # .select_related('product') fetches the parent Product (name, etc.) in 1 query
@@ -1091,6 +1098,20 @@ def user_checkout(request):
     addresses = Address.objects.filter(user=request.user)
     if not addresses.exists():
         messages.info(request, 'Please add a shipping address first.')
+        
+    razorpay_order_id = None
+    razorpay_amount = 0
+    if total_amount > 0 and client:
+        try:
+            razorpay_amount = int(float(total_amount) * 100)
+            razorpay_order = client.order.create({
+                "amount": razorpay_amount,
+                "currency": "INR",
+                "payment_capture": "1"
+            })
+            razorpay_order_id = razorpay_order['id']
+        except Exception as e:
+            pass
     
     return render(request, 'customer-templates/usercheckout.html', {
         'addresses': addresses,
@@ -1098,8 +1119,129 @@ def user_checkout(request):
         'total_amount': total_amount,
         'cart': cart or None,
         'is_buy_now_checkout': is_buy_now,
-        'buy_now_data': buy_now_data
+        'buy_now_data': buy_now_data,
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_merchant_key': settings.RAZORPAY_KEY_ID,
+        'razorpay_amount': razorpay_amount,
     })
+
+@customer_required
+def payment_verify(request):
+    payment_id = request.GET.get('payment_id')
+    order_id = request.GET.get('order_id')
+    signature = request.GET.get('signature')
+
+    if not client:
+        messages.error(request, "Payment gateway is not configured.")
+        return redirect('checkout')
+
+    try:
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        })
+        verification_successful = True
+    except razorpay.errors.SignatureVerificationError:
+        verification_successful = False
+        
+    if verification_successful:
+        buy_now_data = request.session.get('buy_now_data')
+        is_buy_now = request.session.get('buy_now_checkout', False)
+        
+        address_id = request.GET.get('address_id')
+        address = None
+        if address_id:
+            address = Address.objects.filter(id=address_id, user=request.user).first()
+        if not address:
+            address = Address.objects.filter(user=request.user, is_default=True).first()
+        if not address:
+            address = Address.objects.filter(user=request.user).first()
+            
+        try:
+            import uuid
+            order_number = f"CS-{uuid.uuid4().hex.upper()[:8]}"
+            
+            if is_buy_now and buy_now_data:
+                variant = get_object_or_404(ProductVariant, id=buy_now_data['variant_id'])
+                quantity = buy_now_data['quantity']
+                price = Decimal(str(buy_now_data['price']))
+                
+                if variant.stock_quantity < quantity:
+                    messages.error(request, 'Insufficient stock.')
+                    return redirect('checkout')
+                    
+                total_amount = quantity * price
+                
+                order = Order.objects.create(
+                    user=request.user,
+                    order_number=order_number,
+                    total_amount=total_amount,
+                    payment_status='ONLINE',
+                    order_status='placed'
+                )
+                order.shipping_address = address
+                order.save()
+                
+                OrderItem.objects.create(
+                    order=order,
+                    variant=variant,
+                    seller=variant.product.seller,
+                    quantity=quantity,
+                    price_at_purchase=price
+                )
+                variant.stock_quantity -= quantity
+                variant.save()
+                
+                del request.session['buy_now_data']
+                del request.session['buy_now_checkout']
+                
+                messages.success(request, "Payment Successful!")
+                return redirect('order_success', order_id=order.id)
+            else:
+                cart = Cart.objects.filter(user=request.user).first()
+                if not cart or not cart.items.exists():
+                    messages.error(request, 'Cannot process empty cart.')
+                    return redirect('cart')
+                
+                cart_items = cart.items.select_related('variant__product')
+                total_amount = sum(item.quantity * Decimal(str(item.price_at_time)) for item in cart_items)
+                
+                order = Order.objects.create(
+                    user=request.user,
+                    order_number=order_number,
+                    total_amount=total_amount,
+                    payment_status='ONLINE',
+                    order_status='placed'
+                )
+                order.shipping_address = address
+                order.save()
+                
+                for cart_item in cart_items:
+                    variant = cart_item.variant
+                    if variant.stock_quantity >= cart_item.quantity:
+                        OrderItem.objects.create(
+                            order=order,
+                            variant=variant,
+                            seller=variant.product.seller,
+                            quantity=cart_item.quantity,
+                            price_at_purchase=cart_item.price_at_time
+                        )
+                        variant.stock_quantity -= cart_item.quantity
+                        variant.save()
+                
+                cart.items.all().delete()
+                
+                messages.success(request, "Payment Successful!")
+                return redirect('order_success', order_id=order.id)
+                
+        except Exception as e:
+            messages.error(request, 'Order processing failed. Please try again.')
+            return redirect('checkout')
+            
+    else:
+        messages.error(request, "Payment Verification Failed.")
+        return redirect('checkout')
 
 @customer_required
 def order_success(request, order_id):
