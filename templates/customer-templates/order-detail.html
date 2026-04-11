@@ -257,6 +257,10 @@
                                                         Return Product
                                                     </a>
                                                 {% endif %}
+
+                                                <a href="{% url 'buy_again' order.id item.id %}" class="bg-[#00796B] dark:bg-emerald-600 text-white hover:bg-emerald-500 px-3 py-2 text-[9px] font-black uppercase tracking-widest rounded-sm transition-all text-center w-full block relative z-10 mt-2 shadow-sm hover:shadow-md">
+                                                    Buy Again
+                                                </a>
                                             {% endif %}
                                         </div>
                                     </td>

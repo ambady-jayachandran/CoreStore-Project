@@ -1,159 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ user_theme }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy Again | CORE STORE</title>
+    <title>Buy Again #{{ order.order_number }} | CORE STORE</title>
+    
+    <script>
+        (function() {
+            const themeData = document.documentElement.getAttribute('data-theme');
+            if (themeData === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FAF9F6; color: #3E2723; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(62, 39, 35, 0.08); }
-        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 30px 40px -15px rgba(62, 39, 35, 0.08); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0f172a; 
+            --accent: #2563eb; 
+            --bg-main: #f8fafc;
+        }
+
+        html.dark {
+            --primary: #ffffff;
+            --accent: #3b82f6;
+            --bg-main: #0f172a;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main);
+            color: var(--primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .glass { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 4px; 
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        html.dark .glass {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        .order-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .order-card:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0,0,0.1), 0 10px 10px -5px rgba(0, 0,0,0.04);
+        }
+
+        .qty-select {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        html.dark .qty-select {
+            background: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
     </style>
 </head>
-<body class="bg-[#FAF9F6] pb-20">
+<body class="min-h-screen">
 
-    <nav class="p-6 md:p-8 flex justify-between items-center max-w-7xl mx-auto">
-        <a href="index.html" class="text-xl font-extrabold tracking-tighter uppercase">
-            Core<span class="text-[#00796B]">Store</span>
-        </a>
-        <div class="flex items-center gap-6">
-            <a href="userorders.html" class="text-[10px] font-black uppercase tracking-widest text-[#3E2723]/40 hover:text-[#3E2723]">History</a>
-            <div class="relative">
-                <i class="fa-solid fa-cart-shopping text-[#3E2723]"></i>
-                <span class="absolute -top-2 -right-2 bg-[#00796B] text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center">2</span>
-            </div>
-        </div>
-    </nav>
+    {% include 'core-templates/navbar.html' %}
 
-    <main class="container mx-auto px-4 max-w-6xl mt-6">
+    <div class="h-20 lg:h-24"></div>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         
-        <header class="mb-8">
-            <h1 class="text-3xl font-black italic uppercase tracking-tighter text-[#3E2723]">Quick <span class="text-[#00796B]">Refill</span></h1>
-            <p class="text-[#3E2723]/50 text-[9px] font-black uppercase tracking-[0.2em] mt-1">Based on your recent expeditions</p>
-        </header>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            
-            <div class="glass rounded-[2rem] p-4 card-hover transition-all duration-500 group">
-                <div class="relative aspect-square rounded-[1.5rem] overflow-hidden bg-white mb-4">
-                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
-                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur px-2 py-0.5 rounded-full shadow-sm">
-                        <p class="text-[7px] font-black uppercase tracking-widest text-[#00796B]">3x Bought</p>
-                    </div>
-                </div>
-                
-                <div class="space-y-0.5 mb-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-sm font-black uppercase tracking-tighter truncate pr-2">Vortex Racer X1</h3>
-                        <p class="text-sm font-black text-[#00796B]">$149</p>
-                    </div>
-                    <p class="text-[8px] font-bold text-[#3E2723]/40 uppercase tracking-widest italic">2 days ago</p>
-                </div>
-
-                <div class="flex gap-1.5">
-                    <button class="flex-1 bg-[#3E2723] text-white py-2.5 rounded-xl font-black uppercase text-[8px] tracking-widest hover:bg-[#00796B] transition shadow-md shadow-[#3E2723]/5">
-                        Add to Dock
-                    </button>
-                    <a href="product-details.html" class="px-3 bg-[#3E2723]/5 flex items-center justify-center rounded-xl hover:bg-[#3E2723]/10 transition">
-                        <i class="fa-solid fa-eye text-[#3E2723] text-[10px]"></i>
-                    </a>
-                </div>
+        <div class="text-center mb-12 lg:mb-16">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter uppercase text-slate-900 dark:text-white mb-4">
+                Quick <span class="text-emerald-600 dark:text-emerald-400">Re-Order</span>
+            </h1>
+            <div class="inline-flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2 rounded-full border border-emerald-200 dark:border-emerald-800 text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                Order #{{ order.order_number }} • {{ order.ordered_at|date:"M d, Y" }}
             </div>
-
-            <div class="glass rounded-[2rem] p-4 card-hover transition-all duration-500 group">
-                <div class="relative aspect-square rounded-[1.5rem] overflow-hidden bg-white mb-4">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
-                </div>
-                
-                <div class="space-y-0.5 mb-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-sm font-black uppercase tracking-tighter truncate pr-2">Stealth Watch</h3>
-                        <p class="text-sm font-black text-[#00796B]">$450</p>
-                    </div>
-                    <p class="text-[8px] font-bold text-[#3E2723]/40 uppercase tracking-widest italic">Jan 12, 2026</p>
-                </div>
-
-                <div class="flex gap-1.5">
-                    <button class="flex-1 bg-[#3E2723] text-white py-2.5 rounded-xl font-black uppercase text-[8px] tracking-widest hover:bg-[#00796B] transition">
-                        Add to Dock
-                    </button>
-                    <button class="px-3 bg-[#3E2723]/5 flex items-center justify-center rounded-xl">
-                        <i class="fa-solid fa-eye text-[#3E2723] text-[10px]"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="glass rounded-[2rem] p-4 card-hover transition-all duration-500 group">
-                <div class="relative aspect-square rounded-[1.5rem] overflow-hidden bg-white mb-4">
-                    <img src="https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
-                </div>
-                
-                <div class="space-y-0.5 mb-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-sm font-black uppercase tracking-tighter truncate pr-2">Ghost Mouse</h3>
-                        <p class="text-sm font-black text-[#00796B]">$129</p>
-                    </div>
-                    <p class="text-[8px] font-bold text-[#3E2723]/40 uppercase tracking-widest italic">Dec 20, 2025</p>
-                </div>
-
-                <div class="flex gap-1.5">
-                    <button class="flex-1 bg-[#3E2723] text-white py-2.5 rounded-xl font-black uppercase text-[8px] tracking-widest hover:bg-[#00796B] transition">
-                        Add to Dock
-                    </button>
-                    <button class="px-3 bg-[#3E2723]/5 flex items-center justify-center rounded-xl">
-                        <i class="fa-solid fa-eye text-[#3E2723] text-[10px]"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="glass rounded-[2rem] p-4 card-hover transition-all duration-500 group">
-                <div class="relative aspect-square rounded-[1.5rem] overflow-hidden bg-white mb-4">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
-                </div>
-                
-                <div class="space-y-0.5 mb-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-sm font-black uppercase tracking-tighter truncate pr-2">Sonic Cans</h3>
-                        <p class="text-sm font-black text-[#00796B]">$299</p>
-                    </div>
-                    <p class="text-[8px] font-bold text-[#3E2723]/40 uppercase tracking-widest italic">Oct 05, 2025</p>
-                </div>
-
-                <div class="flex gap-1.5">
-                    <button class="flex-1 bg-[#3E2723] text-white py-2.5 rounded-xl font-black uppercase text-[8px] tracking-widest hover:bg-[#00796B] transition">
-                        Add to Dock
-                    </button>
-                    <button class="px-3 bg-[#3E2723]/5 flex items-center justify-center rounded-xl">
-                        <i class="fa-solid fa-eye text-[#3E2723] text-[10px]"></i>
-                    </button>
-                </div>
-            </div>
-
         </div>
 
-        <section class="mt-16">
-            <h2 class="text-[9px] font-black uppercase tracking-[0.3em] text-[#3E2723]/30 mb-6 flex items-center gap-4">
-                Essential Add-ons <span class="h-[1px] bg-[#3E2723]/10 flex-1"></span>
-            </h2>
-            <div class="glass p-6 rounded-[2.5rem] flex flex-col sm:flex-row items-center gap-6">
-                <div class="w-20 h-20 bg-white rounded-2xl overflow-hidden shadow-lg shrink-0">
-                    <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=300" class="w-full h-full object-cover">
+        {% if order.items.exists %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {% for item in order.items.all|dictsortreversed:"id"|slice:":3" %}
+            <div class="glass order-card p-6 shadow-sm hover:shadow-lg transition-all">
+                <div class="aspect-square rounded-lg overflow-hidden mb-4 bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700">
+                    {% with first_img=item.variant.images.first %}
+                        {% if first_img %}
+                            <img src="{{ first_img.images.url }}" class="w-full h-full object-cover" alt="{{ item.variant.product.name }}">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center text-slate-400">
+                                <i class="fa-solid fa-box text-3xl"></i>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                 </div>
-                <div class="flex-1 text-center sm:text-left">
-                    <h3 class="text-lg font-black uppercase italic tracking-tighter">Hyper-Care Spray</h3>
-                    <p class="text-[9px] font-bold text-[#3E2723]/50 uppercase mt-1">Recommended for your Vortex Racers.</p>
+
+                <div class="mb-4">
+                    <h3 class="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white truncate mb-1">{{ item.variant.product.name }}</h3>
+                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Previously: {{ item.quantity }} units</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">${{ item.price_at_purchase|floatformat:0 }}</span>
+                        <span class="text-[9px] text-slate-400 dark:text-slate-500">/ unit</span>
+                    </div>
                 </div>
-                <button class="bg-[#00796B] text-white px-6 py-3 rounded-xl font-black uppercase text-[8px] tracking-widest shadow-lg shadow-[#00796B]/20">Get for $19.00</button>
+
+                <form method="POST" action="{% url 'buy_again' order.id item.id %}" class="space-y-3">
+                    {% csrf_token %}
+                    <div class="flex items-center gap-2">
+                        <label class="text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider whitespace-nowrap">Re-order:</label>
+                        <select name="quantity" class="qty-select px-3 py-2 text-sm font-bold rounded border transition-all focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none flex-1" required>
+                            {% for q in "123456789"|make_list %}
+                                <option value="{{ q }}" {% if q == "1" %}selected{% endif %}>{{ q }} Unit{{ q|pluralize }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 dark:bg-emerald-500 hover:bg-emerald-700 dark:hover:bg-emerald-600 text-white py-3 px-6 rounded-sm font-black uppercase text-[10px] tracking-[0.2em] shadow-lg hover:shadow-xl transition-all">
+                        <i class="fa-solid fa-shopping-cart mr-2"></i>Buy Again
+                    </button>
+                </form>
             </div>
-        </section>
+            {% endfor %}
+        </div>
+
+        <div class="text-center glass p-8 md:p-12 rounded-lg border-4 border-dashed border-emerald-200 dark:border-emerald-800">
+            <i class="fa-solid fa-arrow-left text-4xl md:text-5xl text-emerald-500 mb-6 block"></i>
+            <h3 class="text-xl md:text-2xl font-black uppercase tracking-tighter text-slate-900 dark:text-white mb-3">Ready to Complete?</h3>
+            <p class="text-[11px] md:text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-6 max-w-md mx-auto leading-relaxed">
+                Items added to cart. Proceed to checkout or continue shopping.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="{% url 'cart' %}" class="flex-1 bg-slate-900 dark:bg-slate-800 text-white py-3 px-8 rounded-sm font-black uppercase text-[10px] tracking-[0.2em] hover:bg-blue-600 dark:hover:bg-blue-500 transition-all text-center shadow-lg">
+                    <i class="fa-solid fa-shopping-cart mr-2"></i>Go to Cart
+                </a>
+                <a href="{% url 'products' %}" class="flex-1 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-3 px-8 rounded-sm font-black uppercase text-[10px] tracking-[0.2em] hover:bg-slate-900 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:text-white transition-all text-center shadow-sm">
+                    <i class="fa-solid fa-store mr-2"></i>Continue Shopping
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-20 glass">
+            <i class="fa-solid fa-boxes-empty text-6xl text-slate-200 dark:text-slate-700 mb-6"></i>
+            <h3 class="text-2xl font-black uppercase text-slate-900 dark:text-white mb-3">No Items Available</h3>
+            <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-8">This order doesn't have any items for re-order.</p>
+            <a href="{% url 'orders' %}" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-sm font-black uppercase text-sm tracking-widest hover:bg-blue-700 transition-all shadow-lg">
+                View Orders
+            </a>
+        </div>
+        {% endif %}
     </main>
 
-    <footer class="mt-24 text-center pb-10">
-        <p class="text-[9px] font-black uppercase tracking-[0.4em] opacity-20">Core Store • Re-Supply Module • 2026</p>
-    </footer>
+    {% include 'core-templates/footer.html' %}
 
+    <script>
+        // Theme sync
+        function applyTheme() {
+            const themeData = document.documentElement.getAttribute('data-theme');
+            if (themeData === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        document.addEventListener('DOMContentLoaded', applyTheme);
+        applyTheme();
+    </script>
 </body>
 </html>

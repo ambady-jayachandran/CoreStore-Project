@@ -8,9 +8,6 @@ from django.db.models import Sum, Avg, Count, Q
 from customer.models import Review
 
 
-def buy_again(request):
-    return render(request, 'buyagain.html')
-
 def login_view(request):
     return render(request, 'login.html')
 
@@ -138,6 +135,60 @@ def about(request):
 
 def shipping_info(request):
     return render(request, 'core-templates/shippinginfo.html')
+
+@login_required(login_url='login')
+def buy_again(request, order_id, item_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    item = get_object_or_404(OrderItem, id=item_id, order=order)
+    
+    if request.method == 'POST':
+        if item.variant.stock_quantity <= 0:
+            messages.error(request, "Sorry, this item is out of stock.")
+            return redirect('buy_again', order_id=order.id, item_id=item.id)
+            
+        try:
+            qty = int(request.POST.get('quantity', 1))
+            quantity = max(1, min(qty, item.variant.stock_quantity, 3))
+        except (ValueError, TypeError):
+            quantity = 1
+            
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart, 
+            variant=item.variant, 
+            defaults={'price_at_time': item.variant.selling_price, 'quantity': quantity}
+        )
+        
+        if not created:
+            total_quantity = cart_item.quantity + quantity
+            if total_quantity > min(3, item.variant.stock_quantity):
+                cart_item.quantity = min(3, item.variant.stock_quantity)
+                messages.warning(request, f"You can only order up to {cart_item.quantity} of this product.")
+            else:
+                cart_item.quantity = total_quantity
+                messages.success(request, f"{quantity} x {item.variant.product.name} added to bag!")
+            cart_item.price_at_time = item.variant.selling_price
+            cart_item.save()
+        else:
+            messages.success(request, f"{quantity} x {item.variant.product.name} added to bag!")
+            
+        return redirect('cart')
+
+    # Calculate the remaining allowed quantity (Max 3 per purchase)
+    cart = Cart.objects.filter(user=request.user).first()
+    existing_qty = 0
+    if cart:
+        cart_item = cart.items.filter(variant=item.variant).first()
+        if cart_item:
+            existing_qty = cart_item.quantity
+
+    return render(request, 'core-templates/buyagain.html', {
+        'order': order,
+        'item': item,
+        'variant': item.variant,
+        'available_quantity': max(0, min(3, item.variant.stock_quantity) - existing_qty)
+    })
 
 
 # Deprecated - Buy Now now handled in customer.views.buy_now_checkout

@@ -56,7 +56,7 @@ def home(request):
 @customer_required
 def buy_now_checkout(request, slug):
     """
-    Buy Now from single product - clear cart and add single item with POST quantity
+    Buy Now: Direct checkout without affecting main cart - use temporary checkout data
     """
     variant = get_object_or_404(ProductVariant.objects.select_related('product'), slug=slug)
     
@@ -69,30 +69,138 @@ def buy_now_checkout(request, slug):
     if request.method == 'POST':
         try:
             qty = int(request.POST.get('quantity', 1))
-            quantity = max(1, min(qty, variant.stock_quantity))
+            quantity = max(1, min(qty, variant.stock_quantity, 3))
         except (ValueError, TypeError):
             quantity = 1
     
-    # Get or create cart
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    # Store buy now data in session for checkout_process (separate from main cart)
+    request.session['buy_now_data'] = {
+        'variant_id': variant.id,
+        'quantity': quantity,
+        'price': float(variant.selling_price),
+        'product_name': variant.product.name
+    }
+    request.session['buy_now_checkout'] = True
     
-    # Clear existing items for Buy Now (replace cart)
-    cart.items.all().delete()
-    
-    # Add single item with quantity
-    CartItem.objects.create(
-        cart=cart,
-        variant=variant,
-        quantity=quantity,
-        price_at_time=variant.selling_price
-    )
-    
-    # Set session flag for single checkout detection
-    request.session['single_checkout'] = True
-    request.session['checkout_back_product'] = slug
-    
-    messages.success(request, f'{quantity} x {variant.product.name} added for quick checkout!')
+    messages.success(request, f'{quantity} x {variant.product.name} → Quick Checkout!')
     return redirect('checkout')
+
+
+@customer_required
+def user_checkout_process(request):
+    if request.method != 'POST':
+        return redirect('checkout')
+    
+    # Check for Buy Now direct checkout (no main cart needed)
+    buy_now_data = request.session.get('buy_now_data')
+    is_buy_now = request.session.get('buy_now_checkout', False)
+    
+    selected_address_id = request.POST.get('selected_address')
+    payment_method = request.POST.get('payment_method')
+    
+    if not selected_address_id or payment_method not in ['online', 'cod']:
+        messages.error(request, 'Please select address and payment method.')
+        return redirect('checkout')
+    
+    address = get_object_or_404(Address, id=selected_address_id, user=request.user)
+    
+    try:
+        if is_buy_now and buy_now_data:
+            # Buy Now: Process single item directly (no cart)
+            variant = get_object_or_404(ProductVariant, id=buy_now_data['variant_id'])
+            quantity = buy_now_data['quantity']
+            price = Decimal(str(buy_now_data['price']))
+            
+            if variant.stock_quantity < quantity:
+                messages.error(request, 'Insufficient stock.')
+                del request.session['buy_now_data']
+                del request.session['buy_now_checkout']
+                return redirect('checkout')
+            
+            total_amount = quantity * price
+            
+            # Generate order
+            import uuid
+            order_number = f"CS-{uuid.uuid4().hex.upper()[:8]}"
+            display_payment = payment_method.upper() if payment_method == 'online' else 'COD'
+            
+            order = Order.objects.create(
+                user=request.user,
+                order_number=order_number,
+                total_amount=total_amount,
+                payment_status=display_payment,
+                order_status='placed'
+            )
+            order.shipping_address = address
+            order.save()
+            
+            # Create single OrderItem + update stock
+            OrderItem.objects.create(
+                order=order,
+                variant=variant,
+                seller=variant.product.seller,
+                quantity=quantity,
+                price_at_purchase=price
+            )
+            variant.stock_quantity -= quantity
+            variant.save()
+            
+            # Clear session
+            del request.session['buy_now_data']
+            del request.session['buy_now_checkout']
+            
+            messages.success(request, f'Quick Order #{order_number} placed! ({quantity}x {buy_now_data["product_name"]})')
+            return redirect('order_success', order_id=order.id)
+        
+        else:
+            # Normal cart checkout
+            cart = Cart.objects.filter(user=request.user).first()
+            if not cart or not cart.items.exists():
+                messages.error(request, 'Cannot process empty cart.')
+                return redirect('cart')
+            
+            cart_items = cart.items.select_related('variant__product')
+            total_amount = sum(item.quantity * Decimal(str(item.price_at_time)) for item in cart_items)
+            
+            import uuid
+            order_number = f"CS-{uuid.uuid4().hex.upper()[:8]}"
+            display_payment = payment_method.upper() if payment_method == 'online' else 'COD'
+            
+            order = Order.objects.create(
+                user=request.user,
+                order_number=order_number,
+                total_amount=total_amount,
+                payment_status=display_payment,
+                order_status='placed'
+            )
+            order.shipping_address = address
+            order.save()
+            
+            for cart_item in cart_items:
+                variant = cart_item.variant
+                if variant.stock_quantity >= cart_item.quantity:
+                    OrderItem.objects.create(
+                        order=order,
+                        variant=variant,
+                        seller=variant.product.seller,
+                        quantity=cart_item.quantity,
+                        price_at_purchase=cart_item.price_at_time
+                    )
+                    variant.stock_quantity -= cart_item.quantity
+                    variant.save()
+                else:
+                    messages.warning(request, f'Insufficient stock for {variant.sku_code}. Item skipped.')
+            
+            cart.items.all().delete()
+            request.session.pop('checkout_back_product', None)
+            request.session.pop('single_checkout', None)
+            
+            messages.success(request, f'Order #{order_number} placed successfully!')
+            return redirect('order_success', order_id=order.id)
+            
+    except Exception as e:
+        messages.error(request, 'Order processing failed. Please try again.')
+        return redirect('checkout')
 
 def products(request):
     
@@ -174,41 +282,38 @@ def products(request):
 
     return render(request, 'core-templates/products.html', context)
 
-
 def search_suggestions(request):
     query = request.GET.get('q', '').strip()
     if len(query) < 2:
         return JsonResponse({'results': []})
 
+    # Fetching Approved, Active variants with their images and category info
     base_qs = ProductVariant.objects.filter(
         product__approval_status='APPROVED',
         product__is_active=True,
-        slug__isnull=False,
-        slug__regex=r'^[-a-zA-Z0-9_]+$'
-    ).select_related('product', 'product__subcategory__category').prefetch_related('images')
+        slug__isnull=False
+    ).select_related('product', 'product__subcategory').prefetch_related('images')
 
+    # Filter by Name or Description
     search_q = Q(product__name__icontains=query) | Q(product__description__icontains=query)
-    base_qs = base_qs.filter(search_q)[:8]
+    suggestions = base_qs.filter(search_q)[:8]
 
     results = []
-    for variant in base_qs:
-        first_image = variant.images.first()
-        
-        # Safely extract the URL to prevent ValueError if the file is missing
-        image_url = ''
-        if first_image and first_image.images:
+    for variant in suggestions:
+        first_img = variant.images.first()
+        image_url = ""
+        if first_img:
             try:
-                image_url = first_image.images.url
+                # Assuming 'images' is the FileField/ImageField name on your Image model
+                image_url = first_img.images.url 
             except ValueError:
-                pass
-                
+                image_url = ""
+
         results.append({
-            'id': variant.id,
             'name': variant.product.name,
-            'category': variant.product.subcategory.name if variant.product.subcategory else 'Uncategorized',
-            'price': float(variant.selling_price),
+            'category': variant.product.subcategory.name if variant.product.subcategory else "Gear",
+            'price': str(variant.selling_price),
             'image': image_url,
-            'slug': variant.slug,
             'url': reverse('product_single', kwargs={'slug': variant.slug})
         })
 
@@ -683,6 +788,10 @@ def user_address_delete(request, address_id):
 
 @customer_required
 def user_cart(request):
+    # Clear any pending 'Buy Now' session data when viewing the cart
+    request.session.pop('buy_now_data', None)
+    request.session.pop('buy_now_checkout', None)
+
     cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = CartItem.objects.filter(cart=cart).prefetch_related('variant__product', 'variant__images')
     for item in cart_items:
@@ -704,7 +813,7 @@ def user_addto_cart(request, slug):
             quantity = 1
             try:
                 qty = int(request.POST.get('quantity', 1))
-                quantity = max(1, min(qty, product_variant.stock_quantity))
+                quantity = max(1, min(qty, product_variant.stock_quantity, 3))
             except (ValueError, TypeError):
                 quantity = 1
             
@@ -718,11 +827,17 @@ def user_addto_cart(request, slug):
             )
             
             if not created:
-                cart_item.quantity += quantity
+                total_quantity = cart_item.quantity + quantity
+                if total_quantity > min(3, product_variant.stock_quantity):
+                    cart_item.quantity = min(3, product_variant.stock_quantity)
+                    messages.warning(request, f"You can only order up to {cart_item.quantity} of this product.")
+                else:
+                    cart_item.quantity = total_quantity
+                    messages.success(request, f"{quantity} x {product_variant.product.name} added to bag!")
                 cart_item.price_at_time = product_variant.selling_price
                 cart_item.save()
-            
-            messages.success(request, f"{quantity} x {product_variant.product.name} added to bag!")
+            else:
+                messages.success(request, f"{quantity} x {product_variant.product.name} added to bag!")
         else:
             messages.error(request, "Sorry, this item is out of stock.")
             
@@ -740,7 +855,16 @@ def cart_update_quantity(request, item_id, action):
     previous_quantity = cart_item.quantity
     
     if action == 'increase':
-        cart_item.quantity += 1
+        if cart_item.quantity < 3 and cart_item.quantity < cart_item.variant.stock_quantity:
+            cart_item.quantity += 1
+        else:
+            if is_ajax:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Maximum limit of 3 items per product reached or out of stock.'
+                }, status=400)
+            else:
+                messages.warning(request, 'Maximum limit of 3 items per product reached or out of stock.')
     elif action == 'decrease':
         if cart_item.quantity > 1:
             cart_item.quantity -= 1
@@ -913,117 +1037,49 @@ def toggle_wishlist_item(request, variant_slug):
 
 @customer_required
 def user_checkout(request):
+    # Check for Buy Now data
+    buy_now_data = request.session.get('buy_now_data')
+    is_buy_now = request.session.get('buy_now_checkout', False)
+    
+    # Get main cart for normal checkout
     cart = Cart.objects.filter(user=request.user).first()
+    cart_items = cart.items.select_related('variant__product').prefetch_related('variant__images') if cart else []
     
-    # Handle single product buy now via GET param (fallback for direct access)
-    single_slug = request.GET.get('single')
-    if single_slug and not cart.items.exists():
-        from core.views import single_product_checkout
-        return single_product_checkout(request, single_slug)
-    
-    if not cart or not cart.items.exists():
+    if is_buy_now and buy_now_data:
+        # Show Buy Now checkout (override cart display)
+        cart_items = []  # Hide main cart
+        total_amount = buy_now_data['quantity'] * buy_now_data['price']
+        try:
+            variant = ProductVariant.objects.select_related('product').prefetch_related('images').get(id=buy_now_data['variant_id'])
+            cart_items.append({
+                'variant': variant,
+                'quantity': buy_now_data['quantity'],
+                'price_at_time': buy_now_data['price'],
+                'item_total': total_amount,
+                'is_buy_now': True
+            })
+        except ProductVariant.DoesNotExist:
+            return redirect('home')
+    elif cart and cart.items.exists():
+        for item in cart_items:
+            item.item_total = item.quantity * item.price_at_time
+        total_amount = sum(item.item_total for item in cart_items)
+    else:
         messages.warning(request, 'Your cart is empty.')
         return redirect('cart')
-    
-    cart_items = cart.items.select_related('variant__product').prefetch_related('variant__images')
-    for item in cart_items:
-        item.item_total = item.quantity * item.price_at_time
-    total_amount = sum(item.item_total for item in cart_items)
     
     addresses = Address.objects.filter(user=request.user)
     if not addresses.exists():
         messages.info(request, 'Please add a shipping address first.')
     
-    # Detect single checkout and back product
-    is_single_checkout = request.session.get('single_checkout', False)
-    back_product_slug = request.session.get('checkout_back_product')
-    
-    if is_single_checkout:
-        # Clear the flag after use
-        request.session.pop('single_checkout', None)
-        # Don't clear back_product_slug here - let checkout_process clear it
-    
     return render(request, 'customer-templates/usercheckout.html', {
         'addresses': addresses,
         'cart_data': cart_items,
         'total_amount': total_amount,
-        'cart': cart,
-        'is_single_checkout': is_single_checkout,
-        'back_product_slug': back_product_slug
+        'cart': cart or None,
+        'is_buy_now_checkout': is_buy_now,
+        'buy_now_data': buy_now_data
     })
-
-@customer_required
-def user_checkout_process(request):
-    if request.method != 'POST':
-        return redirect('checkout')
-    
-    cart = Cart.objects.filter(user=request.user).first()
-    if not cart or not cart.items.exists():
-        messages.error(request, 'Cannot process empty cart.')
-        return redirect('cart')
-    
-    try:
-        selected_address_id = request.POST.get('selected_address')
-        payment_method = request.POST.get('payment_method')
-        
-        # Fix payment status mapping
-        display_payment = payment_method.upper() if payment_method == 'online' else 'COD'
-        
-        if not selected_address_id or payment_method not in ['online', 'cod']:
-            messages.error(request, 'Please select address and payment method.')
-            return redirect('checkout')
-        
-        address = get_object_or_404(Address, id=selected_address_id, user=request.user)
-        
-        # Calculate final total
-        cart_items = cart.items.select_related('variant__product')
-        total_amount = sum(item.quantity * Decimal(str(item.price_at_time)) for item in cart_items)
-        
-        # Generate unique order number
-        import uuid
-        order_number = f"CS-{uuid.uuid4().hex.upper()[:8]}"
-        
-        # Create Order
-        order = Order.objects.create(
-            user=request.user,
-            order_number=order_number,
-            total_amount=total_amount,
-            payment_status=display_payment,
-            order_status='placed'
-        )
-        order.shipping_address = address
-        order.save()
-        
-        # Create OrderItems + update stock
-        for cart_item in cart_items:
-            variant = cart_item.variant
-            if variant.stock_quantity >= cart_item.quantity:
-
-                OrderItem.objects.create(
-                    order=order,
-                    variant=variant,
-                    seller=variant.product.seller,
-                    quantity=cart_item.quantity,
-                    price_at_purchase=cart_item.price_at_time
-                )
-                # Update stock
-                variant.stock_quantity -= cart_item.quantity
-                variant.save()
-            else:
-                messages.warning(request, f'Insufficient stock for {variant.sku_code}. Item skipped.')
-        
-        # Clear cart + session flags
-        cart.items.all().delete()
-        request.session.pop('checkout_back_product', None)
-        request.session.pop('single_checkout', None)
-        request.session.modified = True
-        
-        messages.success(request, f'Order #{order_number} placed successfully!')
-        return redirect('order_success', order_id=order.id)
-        
-    except Exception as e:
-        messages.error(request, 'Order processing failed. Please try again.')
-        return redirect('checkout')
 
 @customer_required
 def order_success(request, order_id):

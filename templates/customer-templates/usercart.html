@@ -183,10 +183,8 @@
                             <span class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter transition-colors" id="grand-total-amount">${{ total_amount }}</span>
                         </div>
 
-                        <a href="{% url 'cart_checkout' %}" class="block mt-4">
-                            <button class="w-full bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-black py-4 rounded-sm uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3">
-                                Proceed to Terminal <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+                        <a href="{% url 'checkout' %}" class="w-full mt-4 bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-black py-4 rounded-sm uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3">
+                            Proceed to Terminal <i class="fa-solid fa-arrow-right"></i>
                         </a>
                         
                         <div class="mt-8 flex items-center justify-center gap-4 opacity-30 dark:opacity-40 grayscale transition-colors text-slate-900 dark:text-white">
