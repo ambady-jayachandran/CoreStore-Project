@@ -162,9 +162,57 @@ def products(request):
         'sort_filter': sort,
         'total_products': all_products_page.paginator.count,
     }
-    
-    
+
+    if request.user.is_authenticated:
+        context['data'] = request.user
+        try:
+            context['user_theme'] = request.user.settings.theme_preference
+        except:
+            context['user_theme'] = 'light'
+    else:
+        context['user_theme'] = 'light'
+
     return render(request, 'core-templates/products.html', context)
+
+
+def search_suggestions(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+
+    base_qs = ProductVariant.objects.filter(
+        product__approval_status='APPROVED',
+        product__is_active=True,
+        slug__isnull=False,
+        slug__regex=r'^[-a-zA-Z0-9_]+$'
+    ).select_related('product', 'product__subcategory__category').prefetch_related('images')
+
+    search_q = Q(product__name__icontains=query) | Q(product__description__icontains=query)
+    base_qs = base_qs.filter(search_q)[:8]
+
+    results = []
+    for variant in base_qs:
+        first_image = variant.images.first()
+        
+        # Safely extract the URL to prevent ValueError if the file is missing
+        image_url = ''
+        if first_image and first_image.images:
+            try:
+                image_url = first_image.images.url
+            except ValueError:
+                pass
+                
+        results.append({
+            'id': variant.id,
+            'name': variant.product.name,
+            'category': variant.product.subcategory.name if variant.product.subcategory else 'Uncategorized',
+            'price': float(variant.selling_price),
+            'image': image_url,
+            'slug': variant.slug,
+            'url': reverse('product_single', kwargs={'slug': variant.slug})
+        })
+
+    return JsonResponse({'results': results})
 
 
 def search_products(request):
@@ -240,7 +288,28 @@ def search_products(request):
         'is_search': True,
     }
     
-    return render(request, 'core-templates/products.html', context)
+    if request.user.is_authenticated:
+        context['data'] = request.user
+        try:
+            context['user_theme'] = request.user.settings.theme_preference
+        except:
+            context['user_theme'] = 'light'
+            
+        active_wishlist_id = request.session.get('active_wishlist_id')
+        user_wishlists = Wishlist.objects.filter(user=request.user)
+        if active_wishlist_id:
+            active_wishlist = user_wishlists.filter(id=active_wishlist_id).first()
+        else:
+            active_wishlist = user_wishlists.filter(wishlist_name=request.user.username).first()
+            
+        if active_wishlist:
+            context['wishlist_variant_ids'] = list(WishlistItem.objects.filter(wishlist=active_wishlist).values_list('variant_id', flat=True))
+        else:
+            context['wishlist_variant_ids'] = []
+    else:
+        context['user_theme'] = 'light'
+        context['wishlist_variant_ids'] = []
+    return render(request, 'customer-templates/search_results.html', context)
 
 
 def category_view(request, category_slug):
@@ -286,6 +355,12 @@ def category_view(request, category_slug):
     
     if request.user.is_authenticated:
         context['data'] = request.user
+        try:
+            context['user_theme'] = request.user.settings.theme_preference
+        except:
+            context['user_theme'] = 'light'
+    else:
+        context['user_theme'] = 'light'
     
     return render(request, 'core-templates/category-view.html', context)
 
@@ -320,6 +395,12 @@ def subcategory_products(request, category_slug, subcategory_slug):
     
     if request.user.is_authenticated:
         context['data'] = request.user
+        try:
+            context['user_theme'] = request.user.settings.theme_preference
+        except:
+            context['user_theme'] = 'light'
+    else:
+        context['user_theme'] = 'light'
     
     return render(request, 'core-templates/subcategory-products.html', context)
 
@@ -997,9 +1078,21 @@ def order_detail(request, order_id):
 
         review_map = {review.product_id: review for review in user_reviews}
 
-        # Add review to each item
+        # Check for existing returns
+        existing_returns = ReturnRequest.objects.filter(order_item__in=ordered_items)
+        returned_item_ids = set(existing_returns.values_list('order_item_id', flat=True))
+
+        # Add review and return eligibility to each item
         for item in ordered_items:
             item.review = review_map.get(item.variant.product.id)
+            
+            # Check return eligibility
+            item.is_return_eligible = False
+            product = item.variant.product
+            if product.is_returnable and item.id not in returned_item_ids:
+                return_days = product.return_days
+                if timezone.now() <= order.ordered_at + timedelta(days=return_days):
+                    item.is_return_eligible = True
 
     return render(request, 'customer-templates/order-detail.html', context)
 
@@ -1218,8 +1311,7 @@ def return_product(request, order_id, order_item_id):
             reason=final_reason
         )
         
-        messages.success(request, 'Return request submitted successfully.')
-        return redirect('orders')
+        return redirect('return_success', order_id=order.id)
     
     context = {
         'order': order,
@@ -1228,6 +1320,10 @@ def return_product(request, order_id, order_item_id):
     }
     return render(request, 'customer-templates/return-product.html', context)
 
+@customer_required
+def return_success(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'customer-templates/return-success.html', {'order': order})
 
 @customer_required
 def user_account(request):

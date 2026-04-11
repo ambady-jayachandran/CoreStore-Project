@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ user_theme }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Requested | CORE STORE</title>
+    <script>
+        (function() {
+            const themeData = document.documentElement.getAttribute('data-theme');
+            if (themeData === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0f172a; 
+            --accent: #2563eb; 
+            --bg-main: #f8fafc;
+        }
+
+        html.dark {
+            --primary: #ffffff;
+            --bg-main: #0f172a; 
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--primary); 
+            overflow-x: hidden; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .glass { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 4px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        html.dark .glass {
+            background-color: #1e293b;
+            border-color: #334155; 
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20 flex flex-col">
+
+    {% include 'core-templates/navbar.html' %}
+
+    <main class="flex-1 container mx-auto px-4 flex items-center justify-center pt-24">
+        
+        <div class="glass p-10 md:p-16 max-w-2xl w-full text-center shadow-xl border-t-4 border-t-amber-500 animate__animated animate__zoomIn">
+            <div class="w-20 h-20 bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-box-open text-4xl text-amber-500 fa-bounce"></i>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-slate-900 dark:text-white mb-4">
+                Return Initiated
+            </h1>
+            
+            <p class="text-slate-600 dark:text-slate-400 text-sm md:text-base font-medium leading-relaxed mb-10 max-w-md mx-auto">
+                Your return request for Order #{{ order.order_number }} has been processed successfully. <br><br>
+                <strong class="text-amber-600 dark:text-amber-400">A pickup will arrive within 2 days.</strong> Please ensure the item is securely packed.
+            </p>
+            
+            <a href="{% url 'order_detail' order.id %}" class="inline-block bg-slate-900 dark:bg-blue-600 text-white px-8 py-4 rounded-sm font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors shadow-lg active:scale-95">
+                Return to Order Details
+            </a>
+        </div>
+    </main>
+</body>
+</html>

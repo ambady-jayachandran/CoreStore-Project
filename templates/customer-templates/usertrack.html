@@ -69,7 +69,7 @@
         .timeline-step::before {
             content: '';
             position: absolute;
-            left: 20px;
+            left: 21px;
             top: 40px;
             width: 2px;
             height: calc(100% - 40px);
@@ -81,10 +81,26 @@
         .timeline-step.step-complete::before { background: var(--accent); }
         html.dark .timeline-step.step-complete::before { background: var(--accent); }
         .timeline-step:last-child::before { display: none; }
+        
+        /* Animated pulse for the active step line */
+        .timeline-step.step-active::before {
+            background: linear-gradient(to bottom, var(--accent) 0%, #e2e8f0 100%);
+            background-size: 100% 200%;
+            animation: flowLine 2s linear infinite;
+        }
+        html.dark .timeline-step.step-active::before {
+            background: linear-gradient(to bottom, var(--accent) 0%, #334155 100%);
+            background-size: 100% 200%;
+            animation: flowLine 2s linear infinite;
+        }
+        @keyframes flowLine {
+            0% { background-position: 0% -100%; }
+            100% { background-position: 0% 100%; }
+        }
 
         .step-icon {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 4px;
             display: flex;
             align-items: center;
@@ -100,8 +116,8 @@
         }
 
         /* Timeline States (Dark Mode Adaptive) */
-        .step-complete .step-icon { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
-        html.dark .step-complete .step-icon { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border-color: var(--accent); }
+        .step-complete .step-icon { border-color: var(--accent); color: var(--accent); background: #eff6ff; box-shadow: 0 0 10px rgba(37, 99, 235, 0.1); }
+        html.dark .step-complete .step-icon { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border-color: var(--accent); box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
         
         .step-active .step-icon { border-color: var(--accent); color: white; background: var(--accent); box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); }
         html.dark .step-active .step-icon { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
@@ -146,51 +162,60 @@
                 
                 {% with status=order.order_status %}
                 {% if status == 'cancelled' %}
-                <div class="mb-6 p-4 rounded-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 transition-colors">
-                    <strong>Order Cancelled:</strong> {{ order.cancel_reason|default:'No cancel reason provided.' }}
+                <div class="mb-10 p-5 rounded-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 flex gap-4 items-start shadow-sm transition-colors">
+                    <i class="fa-solid fa-circle-xmark text-red-600 dark:text-red-500 text-2xl mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-black uppercase tracking-widest text-red-800 dark:text-red-400">Order Cancelled</h3>
+                        <p class="text-xs font-medium text-red-600 dark:text-red-300 mt-1 leading-relaxed">Reason: {{ order.cancel_reason|default:'No reason provided.' }}</p>
+                    </div>
                 </div>
                 {% endif %}
 
-                <div class="timeline-step step-complete flex gap-6">
-                    <div class="step-icon"><i class="fa-solid fa-file-contract"></i></div>
-                    <div>
+                <div class="timeline-step {% if status != 'cancelled' %}step-complete{% else %}step-complete opacity-50 grayscale{% endif %} flex gap-6 group">
+                    <div class="step-icon group-hover:scale-110 transition-transform duration-300"><i class="fa-solid fa-file-contract"></i></div>
+                    <div class="pb-4">
                         <h3 class="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white transition-colors">Registry Entry Created</h3>
                         <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 transition-colors">Order received and logged into central database.</p>
-                        <span class="text-[9px] font-bold text-blue-500 dark:text-blue-400 uppercase mt-2 block transition-colors">System Check: Verified</span>
+                        <div class="flex items-center gap-3 mt-3">
+                            <span class="text-[9px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest transition-colors bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-sm border border-blue-100 dark:border-blue-800">System Check: Verified</span>
+                            <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors"><i class="fa-regular fa-clock mr-1"></i> {{ order.ordered_at|date:"M d, Y h:i A" }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timeline-step {% if status != 'pending' and status != 'cancelled' %}step-complete{% else %}step-pending{% endif %} flex gap-6">
-                    <div class="step-icon"><i class="fa-solid fa-shield-check"></i></div>
-                    <div>
+                <div class="timeline-step {% if status == 'placed' %}step-active{% elif status in 'processing,shipped,delivered' %}step-complete{% elif status == 'cancelled' %}step-pending opacity-50 grayscale{% else %}step-pending{% endif %} flex gap-6 group">
+                    <div class="step-icon group-hover:scale-110 transition-transform duration-300"><i class="fa-solid fa-shield-check"></i></div>
+                    <div class="pb-4">
                         <h3 class="text-sm font-black uppercase tracking-widest {% if status != 'pending' and status != 'cancelled' %}text-slate-900 dark:text-white{% else %}text-slate-400 dark:text-slate-600{% endif %} transition-colors">Authorization Success</h3>
                         <p class="text-xs font-medium {% if status != 'pending' and status != 'cancelled' %}text-slate-500 dark:text-slate-400{% else %}text-slate-300 dark:text-slate-600{% endif %} mt-1 transition-colors">Financial transaction cleared and secured.</p>
-                        <span class="text-[9px] font-bold {% if status != 'pending' and status != 'cancelled' %}text-blue-500 dark:text-blue-400{% else %}text-slate-300 dark:text-slate-600{% endif %} uppercase mt-2 block transition-colors">Payment Ref: AUTH-{{ order.order_number|slice:":4" }}</span>
+                        <span class="text-[9px] font-bold {% if status != 'pending' and status != 'cancelled' %}text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800{% else %}text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700{% endif %} uppercase tracking-widest mt-3 inline-block px-2 py-1 rounded-sm border transition-colors">Payment Ref: AUTH-{{ order.order_number|slice:":6" }}</span>
                     </div>
                 </div>
 
-                <div class="timeline-step {% if status == 'placed' or status == 'processing' %}step-active{% elif status == 'shipped' or status == 'delivered' %}step-complete{% else %}step-pending{% endif %} flex gap-6">
-                    <div class="step-icon"><i class="fa-solid fa-microchip"></i></div>
-                    <div>
-                        <h3 class="text-sm font-black uppercase tracking-widest {% if status == 'placed' or status == 'processing' %}text-slate-900 dark:text-white{% elif status == 'shipped' or status == 'delivered' %}text-slate-900 dark:text-white{% else %}text-slate-400 dark:text-slate-600{% endif %} transition-colors">Technical Preparation</h3>
-                        <p class="text-xs font-medium {% if status == 'placed' or status == 'processing' or status == 'shipped' or status == 'delivered' %}text-slate-500 dark:text-slate-400{% else %}text-slate-300 dark:text-slate-600{% endif %} mt-1 transition-colors">Units are undergoing final QA and manifest packing.</p>
-                        <span class="text-[9px] font-bold {% if status == 'placed' or status == 'processing' %}text-amber-500 dark:text-amber-400{% else %}text-blue-500 dark:text-blue-400{% endif %} uppercase mt-2 block {% if status == 'placed' or status == 'processing' %}animate-pulse{% endif %} transition-colors">{% if status == 'placed' or status == 'processing' %}In Progress: Warehouse Sector 7{% elif status == 'shipped' or status == 'delivered' %}Completed{% else %}Pending{% endif %}</span>
+                <div class="timeline-step {% if status == 'processing' %}step-active{% elif status == 'shipped' or status == 'delivered' %}step-complete{% elif status == 'cancelled' %}step-pending opacity-50 grayscale{% else %}step-pending{% endif %} flex gap-6 group">
+                    <div class="step-icon group-hover:scale-110 transition-transform duration-300"><i class="fa-solid fa-microchip"></i></div>
+                    <div class="pb-4">
+                        <h3 class="text-sm font-black uppercase tracking-widest {% if status == 'processing' or status == 'shipped' or status == 'delivered' %}text-slate-900 dark:text-white{% else %}text-slate-400 dark:text-slate-600{% endif %} transition-colors">Technical Preparation</h3>
+                        <p class="text-xs font-medium {% if status == 'processing' or status == 'shipped' or status == 'delivered' %}text-slate-500 dark:text-slate-400{% else %}text-slate-400 dark:text-slate-600{% endif %} mt-1 transition-colors">Units are undergoing final QA and manifest packing.</p>
+                        <span class="text-[9px] font-bold {% if status == 'processing' %}text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 animate-pulse{% elif status == 'shipped' or status == 'delivered' %}text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800{% else %}text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700{% endif %} uppercase tracking-widest mt-3 inline-block px-2 py-1 rounded-sm border transition-colors">
+                            {% if status == 'processing' %}<i class="fa-solid fa-spinner fa-spin mr-1"></i> In Progress: Warehouse Sector 7{% elif status == 'shipped' or status == 'delivered' %}<i class="fa-solid fa-check mr-1"></i> Completed{% else %}<i class="fa-solid fa-hourglass-half mr-1"></i> Pending{% endif %}
+                        </span>
                     </div>
                 </div>
 
-                <div class="timeline-step {% if status == 'shipped' %}step-active{% elif status == 'delivered' %}step-complete{% else %}step-pending{% endif %} flex gap-6">
-                    <div class="step-icon"><i class="fa-solid fa-plane-departure"></i></div>
-                    <div>
+                <div class="timeline-step {% if status == 'shipped' %}step-active{% elif status == 'delivered' %}step-complete{% elif status == 'cancelled' %}step-pending opacity-50 grayscale{% else %}step-pending{% endif %} flex gap-6 group">
+                    <div class="step-icon group-hover:scale-110 transition-transform duration-300"><i class="fa-solid fa-plane-departure"></i></div>
+                    <div class="pb-4">
                         <h3 class="text-sm font-black uppercase tracking-widest {% if status == 'shipped' or status == 'delivered' %}text-slate-900 dark:text-white{% else %}text-slate-400 dark:text-slate-600{% endif %} transition-colors">Logistics Dispatch</h3>
-                        <p class="text-xs font-medium {% if status == 'shipped' or status == 'delivered' %}text-slate-500 dark:text-slate-400{% else %}text-slate-300 dark:text-slate-600{% endif %} mt-1 transition-colors">Consignment is outgoing from regional hub.</p>
+                        <p class="text-xs font-medium {% if status == 'shipped' or status == 'delivered' %}text-slate-500 dark:text-slate-400{% else %}text-slate-400 dark:text-slate-600{% endif %} mt-1 transition-colors">Consignment is outgoing from regional hub.</p>
                     </div>
                 </div>
 
-                <div class="timeline-step {% if status == 'delivered' %}step-active{% else %}step-pending{% endif %} flex gap-6">
-                    <div class="step-icon"><i class="fa-solid fa-location-dot"></i></div>
-                    <div>
-                        <h3 class="text-sm font-black uppercase tracking-widest {% if status == 'delivered' %}text-slate-900 dark:text-white{% else %}text-slate-400 dark:text-slate-600{% endif %} transition-colors">Final Destination</h3>
-                        <p class="text-xs font-medium {% if status == 'delivered' %}text-slate-500 dark:text-slate-400{% else %}text-slate-300 dark:text-slate-600{% endif %} mt-1 transition-colors">Registry closeout upon confirmed physical delivery.</p>
+                <div class="timeline-step {% if status == 'delivered' %}step-complete{% elif status == 'cancelled' %}step-pending opacity-50 grayscale{% else %}step-pending{% endif %} flex gap-6 group">
+                    <div class="step-icon group-hover:scale-110 transition-transform duration-300"><i class="fa-solid fa-location-dot"></i></div>
+                    <div class="pb-4">
+                        <h3 class="text-sm font-black uppercase tracking-widest {% if status == 'delivered' %}text-emerald-600 dark:text-emerald-400{% else %}text-slate-400 dark:text-slate-600{% endif %} transition-colors">Final Destination</h3>
+                        <p class="text-xs font-medium {% if status == 'delivered' %}text-emerald-700/80 dark:text-emerald-500/80{% else %}text-slate-400 dark:text-slate-600{% endif %} mt-1 transition-colors">Registry closeout upon confirmed physical delivery.</p>
                     </div>
                 </div>
                 {% endwith %}

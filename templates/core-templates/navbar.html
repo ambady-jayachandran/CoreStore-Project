@@ -1,3 +1,4 @@
+{% load static %}
 <nav class="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] border-b border-blue-400/20 shadow-xl shadow-blue-900/10">
   <div class="container mx-auto px-3 sm:px-4 md:px-8">
     
@@ -9,14 +10,17 @@
       </a>
 
       <form method="GET" action="{% url 'search' %}" class="flex-1 lg:hidden relative group">
-        <input type="text" name="q" placeholder="Search gear..." class="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-white/10 border border-blue-400/20 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 text-[11px] sm:text-xs font-medium backdrop-blur-sm transition-all" />
+        <input id="search-input-mobile" type="text" name="q" placeholder="Search gear..." class="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-white/10 border border-blue-400/20 rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 text-[11px] sm:text-xs font-medium backdrop-blur-sm transition-all" autocomplete="off"/>
         <button type="submit" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-blue-400">
           <i class="fa-solid fa-magnifying-glass text-[10px] sm:text-xs"></i>
         </button>
       </form>
 
+      <!-- Search Dropdown -->
+      <div id="search-dropdown" class="absolute z-[101] bg-gradient-to-b from-[#1e293b]/95 to-[#0f172a]/95 backdrop-blur-xl border border-blue-400/30 rounded-2xl shadow-2xl shadow-blue-900/30 max-h-96 overflow-y-auto hidden w-[95%] left-[2.5%] lg:w-[28rem] lg:left-1/2 lg:-translate-x-1/2 top-14 lg:top-16" style="max-height: 24rem;"></div>
+
       <form method="GET" action="{% url 'search' %}" class="hidden lg:block flex-1 max-w-md mx-8 relative group">
-        <input type="text" name="q" placeholder="Search premium gear..." class="w-full pl-11 pr-4 py-2.5 bg-white/10 border border-blue-400/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium backdrop-blur-sm" />
+        <input id="search-input-desktop" type="text" name="q" placeholder="Search premium gear..." class="w-full pl-11 pr-4 py-2.5 bg-white/10 border border-blue-400/20 rounded-xl text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:bg-white/20 transition-all duration-300 text-sm font-medium backdrop-blur-sm" autocomplete="off"/>
         <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 group-focus-within:text-blue-300 transition-colors">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
@@ -181,6 +185,103 @@
 </nav>
 
 <div class="h-16 lg:h-20 w-full"></div>
+
+<style>
+/* Search Dropdown Styles */
+#search-dropdown {
+  animation: slideDown 0.2s ease-out;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.suggestion-item {
+  cursor: pointer;
+}
+.suggestion-item:hover {
+  background: rgba(255,255,255,0.1) !important;
+}
+mark {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b) !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.25rem !important;
+  font-weight: 600 !important;
+}
+#search-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+#search-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+#search-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+#search-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const desktopInput = document.getElementById('search-input-desktop');
+    const mobileInput = document.getElementById('search-input-mobile');
+    const dropdown = document.getElementById('search-dropdown');
+    
+    let debounceTimer;
+
+    const performAjaxSearch = (query) => {
+      if (query.length < 2) {
+        dropdown.innerHTML = '';
+        dropdown.classList.add('hidden');
+        return;
+      }
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        // Perform AJAX fetch expecting a JSON response
+        fetch(`/search-suggest/?q=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.results && data.results.length > 0) {
+              dropdown.innerHTML = data.results.map(item => `
+                <a href="${item.url}" class="flex items-center gap-4 p-3 hover:bg-white/10 transition-colors border-b border-blue-400/10 last:border-0 suggestion-item group">
+                  <div class="w-12 h-12 rounded-lg bg-white/5 overflow-hidden shrink-0 border border-blue-400/20 group-hover:border-blue-400/50 transition-colors">
+                    ${item.image ? `<img src="${item.image}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-image text-blue-400/50"></i></div>`}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-white text-sm font-bold truncate group-hover:text-blue-400 transition-colors">${item.name}</h4>
+                    <p class="text-blue-400/80 text-[10px] font-bold uppercase tracking-widest mt-0.5">${item.category}</p>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-white font-black text-sm">$${item.price}</span>
+                  </div>
+                </a>
+              `).join('');
+              dropdown.classList.remove('hidden');
+            } else {
+              dropdown.innerHTML = `<div class="p-6 text-center text-blue-200/60 text-xs font-bold uppercase tracking-widest">No products found</div>`;
+              dropdown.classList.remove('hidden');
+            }
+          })
+          .catch(err => console.error('AJAX Error:', err));
+      }, 300);
+    };
+
+    ['input', 'focus'].forEach(evt => {
+        if(desktopInput) desktopInput.addEventListener(evt, (e) => performAjaxSearch(e.target.value));
+        if(mobileInput) mobileInput.addEventListener(evt, (e) => performAjaxSearch(e.target.value));
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#search-dropdown') && !e.target.closest('#search-input-desktop') && !e.target.closest('#search-input-mobile')) {
+        dropdown.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {

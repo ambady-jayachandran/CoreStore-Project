@@ -166,7 +166,7 @@
                         <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-sm overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0 transition-colors">
                             
                             {% if item.variant.images.all %}
-                                <img src="{{ item.variant.images.all.0.image.url }}" class="w-full h-full object-cover" alt="{{ item.variant.product.name }}" onerror="this.style.display='none';">
+                                <img src="{{ item.variant.images.all.0.images.url }}" class="w-full h-full object-cover" alt="{{ item.variant.product.name }}" onerror="this.style.display='none';">
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600 transition-colors">
                                     <i class="fa-solid fa-box text-xl"></i>

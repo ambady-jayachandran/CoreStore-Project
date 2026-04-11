@@ -44,20 +44,34 @@ def selleregis(request):
     return render(request,"seller/sellerregistration.html")
 
 def sellerlogin(request):
-    if request.method=="POST":
-        username=request.POST.get("username")
-        password=request.POST.get("password")
-        data=authenticate(request,username=username,password=password)
-        if data:
-            if data.role =="SELLER":
-                login(request,data)
+    error_msg = ''
+    saved_username = ''
+    if request.method == "POST":
+        username_or_email = request.POST.get("username")
+        password = request.POST.get("password")
+        saved_username = username_or_email
+        
+        try:
+            user_obj = User.objects.get(email=username_or_email)
+            username = user_obj.username
+        except User.DoesNotExist:
+            username = username_or_email
+            
+        data = authenticate(request, username=username, password=password)
+        
+        if data is not None:
+            if data.role == "SELLER":
+                login(request, data)
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
                 return redirect("/sellerhome/")
-                
             else:
-                messages.error(request,"invalid username or password")
+                error_msg = "Invalid username/email or password"
         else:
-            return redirect("/regis/")    
-    return render(request,"seller/sellerlogin.html")
+            error_msg = "Invalid username/email or password"
+
+    return render(request, "seller/sellerlogin.html", {'error_message': error_msg, 'saved_username': saved_username})
 
 
 @seller_required
