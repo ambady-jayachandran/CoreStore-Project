@@ -190,7 +190,7 @@
                             
                             <div class="w-full sm:w-auto md:w-full flex justify-between md:justify-end items-center mb-1 sm:mb-0">
                                 <span class="md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest transition-colors">Total</span>
-                                <p class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tighter transition-colors">${{ order.total_amount|floatformat:2 }}</p>
+                                <p class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tighter transition-colors">₹{{ order.total_amount|floatformat:2 }}</p>
                             </div>
                             
                             <div class="grid grid-cols-2 sm:flex sm:flex-row md:flex-col gap-2 w-full">

@@ -215,7 +215,7 @@
               </div>
               <div class="px-1">
                 <h3 class="text-[9px] font-bold text-slate-900 dark:text-white uppercase tracking-tighter truncate mb-1">{{ product.product.name }}</h3>
-                <p class="text-xs font-black text-slate-900 dark:text-white">${{ product.selling_price|floatformat:0 }}</p>
+                <p class="text-xs font-black text-slate-900 dark:text-white">₹{{ product.selling_price|floatformat:0 }}</p>
                 {% include 'core-templates/partials/product-rating.html' with product=product %}
               </div>
             </a>

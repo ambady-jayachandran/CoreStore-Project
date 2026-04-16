@@ -276,7 +276,7 @@
                             <div class="flex-1 flex flex-col justify-end">
                                 <span class="text-[8px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-[0.2em] block mb-1 truncate">{{ product.product.category.name }}</span>
                                 <h3 class="text-xs font-bold truncate text-slate-900 dark:text-slate-200 uppercase tracking-tighter group-hover:text-blue-600 transition-colors">{{ product.product.name }}</h3>
-                                <p class="text-sm font-black text-slate-900 dark:text-white mt-2 mb-1">${{ product.selling_price|floatformat:0 }}</p>
+                                <p class="text-sm font-black text-slate-900 dark:text-white mt-2 mb-1">₹{{ product.selling_price|floatformat:0 }}</p>
                                 {% include 'core-templates/partials/product-rating.html' with product=product %}
                             </div>
                         </a>

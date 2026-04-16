@@ -259,7 +259,7 @@
               </div>
               
               <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-auto gap-1 sm:gap-0">
-                <p class="text-sm sm:text-base font-black text-slate-900 dark:text-white transition-colors tracking-tighter">${{ product.selling_price|floatformat:0 }}</p>
+                <p class="text-sm sm:text-base font-black text-slate-900 dark:text-white transition-colors tracking-tighter">₹{{ product.selling_price|floatformat:0 }}</p>
                 <div class="flex items-center">
                   {% include 'core-templates/partials/product-rating.html' with product=product %}
                 </div>

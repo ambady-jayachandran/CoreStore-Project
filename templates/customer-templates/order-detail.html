@@ -128,7 +128,7 @@
                         {{ order.order_status|title }}
                     </span>
                     <div class="ml-auto text-right">
-                        <p class="text-2xl font-black tracking-tight">${{ order.total_amount|floatformat:2 }}</p>
+                        <p class="text-2xl font-black tracking-tight">₹{{ order.total_amount|floatformat:2 }}</p>
                         <p class="text-xs text-slate-500 dark:opacity-75 uppercase tracking-wider transition-colors">{{ order.ordered_at|date:"M d, Y h:i A" }}</p>
                     </div>
                 </div>
@@ -232,9 +232,9 @@
                                         </a>
                                         <p class="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">Ref: {{ item.variant.sku_code }}</p>
                                     </td>
-                                    <td class="py-4 text-center font-bold text-slate-600 dark:text-slate-300 text-xs">${{ item.price_at_purchase|floatformat:2 }}</td>
+                                    <td class="py-4 text-center font-bold text-slate-600 dark:text-slate-300 text-xs">₹{{ item.price_at_purchase|floatformat:2 }}</td>
                                     <td class="py-4 text-center font-black text-slate-900 dark:text-white">{{ item.quantity }}</td>
-                                    <td class="py-4 text-right font-black text-slate-900 dark:text-white">${{ item.subtotal|floatformat:2 }}</td>
+                                    <td class="py-4 text-right font-black text-slate-900 dark:text-white">₹{{ item.subtotal|floatformat:2 }}</td>
                                     <td class="py-4 text-right pr-2">
                                         <div class="flex flex-col gap-2 justify-end items-end relative z-10">
                                             {% if order.order_status != 'delivered' %}
@@ -282,7 +282,7 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                             <span>Subtotal</span>
-                            <span class="text-slate-900 dark:text-white">${{ order.total_amount|floatformat:2 }}</span>
+                            <span class="text-slate-900 dark:text-white">₹{{ order.total_amount|floatformat:2 }}</span>
                         </div>
                         <div class="flex justify-between items-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                             <span>Logistics</span>
@@ -294,7 +294,7 @@
                         </div>
                         <div class="pt-4 mt-2 border-t border-slate-100 dark:border-slate-700 flex justify-between items-end">
                             <span class="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Grand Total</span>
-                            <span class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">${{ order.total_amount|floatformat:2 }}</span>
+                            <span class="text-3xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">₹{{ order.total_amount|floatformat:2 }}</span>
                         </div>
                     </div>
                     {% if order.order_status == 'delivered' %}
