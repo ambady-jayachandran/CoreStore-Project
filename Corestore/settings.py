@@ -123,6 +123,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'storages',
 ]
 AUTH_USER_MODEL='core.User'
 
